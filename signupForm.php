@@ -6,29 +6,32 @@
             <label>
                 <h1>Sign Up</h1>
                 <h3>Name</h3>
-                <input type="text" name="name" />
+                <input type="text" name="name"
+                    value="<?php echo isset($_POST['name']) ? htmlspecialchars($_POST['name']) : ''; ?>" />
             </label>
             <label>
                 <h3>Date of Birth</h3>
-                <input type="date" name="birthDate" />
+                <input type="date" name="birthDate"
+                    value="<?php echo isset($_POST['birthDate']) ? htmlspecialchars($_POST['birthDate']) : ''; ?>" />
             </label>
             <label id="radioLabel">
                 <h3>Gender</h3>
                 <label class="radioButtonLabel" style="cursor:pointer">
-                    <input class="radio" type="radio" value="Male" name="gender" style="cursor:pointer" />Male</label>
+                    <input class="radio" type="radio" value="Male" name="gender" style="cursor:pointer" <?php echo (isset($_POST['gender']) && $_POST['gender'] === 'Male') ? 'checked' : ''; ?> />Male</label>
                 <label class="radioButtonLabel" style="cursor:pointer">
-                    <input class="radio" type="radio" value="Female" name="gender"
-                        style="cursor:pointer" />Female</label>
+                    <input class="radio" type="radio" value="Female" name="gender" style="cursor:pointer" <?php echo (isset($_POST['gender']) && $_POST['gender'] === 'Female') ? 'checked' : ''; ?> />Female</label>
                 <label class="radioButtonLabel" style="cursor:pointer">
-                    <input class="radio" type="radio" value="Other" name="gender" style="cursor:pointer" />Other</label>
+                    <input class="radio" type="radio" value="Other" name="gender" style="cursor:pointer" <?php echo (isset($_POST['gender']) && $_POST['gender'] === 'Other') ? 'checked' : ''; ?> />Other</label>
             </label>
             <label>
                 <h3>Address</h3>
-                <input type="text" name="address">
+                <input type="text" name="address"
+                    value="<?php echo isset($_POST['address']) ? htmlspecialchars($_POST['address']) : ''; ?>">
             </label>
             <label>
                 <h3>Email</h3>
-                <input type="" name="email" />
+                <input type="" name="email"
+                    value="<?php echo isset($_POST['email']) ? htmlspecialchars($_POST['email']) : ''; ?>" />
             </label>
             <label>
                 <h3>Password</h3>
@@ -39,14 +42,15 @@
                 <label>
                     <select name="type" id="userType" onchange="showDoctorIdField()"
                         style="outline:none; cursor:pointer">
-                        <option value="Patient">Patient</option>
-                        <option value="Doctor">Doctor</option>
+                        <option value="Patient" <?php echo (isset($_POST['type']) && $_POST['type'] === 'Patient') ? 'selected' : ''; ?>>Patient</option>
+                        <option value="Doctor" <?php echo (isset($_POST['type']) && $_POST['type'] === 'Doctor') ? 'selected' : ''; ?>>Doctor</option>
                     </select>
                 </label>
             </label>
             <label id="doctorId" style="display:none">
                 <h3>Doctor Id</h3>
-                <input type="" name="ID">
+                <input type="" name="ID"
+                    value="<?php echo isset($_POST['ID']) ? htmlspecialchars($_POST['ID']) : ''; ?>">
                 <input type="hidden" name="type_field" id="type_field">
             </label>
             <!-- <div id="forgetPwd">Forgot password?</div> -->
@@ -129,12 +133,12 @@ if (isset($_POST["register"])) {
     $_SESSION['name'] = $name;
     $_SESSION['email'] = $email;
 
-    $sql = "SELECT email FROM patient WHERE email = '$email' UNION SELECT email FROM doctor WHERE email = '$email'";
-
+    $sql = "SELECT email FROM patient WHERE email = '$email' UNION SELECT email  FROM doctor WHERE email = '$email'";
+    $sql1 = "SELECT doctorID FROM doctor WHERE doctorID = '$ID'";
 
 
     $result = mysqli_query($conn, $sql);
-
+    $result1 = mysqli_query($conn, $sql1);
 
 
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -167,14 +171,18 @@ if (isset($_POST["register"])) {
 
 
 
+
+   
+
+
+
     if (strlen($password) < 8) {
         $errors['password'] = "Password must be 8 characters long";
         ?>
         <script>
             swal({
                 title: "Error",
-                text: "<?php echo $errors['password']; ?>\n" +
-                    "Please enter the correct Id provided by the hospital administrator",
+                text: "<?php echo $errors['password']; ?>",
                 // icon: "error",
                 button: "Ok",
 
@@ -186,9 +194,93 @@ if (isset($_POST["register"])) {
 
     }
 
+    
 
 
+    if ($type === "Doctor") {
 
+        $enteredDoctorEmail = $_POST["email"];
+
+        // Fetch valid doctor IDs from the hospital table based on the doctor's first name
+        $hospitalQuery = "SELECT doctorID FROM hospital WHERE email = '{$enteredDoctorEmail}'";
+        $hospitalResult = mysqli_query($conn, $hospitalQuery);
+
+        if (mysqli_num_rows($hospitalResult) > 0) {
+            $row = mysqli_fetch_assoc($hospitalResult);
+            $validDoctorID = $row["doctorID"];
+
+            if ($ID != $validDoctorID) {
+                $errors['id'] = "Invalid Doctor ID.";
+                $errors1['id'] = "Please enter the correct Id provided by the hospital administrator";
+                ?>
+                <script>
+                    document.querySelector('#signupForm').style.display = "block";
+                    document.querySelector('#doctorId').style.display = "block";
+                    swal({
+                        title: "Error",
+                        text: "<?php echo $errors['id']; ?>\n" + "<?php echo $errors1['id']; ?>",
+                        // icon: "error",
+                        button: "Ok",
+                    });
+                    
+                </script>
+                <?php
+            }
+        } else {
+            $errors['id'] = "Doctor not found in the hospital records.";
+            ?>
+            <script>
+                swal({
+                    title: "Error",
+                    text: "<?php echo $errors['id']; ?>",
+                    // icon: "error",
+                    button: "Ok",
+                });
+                document.querySelector('#signupForm').style.display = "block";
+                document.querySelector('#doctorId').style.display = "block";
+            </script>
+            <?php
+        }
+    }
+
+ 
+
+    if ($type === "Doctor") {
+        if (empty($ID)) {
+            ?>
+            <script>
+                document.querySelector('#signupForm').style.display = "block";
+                document.querySelector('#doctorId').style.display = "block";
+                swal({
+                    title: "Error",
+                    text: "Doctor ID is required",
+                    // icon: "error",
+                    button: "Ok",
+                });
+
+                
+
+            </script>
+            <?php
+        } else if (mysqli_num_rows($result1) > 0) {
+            ?>
+                <script>
+                    swal({
+                        title: "Error",
+                        text: "Doctor ID is already in use",
+                        // icon: "error",
+                        button: "Ok",
+                    });
+
+                    document.querySelector('#signupForm').style.display = "block";
+                </script>
+            <?php
+        }
+
+    }
+
+
+   
     // Validate form fields
 
     if (empty($name) || empty($gender) || empty($email) || empty($birthDate) || empty($address) || empty($password)) {
@@ -208,46 +300,15 @@ if (isset($_POST["register"])) {
         <?php
     }
 
-    if ($type === "Doctor") {
-        $enteredDoctorName = $_POST["name"];
 
-        // Fetch valid doctor IDs from the hospital table based on the doctor's first name
-        $hospitalQuery = "SELECT id FROM hospital WHERE name = '{$enteredDoctorName}'";
-        $hospitalResult = mysqli_query($conn, $hospitalQuery);
 
-        if (mysqli_num_rows($hospitalResult) > 0) {
-            $row = mysqli_fetch_assoc($hospitalResult);
-            $validDoctorID = $row["id"];
 
-            if ($ID != $validDoctorID) {
-                $errors['id'] = "Invalid Doctor ID.";
-                ?>
-                <script>
-                    swal({
-                        title: "Error",
-                        text: "<?php echo $errors['id']; ?>",
-                        // icon: "error",
-                        button: "Ok",
-                    });
-                    document.querySelector('#signupForm').style.display = "block";
-                </script>
-                <?php
-            }
-        } else {
-            $errors['id'] = "Doctor not found in the hospital records.";
-            ?>
-            <script>
-                swal({
-                    title: "Error",
-                    text: "<?php echo $errors['id']; ?>",
-                    // icon: "error",
-                    button: "Ok",
-                });
-                document.querySelector('#signupForm').style.display = "block";
-            </script>
-            <?php
-        }
-    }
+   
+
+
+
+
+
 
 
 
@@ -327,5 +388,4 @@ if (isset($_POST["register"])) {
 
     }
 }
-
 ?>

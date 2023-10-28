@@ -6,7 +6,7 @@
             <h1>Log In</h1>
             <label>
                 <h3>Email</h3>
-                <input type="" name="email" />
+                <input type="" name="email" value="<?php echo isset($_POST['email']) ? htmlspecialchars($_POST['email']) : ''; ?>"/>
             </label>
             <label>
                 <h3>Password</h3>
@@ -48,6 +48,7 @@ if (isset($_POST['login'])) {
     if (mysqli_num_rows($result) > 0) {
         $row = mysqli_fetch_assoc($result);
         $password = $row['password'];
+        $dbemail = $row['email'];
         if ($row['isVerified'] == 1) {
             if ($password === $passwordHash) {
                 ?>
@@ -62,7 +63,7 @@ if (isset($_POST['login'])) {
                 <script>
                     swal({
                         title: "Error",
-                        text: "Invalid password",
+                        text: "Invalid password ",
                         icon: "error",
                         button: "Ok",
                     });
@@ -87,6 +88,7 @@ if (isset($_POST['login'])) {
     } else if (mysqli_num_rows($result1) > 0) {
         $row = mysqli_fetch_assoc($result1);
         $password = $row['password'];
+        $dbemail = $row['email'];
         if ($row['isVerified'] == 1) {
             if ($password === $passwordHash) {
 
@@ -129,7 +131,7 @@ if (isset($_POST['login'])) {
             <script>
                 swal({
                     title: "Error",
-                    text: "User not registered",
+                    text: "User not found",
                     icon: "error",
                     button: "Ok",
                 });
@@ -137,6 +139,8 @@ if (isset($_POST['login'])) {
             </script>
         <?php
     }
+
+
 }
 
 ?>
