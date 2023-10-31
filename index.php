@@ -202,6 +202,19 @@ if (isset($_GET['email']) && isset($_GET['v_code'])) {
       background-color: azure;
     }
 
+    #overlay {
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      background-color: rgba(0, 0, 0, 0.6);
+      opacity: 0;
+      transition: opacity 0.4s ease-in-out;
+      z-index: 11;
+      pointer-events: none;
+    }
+
     #title {
       background-color: lightblue;
       width: 100%;
@@ -269,17 +282,17 @@ if (isset($_GET['email']) && isset($_GET['v_code'])) {
 
     #loginForm {
       width: 36vw;
-      /* background-color: rgb(210, 210, 210); */
       background-color: rgb(232, 232, 252);
       position: absolute;
       left: 50%;
       transform: translateX(-50%);
       margin: 4vh auto;
       padding: 2%;
-      /* padding-top: 0; */
       border-radius: 8px;
       box-shadow: 2px 2px 8px 4px silver;
-      display: none;
+      z-index: 12;
+      transform: scale(0);
+      transition: all .2s ease-in-out;
     }
 
     #loginForm h1 {
@@ -305,11 +318,9 @@ if (isset($_GET['email']) && isset($_GET['v_code'])) {
       /* height: 16px; */
       margin-top: 2%;
       border: none;
-      outline: none;
       background-color: transparent;
       border-bottom: 1px solid rgb(38, 38, 38);
     }
-
 
     #loginForm #forgetPwd {
       margin-top: -2%;
@@ -352,7 +363,7 @@ if (isset($_GET['email']) && isset($_GET['v_code'])) {
       text-decoration: none;
     }
 
-    #loginForm #closeButton {
+    #loginForm #closeLogin {
       position: absolute;
       width: 6%;
       top: 2%;
@@ -371,10 +382,13 @@ if (isset($_GET['email']) && isset($_GET['v_code'])) {
       padding-top: 0;
       border-radius: 8px;
       box-shadow: 2px 2px 8px 4px silver;
-      display: none;
+      z-index: 12;
+      transform: scale(0);
+      transition: all .2s ease-in-out;
     }
 
     #signupForm h1 {
+      font-size: 28px;
       text-align: center;
       font-family: Cambria, Cochin, Georgia, Times, "Times New Roman", serif;
       font-weight: lighter;
@@ -386,28 +400,25 @@ if (isset($_GET['email']) && isset($_GET['v_code'])) {
     }
 
     #signupForm h3 {
+      font-size: 14px;
       font-weight: lighter;
-      font-family: Cambria, Cochin, Georgia, Times, "Times New Roman", serif;
+      font-family: Arial, Helvetica, sans-serif;
+      /* font-family: sans-serif; */
       color: rgb(38, 38, 38);
       margin: 1%;
     }
 
-    #signupForm input,
-    select {
+    #signupForm input {
+      font-size: 1rem;
+      color: rgb(38, 38, 38);
       width: 100%;
       /* height: 16px; */
       margin-top: 2%;
+      text-indent: 1%;
       border: none;
       outline: none;
       background-color: transparent;
       border-bottom: 1px solid silver;
-    }
-
-    #signupForm #forgetPwd {
-      margin-top: -2%;
-      margin-left: 6%;
-      color: rgb(52, 84, 125);
-      cursor: pointer;
     }
 
     #signupForm #radioLabel {
@@ -424,14 +435,62 @@ if (isset($_GET['email']) && isset($_GET['v_code'])) {
       margin-right: 2%;
     }
 
-    #signupForm #checkboxLabel {
-      margin-top: 1%;
-      color: rgba(0, 0, 0, 0.78);
+    /* Dropdown container */
+    .custom-dropdown {
+      position: relative;
+      width: 200px;
+      font-family: Arial, sans-serif;
     }
 
-    #signupForm #checkbox {
-      width: auto;
-      margin-right: 2%;
+    /* Dropdown button */
+    .dropdown-button {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      background-color: #fff;
+      color: #333;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    /* Dropdown arrow icon */
+    .dropdown-icon::after {
+      content: "\25BC";
+      /* Unicode character for down arrow */
+    }
+
+    /* Dropdown options container */
+    .dropdown-options {
+      display: none;
+      position: absolute;
+      width: 100%;
+      max-height: 200px;
+      overflow-y: auto;
+      border: 1px solid #ccc;
+      border-top: none;
+      border-radius: 0 0 4px 4px;
+      background-color: #fff;
+    }
+
+    /* Individual dropdown option */
+    .dropdown-option {
+      padding: 10px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .dropdown-option:hover {
+      background-color: #f0f0f0;
+    }
+
+    /* Show the options when the dropdown button is clicked */
+    .custom-dropdown.active .dropdown-options {
+      display: block;
+    }
+
+    #signupForm #doctorID {
+      display: none;
     }
 
     #signupForm button {
@@ -448,17 +507,21 @@ if (isset($_GET['email']) && isset($_GET['v_code'])) {
       cursor: pointer;
     }
 
-    #signupForm #logIn {
-      margin: 0 6%;
-      margin-top: 4%;
+    #signupForm .justText {
+      margin: 4% 6%;
+      /* margin-top: 4%; */
+      /* background-color: red; */
+      color: #333;
+      font-family: sans-serif;
+      font-size: 0.8rem;
     }
 
-    #signupForm #logIn a {
+    #signupForm .justText a {
       color: rgb(52, 84, 125);
       text-decoration: none;
     }
 
-    #signupForm #closeButton {
+    #signupForm #closeSignup {
       position: absolute;
       width: 6%;
       top: 2%;
@@ -469,6 +532,7 @@ if (isset($_GET['email']) && isset($_GET['v_code'])) {
 </head>
 
 <body>
+  <div id="overlay"></div>
   <nav id="title">
     <div id="invisibleDiv"></div>
     <div id="titleText">
@@ -476,139 +540,12 @@ if (isset($_GET['email']) && isset($_GET['v_code'])) {
     </div>
     <div id="titleButtons">
       <button></button>
-      <button id="login">Log In</button>
-      <button id="signUp">Sign Up</button>
+      <button id="loginBtn">Log In</button>
+      <button id="signupBtn">Sign Up</button>
     </div>
   </nav>
-  <!-- <div id="loginForm">
-      <form action="">
-        <h1>Log In</h1>
-        <label>
-          <h3>Email</h3>
-          <input type="email" />
-        </label>
-        <label>
-          <h3>Password</h3>
-          <input type="password" />
-        </label>
-        <div id="forgetPwd">Forgot password?</div>
-        <button type="submit">Log In</button>
-        <div id="signUp">Don't have an account? <a href="">Sign Up</a></div>
-        <img id="closeButton" src="./closeButton.png" alt="" />
-      </form>
-    </div> -->
-  <?php include "loginForm.php" ?>
-
-  <!-- <div id="signupForm">
-      <form action="">
-        <label>
-          <h1>Sign Up</h1>
-          <h3>Name</h3>
-          <input
-            type="
-          text"
-          />
-        </label>
-        <label>
-          <h3>Date of Birth</h3>
-          <input type="date" />
-        </label>
-        <label id="radioLabel">
-          <h3>Gender</h3>
-          <label class="radioButtonLabel">
-            <input
-              class="radio"
-              type="radio"
-              for="Gender"
-              name="Gender"
-            />Male</label
-          >
-          <label class="radioButtonLabel">
-            <input
-              class="radio"
-              type="radio"
-              for="Gender"
-              name="Gender"
-            />Female</label
-          >
-          <label class="radioButtonLabel"
-            ><input
-              class="radio"
-              type="radio"
-              for="Gender"
-              name="Gender"
-            />Other</label
-          >
-        </label>
-        <label>
-          <h3>Address</h3>
-          <input type="text">
-        </label>
-        <label>
-          <h3>Email</h3>
-          <input type="email" />
-        </label>
-        <label>
-          <h3>Password</h3>
-          <input type="password" />
-        </label>
-        <div id="forgetPwd">Forgot password?</div>
-        <label id="checkboxLabel">
-          <input id="checkbox" type="checkbox" />Agree all the terms and
-          conditions</label
-        >
-        <button type="submit">Sign Up</button>
-        <div id="logIn">Already have an account? <a href="">Log In</a></div>
-        <img id="closeButton" src="./closeButton.png" alt="" />
-      </form>
-    </div> -->
-  <?php include "signupForm.php" ?>
-
-
-
-
-
-
+  <?php include "./loginForm.php" ?>
+  <?php include "./signupForm.php" ?>
 </body>
-
-<script>
-  // Add a click event listener to the login button on the home page.
-  document.querySelector("#login").addEventListener("click", function () {
-    // Display the login form element.
-    document.querySelector("#loginForm").style.display = "block";
-    document.querySelector("#signupForm").style.display = "none";
-  });
-
-
-  // Add a click event listener to the signup button on the home page.
-  document.querySelector("#signUp").addEventListener("click", function () {
-    // Display the signUp form element.
-    document.querySelector("#signupForm").style.display = "block";
-    document.querySelector("#loginForm").style.display = "none";
-  });
-
-
-  document.querySelector("#login-link").addEventListener("click", function () {
-    document.querySelector("#loginForm").style.display = "block";
-    document.querySelector("#signupForm").style.display = "none";
-  });
-
-
-  document.querySelector("#signup-link").addEventListener("click", function () {
-    document.querySelector("#loginForm").style.display = "none";
-    document.querySelector("#signupForm").style.display = "block";
-  });
-
-  document.querySelector(".closeLoginForm").addEventListener("click", function () {
-    document.querySelector("#loginForm").style.display = "none";
-  });
-
-
-  document.querySelector(".closeSignupForm").addEventListener("click", function () {
-
-    document.querySelector("#signupForm").style.display = "none";
-  });
-
-</script>
-
+<script src="./script.js"></script>
 </html>

@@ -17,11 +17,11 @@
             <label id="radioLabel">
                 <h3>Gender</h3>
                 <label class="radioButtonLabel" style="cursor:pointer">
-                    <input class="radio" type="radio" value="Male" name="gender" style="cursor:pointer" <?php echo (isset($_POST['gender']) && $_POST['gender'] === 'Male') ? 'checked' : ''; ?> />Male</label>
+                    <input class="radio" type="radio" value="Male" name="gender" <?php echo (isset($_POST['gender']) && $_POST['gender'] === 'Male') ? 'checked' : ''; ?> />Male</label>
                 <label class="radioButtonLabel" style="cursor:pointer">
-                    <input class="radio" type="radio" value="Female" name="gender" style="cursor:pointer" <?php echo (isset($_POST['gender']) && $_POST['gender'] === 'Female') ? 'checked' : ''; ?> />Female</label>
+                    <input class="radio" type="radio" value="Female" name="gender" <?php echo (isset($_POST['gender']) && $_POST['gender'] === 'Female') ? 'checked' : ''; ?> />Female</label>
                 <label class="radioButtonLabel" style="cursor:pointer">
-                    <input class="radio" type="radio" value="Other" name="gender" style="cursor:pointer" <?php echo (isset($_POST['gender']) && $_POST['gender'] === 'Other') ? 'checked' : ''; ?> />Other</label>
+                    <input class="radio" type="radio" value="Other" name="gender" <?php echo (isset($_POST['gender']) && $_POST['gender'] === 'Other') ? 'checked' : ''; ?> />Other</label>
             </label>
             <label>
                 <h3>Address</h3>
@@ -37,81 +37,58 @@
                 <h3>Password</h3>
                 <input type="password" name="password" />
             </label>
-            <label>
-                <h3>Are you a</h3>
-                <label>
-                    <select name="type" id="userType" onchange="showDoctorIdField()"
-                        style="outline:none; cursor:pointer">
-                        <option value="Patient" <?php echo (isset($_POST['type']) && $_POST['type'] === 'Patient') ? 'selected' : ''; ?>>Patient</option>
-                        <option value="Doctor" <?php echo (isset($_POST['type']) && $_POST['type'] === 'Doctor') ? 'selected' : ''; ?>>Doctor</option>
-                    </select>
-                </label>
+
+            <label id="dropdownLabel">
+                <div class="custom-dropdown">
+                    <div class="dropdown-button" onclick="toggleDropdown()">
+                        <span class="dropdown-label">Sign up as a</span>
+                        <span class="dropdown-icon"></span>
+                    </div>
+                    <div class="dropdown-options" id="custom-dropdown-options">
+                        <ul>
+                            <li class="dropdown-option" onclick="selectOption('Patient')" value="Patient" <?php echo (isset($_POST['type']) && $_POST['type'] === 'Patient') ? 'selected' : ''; ?>>
+                                Patient
+                            </li>
+                            <li class="dropdown-option" onclick="selectOption('Doctor')" value="Doctor" <?php echo (isset($_POST['type']) && $_POST['type'] === 'Doctor') ? 'selected' : ''; ?>>
+                                Doctor
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <!-- Custom dropdown closed -->
+                <input type="hidden" value="" name="type">
             </label>
-            <label id="doctorId" style="display:none">
-                <h3>Doctor Id</h3>
+
+
+            <label id="doctorID">
+                <h3>Doctor ID</h3>
                 <input type="" name="ID"
                     value="<?php echo isset($_POST['ID']) ? htmlspecialchars($_POST['ID']) : ''; ?>">
                 <input type="hidden" name="type_field" id="type_field">
             </label>
             <!-- <div id="forgetPwd">Forgot password?</div> -->
-            <label id="checkboxLabel">
-                <input id="checkbox" type="checkbox" name="checkbox" style="cursor:pointer" />Agree all the terms and
-                conditions</label>
+            <div class="justText">
+                By continuing, you agree to MediDocX's
+                <a href="">Terms and Conditions</a> and <a href="">Privacy Policy</a>.
+            </div>
             <button type="submit" name="register">Sign Up</button>
-            <div id="logIn">Already have an account? <a href="#" id="login-link">Log In</a></div>
-            <img id="closeButton" class="closeSignupForm" src="./closeButton.png" alt="" />
+            <div class="justText">
+                Already have an account? <a href="#" id="loginNow">Log In</a>
+            </div>
+            <img id="closeSignup" src="./closeButton.png" alt="" onclick="closeBtn()" />
         </form>
     </div>
 </body>
-
-<script>
-    function showDoctorIdField() {
-        var selectElement = document.getElementById("userType");
-        var doctorIdField = document.getElementById("doctorId");
-
-        if (selectElement.value === "Doctor") {
-            doctorIdField.style.display = "block";
-        } else {
-            doctorIdField.style.display = "none";
-        }
-    }
-
-
-
-
-    var checkbox = document.getElementById("checkbox");
-    var signUpButton = document.querySelector('button[name="register"]');
-
-    signUpButton.addEventListener("click", function (event) {
-        if (!checkbox.checked) {
-            event.preventDefault(); // Prevent the form from submitting
-            swal({
-                title: "Error",
-                text: "Please agree to the terms and condition",
-                // icon: "error",
-                button: "Ok",
-
-            });
-            document.querySelector('#signupForm').style.display = "block";
-        }
-    });
-
-</script>
 
 <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 
 </html>
 
-
-
 <?php
-
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
-
-
 
 if (isset($_POST["register"])) {
     include 'connection.php';
@@ -172,7 +149,7 @@ if (isset($_POST["register"])) {
 
 
 
-   
+
 
 
 
@@ -194,7 +171,7 @@ if (isset($_POST["register"])) {
 
     }
 
-    
+
 
 
     if ($type === "Doctor") {
@@ -222,7 +199,7 @@ if (isset($_POST["register"])) {
                         // icon: "error",
                         button: "Ok",
                     });
-                    
+
                 </script>
                 <?php
             }
@@ -243,7 +220,7 @@ if (isset($_POST["register"])) {
         }
     }
 
- 
+
 
     if ($type === "Doctor") {
         if (empty($ID)) {
@@ -258,7 +235,7 @@ if (isset($_POST["register"])) {
                     button: "Ok",
                 });
 
-                
+
 
             </script>
             <?php
@@ -280,7 +257,7 @@ if (isset($_POST["register"])) {
     }
 
 
-   
+
     // Validate form fields
 
     if (empty($name) || empty($gender) || empty($email) || empty($birthDate) || empty($address) || empty($password)) {
@@ -294,7 +271,7 @@ if (isset($_POST["register"])) {
                 button: "Ok",
 
             });
-            document.querySelector('#signupForm').style.display = "block";
+            document.querySelector('#signupForm').style.transform = "scale(1)";
         </script>
 
         <?php
@@ -303,7 +280,7 @@ if (isset($_POST["register"])) {
 
 
 
-   
+
 
 
 

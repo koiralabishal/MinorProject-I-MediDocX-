@@ -14,8 +14,8 @@
             </label>
             <div id="forgetPwd">Forgot password?</div>
             <button type="submit" name="login">Log In</button>
-            <div id="signUp">Don't have an account? <a href="#" id="signup-link">Sign Up</a></div>
-            <img id="closeButton" class="closeLoginForm" src="./closeButton.png" alt="" />
+            <div id="signUp">Don't have an account? <a href="#" id="signupNow">Sign Up</a></div>
+            <img id="closeLogin" src="./closeButton.png" alt="" />
         </form>
     </div>
 </body>
