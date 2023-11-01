@@ -6,7 +6,8 @@
             <h1>Log In</h1>
             <label>
                 <h3>Email</h3>
-                <input type="" name="email" value="<?php echo isset($_POST['email']) ? htmlspecialchars($_POST['email']) : ''; ?>"/>
+                <input type="" name="email"
+                    value="<?php echo isset($_POST['email']) ? htmlspecialchars($_POST['email']) : ''; ?>" />
             </label>
             <label>
                 <h3>Password</h3>
@@ -35,7 +36,8 @@ if (isset($_POST['login'])) {
     $password = $_POST['password'];
     $passwordHash = md5($password);
 
-
+    $errors = array();
+    $errors1 = array();
 
     $_SESSION['email'] = $email;
 
@@ -59,29 +61,33 @@ if (isset($_POST['login'])) {
                 <?php
 
             } else {
+                $errors['password'] = 'Invalid password';
                 ?>
+
                 <script>
                     swal({
                         title: "Error",
-                        text: "Invalid password ",
+                        text: "<?php echo $errors['password']; ?>",
                         icon: "error",
                         button: "Ok",
                     });
-                    document.querySelector('#loginForm').style.display = "block";
+
                 </script>
                 <?php
             }
         } else {
+            $errors['email'] = 'Email is not verified';
+            $errors1['email'] = 'Please verify your email';
             ?>
             <script>
                 swal({
                     title: "Error",
-                    text: "Email is not verified.\n" +
-                        "Please verify your email",
+                    text: "<?php echo $errors['email']; ?>\n" +
+                        "<?php echo $errors1['email']; ?>",
                     icon: "error",
                     button: "Ok",
                 });
-                document.querySelector('#loginForm').style.display = "block";
+
             </script>
             <?php
         }
@@ -100,45 +106,64 @@ if (isset($_POST['login'])) {
                 <?php
 
             } else {
+                $errors['password'] = 'Invalid password';
                 ?>
+
                     <script>
                         swal({
                             title: "Error",
-                            text: "Invalid password",
+                            text: "<?php echo $errors['password']; ?>",
                             icon: "error",
                             button: "Ok",
                         });
-                        document.querySelector('#loginForm').style.display = "block";
+
                     </script>
                 <?php
             }
         } else {
+            $errors['email'] = 'Email is not verified';
+            $errors1['email'] = 'Please verify your email';
             ?>
                 <script>
                     swal({
                         title: "Error",
-                        text: "Email is not verified.\n" +
-                            "Please verify your email",
+                        text: "<?php echo $errors['email']; ?>\n" +
+                            "<?php echo $errors1['email']; ?>",
                         icon: "error",
                         button: "Ok",
                     });
-                    document.querySelector('#loginForm').style.display = "block";
+
                 </script>
             <?php
         }
     } else {
+        $errors['account'] = 'User not registered yet';
+
         ?>
             <script>
                 swal({
                     title: "Error",
-                    text: "User not found",
+                    text: "<?php echo $errors['account']; ?>" ,
                     icon: "error",
                     button: "Ok",
                 });
-                document.querySelector('#loginForm').style.display = "block";
+
             </script>
         <?php
     }
+
+
+
+    if ($errors || $errors1) {
+        ?>
+        <script>
+             
+            document.querySelector('#loginForm').style.transform = 'scale(1)';  
+        </script>
+
+        <?php
+    }
+
 
 
 }

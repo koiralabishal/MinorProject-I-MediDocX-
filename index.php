@@ -318,6 +318,7 @@ if (isset($_GET['email']) && isset($_GET['v_code'])) {
       /* height: 16px; */
       margin-top: 2%;
       border: none;
+      outline: none;
       background-color: transparent;
       border-bottom: 1px solid rgb(38, 38, 38);
     }

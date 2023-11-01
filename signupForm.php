@@ -46,17 +46,17 @@
                     </div>
                     <div class="dropdown-options" id="custom-dropdown-options">
                         <ul>
-                            <li class="dropdown-option" onclick="selectOption('Patient')" value="Patient" <?php echo (isset($_POST['type']) && $_POST['type'] === 'Patient') ? 'selected' : ''; ?>>
+                            <li class="dropdown-option" onclick="selectOption('Patient')" value="Patient">
                                 Patient
                             </li>
-                            <li class="dropdown-option" onclick="selectOption('Doctor')" value="Doctor" <?php echo (isset($_POST['type']) && $_POST['type'] === 'Doctor') ? 'selected' : ''; ?>>
+                            <li class="dropdown-option" onclick="selectOption('Doctor')" value="Doctor">
                                 Doctor
                             </li>
                         </ul>
                     </div>
                 </div>
                 <!-- Custom dropdown closed -->
-                <input type="hidden" value="" name="type">
+                <input type="hidden" value="" name="type" id="selectedType">
             </label>
 
 
@@ -64,7 +64,7 @@
                 <h3>Doctor ID</h3>
                 <input type="" name="ID"
                     value="<?php echo isset($_POST['ID']) ? htmlspecialchars($_POST['ID']) : ''; ?>">
-                <input type="hidden" name="type_field" id="type_field">
+                <!-- <input type="hidden" name="type_field" id="type_field"> -->
             </label>
             <!-- <div id="forgetPwd">Forgot password?</div> -->
             <div class="justText">
@@ -104,7 +104,7 @@ if (isset($_POST["register"])) {
 
     $passwordHash = md5($password);
     $errors = array();
-
+    $errors1 = array();
 
 
     $_SESSION['name'] = $name;
@@ -125,10 +125,10 @@ if (isset($_POST["register"])) {
             swal({
                 title: "Error",
                 text: "<?php echo $errors['email']; ?>",
-                // icon: "error",
+                icon: "error",
                 button: "Ok",
             });
-            document.querySelector('#signupForm').style.display = "block";
+
         </script>
         <?php
     } elseif (mysqli_num_rows($result) > 0) {
@@ -138,10 +138,10 @@ if (isset($_POST["register"])) {
             swal({
                 title: "Error",
                 text: "<?php echo $errors['email']; ?>",
-                // icon: "error",
+                icon: "error",
                 button: "Ok",
             });
-            document.querySelector('#signupForm').style.display = "block";
+
         </script>
         <?php
     }
@@ -156,15 +156,16 @@ if (isset($_POST["register"])) {
     if (strlen($password) < 8) {
         $errors['password'] = "Password must be 8 characters long";
         ?>
+
         <script>
             swal({
                 title: "Error",
                 text: "<?php echo $errors['password']; ?>",
-                // icon: "error",
+                icon: "error",
                 button: "Ok",
 
             });
-            document.querySelector('#signupForm').style.display = "block";
+
         </script>
 
         <?php
@@ -191,12 +192,11 @@ if (isset($_POST["register"])) {
                 $errors1['id'] = "Please enter the correct Id provided by the hospital administrator";
                 ?>
                 <script>
-                    document.querySelector('#signupForm').style.display = "block";
-                    document.querySelector('#doctorId').style.display = "block";
+
                     swal({
                         title: "Error",
                         text: "<?php echo $errors['id']; ?>\n" + "<?php echo $errors1['id']; ?>",
-                        // icon: "error",
+                        icon: "error",
                         button: "Ok",
                     });
 
@@ -210,11 +210,10 @@ if (isset($_POST["register"])) {
                 swal({
                     title: "Error",
                     text: "<?php echo $errors['id']; ?>",
-                    // icon: "error",
+                    icon: "error",
                     button: "Ok",
                 });
-                document.querySelector('#signupForm').style.display = "block";
-                document.querySelector('#doctorId').style.display = "block";
+
             </script>
             <?php
         }
@@ -226,12 +225,11 @@ if (isset($_POST["register"])) {
         if (empty($ID)) {
             ?>
             <script>
-                document.querySelector('#signupForm').style.display = "block";
-                document.querySelector('#doctorId').style.display = "block";
+
                 swal({
                     title: "Error",
                     text: "Doctor ID is required",
-                    // icon: "error",
+                    icon: "error",
                     button: "Ok",
                 });
 
@@ -245,38 +243,94 @@ if (isset($_POST["register"])) {
                     swal({
                         title: "Error",
                         text: "Doctor ID is already in use",
-                        // icon: "error",
+                        icon: "error",
                         button: "Ok",
                     });
 
-                    document.querySelector('#signupForm').style.display = "block";
                 </script>
             <?php
         }
 
     }
 
-
-
-    // Validate form fields
-
-    if (empty($name) || empty($gender) || empty($email) || empty($birthDate) || empty($address) || empty($password)) {
-        $errors['empty'] = "All fields are required";
+    if (empty($type)) {
+        $errors["type"] = "Please select user type";
         ?>
         <script>
             swal({
                 title: "Error",
-                text: "<?php echo $errors['empty']; ?>",
-                // icon: "error",
+                text: "<?php echo $errors["type"]; ?>",
+                icon: "error",
                 button: "Ok",
 
             });
-            document.querySelector('#signupForm').style.transform = "scale(1)";
+
         </script>
 
         <?php
     }
 
+
+
+   
+
+    if ($type === "Doctor") {
+
+        ?>
+
+        <script>
+            document.querySelector('#doctorID').style.display = 'block';
+            document.querySelector('.dropdown-label').textContent = 'Doctor';
+        </script>
+        <?php
+    } else if ($type === "Patient") {
+        ?>
+
+            <script>
+                document.querySelector('#doctorID').style.display = 'none';
+                document.querySelector('.dropdown-label').textContent = 'Patient';
+            </script>
+        <?php
+    }
+
+
+
+
+    // Validate form fields
+    if (empty($name) || empty($gender) || empty($email) || empty($birthDate) || empty($address) || empty($password)) {
+        $errors['empty'] = "All fields are required";
+        ?>
+        <script>
+
+            swal({
+                title: "Error",
+                text: "<?php echo $errors['empty']; ?>",
+                icon: "error",
+                button: "Ok",
+
+            });
+
+
+        </script>
+        <?php
+    }
+
+
+
+
+
+    if ($errors || $errors1) {
+        ?>
+        <script>
+            document.querySelector('#signupForm').style.transform = 'scale(1)';
+
+        </script>
+
+        <?php
+
+       
+
+    }
 
 
 
@@ -322,7 +376,7 @@ if (isset($_POST["register"])) {
                     button: "Ok",
                 });
 
-                document.querySelector('#signupForm').style.display = "none";
+                document.querySelector('#signupForm').style.transform = "scale(0)";
             </script>
             <?php
 

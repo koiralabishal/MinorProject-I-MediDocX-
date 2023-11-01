@@ -18,11 +18,14 @@ function toggleDropdown() {
 function selectOption(option) {
   document.querySelector(".dropdown-label").textContent = option;
   toggleDropdown();
+  document.getElementById("selectedType").value = option;
   if (option == "Doctor") {
     document.getElementById("doctorID").style.display = "block";
-  }
-  if (option == "Patient") {
+    
+
+  }else if (option == "Patient") {
     document.getElementById("doctorID").style.display = "none";
+    
   }
 }
 
