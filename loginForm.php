@@ -1,5 +1,6 @@
 <html>
 
+
 <body>
     <div id="loginForm">
         <form action="index.php" method="POST">
@@ -21,8 +22,8 @@
     </div>
 </body>
 
-<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 
 </html>
 
@@ -53,6 +54,7 @@ if (isset($_POST['login'])) {
         $dbemail = $row['email'];
         if ($row['isVerified'] == 1) {
             if ($password === $passwordHash) {
+                $_SESSION['name'] = $row['name'];
                 ?>
                 <script>
                     // Redirect to dashboard.php on successful login
@@ -97,7 +99,8 @@ if (isset($_POST['login'])) {
         $dbemail = $row['email'];
         if ($row['isVerified'] == 1) {
             if ($password === $passwordHash) {
-
+                $_SESSION['name'] = $row['name'];
+                
                 ?>
                     <script>
                         // Redirect to dashboard.php on successful login
@@ -143,26 +146,21 @@ if (isset($_POST['login'])) {
             <script>
                 swal({
                     title: "Error",
-                    text: "<?php echo $errors['account']; ?>" ,
+                    text: "<?php echo $errors['account']; ?>",
+
+
                     icon: "error",
                     button: "Ok",
+
                 });
-
             </script>
-        <?php
-    }
-
-
-
-    if ($errors || $errors1) {
-        ?>
-        <script>
-             
-            document.querySelector('#loginForm').style.transform = 'scale(1)';  
-        </script>
 
         <?php
     }
+
+
+
+
 
 
 

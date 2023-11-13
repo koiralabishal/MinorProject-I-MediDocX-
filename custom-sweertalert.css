@@ -1,0 +1,33 @@
+.swal-title {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.swal-text {
+  font-size: 24px;
+}
+
+
+.swal-button-container {
+  text-align: center;
+}
+
+.swal-button {
+  margin-top: 10px;
+  padding: 10px 20px;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.swal-button:hover {
+  background-color: #ccc;
+}
+
+.swal-button:active {
+  background-color: #eee;
+}
+
+.swal-background {
+  background-color: rgba(0, 0, 0, 0.5);
+}

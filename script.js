@@ -84,3 +84,6 @@ closeSignup.addEventListener("click", function () {
   overlay.style.opacity = "0";
   overlay.style.pointerEvents = "none";
 });
+
+
+

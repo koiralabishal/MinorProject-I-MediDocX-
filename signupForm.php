@@ -1,8 +1,16 @@
 <html>
-
+<head>
+    <link rel="stylesheet" href="custom-sweertalert.css">
+</head>
 <body>
+
     <div id="signupForm">
+
+        
+
         <form action="index.php" method="POST">
+
+
             <label>
                 <h1>Sign Up</h1>
                 <h3>Name</h3>
@@ -77,12 +85,14 @@
             </div>
             <img id="closeSignup" src="./closeButton.png" alt="" onclick="closeBtn()" />
         </form>
+
     </div>
 </body>
 
 <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 
 </html>
+
 
 <?php
 
@@ -272,7 +282,7 @@ if (isset($_POST["register"])) {
 
 
 
-   
+
 
     if ($type === "Doctor") {
 
@@ -321,14 +331,27 @@ if (isset($_POST["register"])) {
 
     if ($errors || $errors1) {
         ?>
-        <script>
-            document.querySelector('#signupForm').style.transform = 'scale(1)';
 
-        </script>
+
+        <style>
+           
+            #overlay {
+                position: fixed;
+                top: 0;
+                right: 0;
+                bottom: 0;
+                left: 0;
+                background-color: rgba(0, 0, 0, 0.6);
+                opacity: 0;
+                transition: opacity 0.4s ease-in-out;
+                z-index: 11;
+                pointer-events: none;
+            }
+        </style>
 
         <?php
 
-       
+
 
     }
 
@@ -356,10 +379,10 @@ if (isset($_POST["register"])) {
 
         if ($type === "Patient") {
             $query = "INSERT INTO patient (name, email, birthDate,gender, address, password, verificationCode, isVerified)
-                    VALUES ('$name', '$email', '$birthDate', '$gender','$address','$passwordHash', '$v_code', '0')";
+            VALUES ('$name', '$email', '$birthDate', '$gender','$address','$passwordHash', '$v_code', '0')";
         } elseif ($type === "Doctor") {
             $query = "INSERT INTO doctor (name, email, doctorID, birthDate, gender, address, password, verificationCode, isVerified)
-                    VALUES ('$name', '$email', '$ID', '$birthDate','$gender','$address', '$passwordHash', '$v_code', '0')";
+            VALUES ('$name', '$email', '$ID', '$birthDate','$gender','$address', '$passwordHash', '$v_code', '0')";
         }
 
         if (mysqli_query($conn, $query)) {
@@ -408,8 +431,8 @@ if (isset($_POST["register"])) {
             $mail->isHTML(true);
             $mail->Subject = 'Email verification from MediDocX Team';
             $mail->Body = "<p style='font-size: 25px;'>Hi, {$_SESSION['name']}. Thanks for registration! <br />
-                        Click the link below to verify the email address. <br />
-                        <b><i><a href = 'http://localhost/dashboard/MinorProject-I-MediDocX-/index.php?email=$email&v_code=$v_code'>Verify</a></i></b></p>";
+                           Click the link below to verify the email address. <br />
+                           <b><i><a href = 'http://localhost/dashboard/MinorProject-I-MediDocX-/index.php?email=$email&v_code=$v_code'>Verify</a></i></b></p>";
 
             $mail->send();
             return true;

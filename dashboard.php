@@ -5,6 +5,36 @@ if (!isset($_SESSION['email'])) {
   header("location: index.php");
   exit();
 }
+
+
+include 'connection.php';
+
+// Get the email of the logged-in user
+$email = $_SESSION['email'];
+
+// Query to retrieve information about the logged-in doctor
+$sql = "SELECT * FROM doctor WHERE email = '{$email}'";
+$result_doctor = mysqli_query($conn, $sql);
+
+//Query to retrieve information about doctor
+$sql1 = "SELECT * FROM hospital WHERE email = '{$email}'";
+$result_doctor1 = mysqli_query($conn, $sql1);
+// Check if the query returned a result
+if (mysqli_num_rows($result_doctor) > 0) {
+  // Fetch the data of the logged-in doctor
+  $doctor_data = mysqli_fetch_assoc($result_doctor);
+  $is_doctor = true;
+} else {
+  $is_doctor = false;
+}
+
+if (mysqli_num_rows($result_doctor1) > 0) {
+  $doctor_data1 = mysqli_fetch_assoc($result_doctor1);
+  $is_doctor1 = true;
+} else {
+
+  $is_doctor1 = false;
+}
 ?>
 
 <!DOCTYPE html>
@@ -102,39 +132,54 @@ if (!isset($_SESSION['email'])) {
       <li>Contact Us</li>
       <li>About</li>
       <li>Recommendation</li>
-      <a href="logout.php"><button>Logout</button></a>
+      <li><a href="logout.php" style="text-decoration:none; color: black;">Logout</a></li>
     </ul>
   </nav>
-
   <div id="container">
-    <div class="items" id="item-1">
-      <h2>Ear</h2>
-      <h3>Dr. Neeraj KC</h3>
-      Ear is in critical condition. Operation to be performed soon.
-    </div>
-    <div class="items" id="item-2">
-      <h2>Eye</h2>
-      <h3>Dr. Mahendra Poudel</h3>
-      Eye is in fine condition. Use refresh eye drops for better maintainance
-      of your eye.
-    </div>
-    <div class="items" id="item-3">
-      <h2>Heart</h2>
-      <h3>Dr. Bishal Dhoni</h3>
-      Heart is functioning well. Eat less oily foods.
-    </div>
-    <div class="items" id="item-4">
-      <h2>Kidney</h2>
-      <h3>Dr. Bikram Rana</h3>
-      Kidney is in critical condition. Operation to be performed soon.
-    </div>
-    <div class="items" id="item-5">
-      <h2>Spine</h2>
-      <h3>Dr. IndraRajyaLaxmi Shah</h3>
-      Spine is in fine condition. Do morning and evening walks for better
-      maintainance of your spine.
-    </div>
+    <?php if ($is_doctor || $is_doctor1) { ?>
+
+
+      <div class="items" id="item-1">
+        <h2>
+          <?php echo $doctor_data1['specialization']; ?>
+        </h2>
+        <h3>
+          <?php echo $doctor_data['name']; ?>
+        </h3>
+        <?php echo $doctor_data1['description']; ?>
+      </div>
+
+
+    <?php } else { ?>
+      <div class="items" id="item-2">
+        <h2>Nose</h2>
+        <h3>
+          Dr. Mahendra Poudel
+        </h3>
+        Nose is in fine condition. Drink hot water for better maintainance
+        of your nose.
+      </div>
+      <div class="items" id="item-3">
+        <h2>Heart</h2>
+        <h3>Dr. Bishal Dhoni</h3>
+        Heart is functioning well. Eat less oily foods.
+      </div>
+      <div class="items" id="item-4">
+        <h2>Kidney</h2>
+        <h3>Dr. Bikram Rana</h3>
+        Kidney is in critical condition. Operation to be performed soon.
+      </div>
+      <div class="items" id="item-5">
+        <h2>Spine</h2>
+        <h3>Dr. IndraRajyaLaxmi Shah</h3>
+        Spine is in fine condition. Do morning and evening walks for better
+        maintainance of your spine.
+      </div>
+
+    <?php } ?>
+
   </div>
+
 </body>
 
 </html>
