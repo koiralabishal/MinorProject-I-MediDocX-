@@ -44,9 +44,11 @@ if (isset($_POST['login'])) {
 
     $sql = "SELECT * FROM patient WHERE email = '{$email}'";
     $sql1 = "SELECT * FROM doctor WHERE email = '{$email}'";
+    $sql2 = "SELECT * FROM lab_technician WHERE email = '{$email}'";
 
     $result = mysqli_query($conn, $sql);
     $result1 = mysqli_query($conn, $sql1);
+    $result2 = mysqli_query($conn, $sql2);
 
     if (mysqli_num_rows($result) > 0) {
         $row = mysqli_fetch_assoc($result);
@@ -58,7 +60,7 @@ if (isset($_POST['login'])) {
                 ?>
                 <script>
                     // Redirect to dashboard.php on successful login
-                    window.location.href = "dashboard.php";
+                    window.location.href = "patient.php";
                 </script>
                 <?php
 
@@ -104,7 +106,7 @@ if (isset($_POST['login'])) {
                 ?>
                     <script>
                         // Redirect to dashboard.php on successful login
-                        window.location.href = "dashboard.php";
+                        window.location.href = "doctor.php";
                     </script>
                 <?php
 
@@ -139,7 +141,54 @@ if (isset($_POST['login'])) {
                 </script>
             <?php
         }
-    } else {
+    } 
+    else if (mysqli_num_rows($result2) > 0) {
+        $row = mysqli_fetch_assoc($result2);
+        $password = $row['password'];
+        $dbemail = $row['email'];
+        if ($row['isVerified'] == 1) {
+            if ($password === $passwordHash) {
+                $_SESSION['name'] = $row['name'];
+                
+                ?>
+                    <script>
+                        // Redirect to dashboard.php on successful login
+                        window.location.href = "labTechnician.php";
+                    </script>
+                <?php
+
+            } else {
+                $errors['password'] = 'Invalid password';
+                ?>
+
+                    <script>
+                        swal({
+                            title: "Error",
+                            text: "<?php echo $errors['password']; ?>",
+                            icon: "error",
+                            button: "Ok",
+                        });
+
+                    </script>
+                <?php
+            }
+        } else {
+            $errors['email'] = 'Email is not verified';
+            $errors1['email'] = 'Please verify your email';
+            ?>
+                <script>
+                    swal({
+                        title: "Error",
+                        text: "<?php echo $errors['email']; ?>\n" +
+                            "<?php echo $errors1['email']; ?>",
+                        icon: "error",
+                        button: "Ok",
+                    });
+
+                </script>
+            <?php
+        }}
+    else {
         $errors['account'] = 'User not registered yet';
 
         ?>
