@@ -9,9 +9,11 @@ if (isset($_GET['email']) && isset($_GET['v_code'])) {
   // $sql = "SELECT * FROM patient WHERE email = '$_GET[email]' AND verificationCode = '$_GET[v_code]'";
   $sql = "SELECT * FROM patient WHERE email = '$_GET[email]' AND verificationCode = '$_GET[v_code]'";
   $sql1 = "SELECT * FROM doctor WHERE email = '$_GET[email]' AND verificationCode = '$_GET[v_code]'";
+  $sql2 = "SELECT * FROM lab_technician WHERE email = '$_GET[email]' AND verificationCode = '$_GET[v_code]'";
 
   $result = mysqli_query($conn, $sql);
   $result1 = mysqli_query($conn, $sql1);
+  $result2 = mysqli_query($conn, $sql2);
 
   if (mysqli_num_rows($result) > 0) {
     $row = mysqli_fetch_assoc($result);
@@ -87,6 +89,76 @@ if (isset($_GET['email']) && isset($_GET['v_code'])) {
       // $update = "UPDATE patient SET isVerified = 1 WHERE email = '$row[email]'";
       $update1 = "UPDATE doctor SET isVerified = 1 WHERE email = '$row[email]'";
       if (mysqli_query($conn, $update1)) {
+        ?>
+
+          <!DOCTYPE html>
+          <html lang="en">
+
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Email Verification</title>
+            <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+          </head>
+
+          <body>
+
+            <script>
+
+              swal({
+                title: "Success",
+                text: "Email verification successful",
+                icon: "success",
+                button: "Ok",
+              }).then(function () {
+                window.location = "index.php"; // Redirect to index.php after OK button is clicked.
+              });
+
+            </script>
+          </body>
+
+          </html>
+        <?php
+      }
+    } else {
+      ?>
+        <!DOCTYPE html>
+        <html lang="en">
+
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Email Verification</title>
+          <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+        </head>
+
+        <body>
+          <script>
+
+            swal({
+              title: "Warning",
+              text: "Email is already verified",
+              icon: "warning",
+              button: "Ok",
+            }).then(function () {
+              window.location = "index.php";  // Redirect to index.php after OK button is clicked.
+              
+            });
+
+
+          </script>
+          
+        </body>
+
+        </html>
+      <?php
+    }
+  } else if (mysqli_num_rows($result2) > 0) {
+    $row = mysqli_fetch_assoc($result2);
+    if ($row['isVerified'] == 0) {
+      // $update = "UPDATE patient SET isVerified = 1 WHERE email = '$row[email]'";
+      $update2 = "UPDATE lab_technician SET isVerified = 1 WHERE email = '$row[email]'";
+      if (mysqli_query($conn, $update2)) {
         ?>
 
           <!DOCTYPE html>
@@ -317,6 +389,7 @@ if (isset($_GET['email']) && isset($_GET['v_code'])) {
         /* height: 16px; */
         margin-top: 2%;
         border: none;
+        outline: none;
         background-color: transparent;
         border-bottom: 1px solid rgb(38, 38, 38);
       }
@@ -491,6 +564,18 @@ if (isset($_GET['email']) && isset($_GET['v_code'])) {
         display: none;
       }
 
+
+      #signupForm #patientID {
+        display: none;
+      }
+
+
+      #signupForm #labTechnicianID {
+        display: none;
+      }
+
+      
+
       #signupForm button {
         background-color: rgb(48, 48, 220);
         padding: 2% 6%;
@@ -545,5 +630,5 @@ if (isset($_GET['email']) && isset($_GET['v_code'])) {
   <?php include "./loginForm.php" ?>
   <?php include "./signupForm.php" ?>
 </body>
-<script src="./script.js"></script>
+<script src="./script.php"></script>
 </html>

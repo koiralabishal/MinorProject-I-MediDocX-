@@ -59,7 +59,7 @@ if (isset($_POST['login'])) {
                 $_SESSION['name'] = $row['name'];
                 ?>
                 <script>
-                    // Redirect to dashboard.php on successful login
+                    // Redirect to patient.php on successful login
                     window.location.href = "patient.php";
                 </script>
                 <?php
@@ -105,7 +105,7 @@ if (isset($_POST['login'])) {
                 
                 ?>
                     <script>
-                        // Redirect to dashboard.php on successful login
+                        // Redirect to doctor.php on successful login
                         window.location.href = "doctor.php";
                     </script>
                 <?php
@@ -152,7 +152,7 @@ if (isset($_POST['login'])) {
                 
                 ?>
                     <script>
-                        // Redirect to dashboard.php on successful login
+                        // Redirect to labTechnician.php on successful login
                         window.location.href = "labTechnician.php";
                     </script>
                 <?php

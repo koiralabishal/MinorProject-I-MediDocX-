@@ -1,10 +1,18 @@
+
+<?php
+  header("Content-type: text/css");
+
+?>
+
+
+
 .swal-title {
   font-size: 20px;
   font-weight: bold;
 }
 
 .swal-text {
-  font-size: 24px;
+  font-size: 20px;
 }
 
 

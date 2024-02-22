@@ -21,12 +21,27 @@ function selectOption(option) {
   document.getElementById("selectedType").value = option;
   if (option == "Doctor") {
     document.getElementById("doctorID").style.display = "block";
+    document.getElementById("patientID").style.display = "none";
+    document.getElementById("labTechnicianID").style.display = "none";
     
 
-  }else if (option == "Patient") {
+  }else if (option == "Patient"){
+    document.getElementById("patientID").style.display = "block";
     document.getElementById("doctorID").style.display = "none";
-    
+    document.getElementById("labTechnicianID").style.display = "none";
+
+
+  }else if (option == "Lab Technician"){
+    document.getElementById("patientID").style.display = "none";
+    document.getElementById("doctorID").style.display = "none";
+    document.getElementById("labTechnicianID").style.display = "block";
   }
+
+
+  
+
+
+
 }
 
 // Function to close the dropdown when clicking outside of it

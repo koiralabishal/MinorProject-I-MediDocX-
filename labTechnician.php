@@ -133,6 +133,7 @@
   <body>
     <header>
       <img src="MediDocX Logo.JPG" alt="" />
+      <a href="logout.php"><button>Log Out</button></a>
     </header>
 
     <aside>

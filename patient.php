@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>doctor</title>
+    <title>Patient</title>
     <!-- <link rel="stylesheet" href="style.css"> -->
     <style>
       * {
@@ -102,9 +102,14 @@
         padding: 1%;
       }
 
-      main section .container {
-        background-color: #e3e8f8;
+      main section .header button {
         /* background-color: red; */
+        margin: 1% 0 0 0;
+      }
+
+      main section .container {
+        /* background-color: rgb(239, 239, 239); */
+        background-color: #e3e8f8;
         padding: 1%;
         margin: 2% 1%;
         border-radius: 8px;
@@ -144,13 +149,17 @@
         box-shadow: 2px 2px 8px 1px grey;
         /* transition: background-color, box-shadow 1s; */
       }
+
+      main section .boxContainer table {
+        background-color: #4e6eb2;
+        font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+      }
     </style>
   </head>
   <body>
     <header>
       <img src="MediDocX Logo.JPG" alt="" />
-      <button onclick="addPatient()">Add Patient</button>
-      <a href="logout.php"><button>Log out</button></a>
+      <a href="logout.php"><button>Log Out</button></a>
     </header>
 
     <aside>
@@ -158,39 +167,42 @@
         <div id="profilePic"></div>
         <div id="details">
           <b> Mayukh Baral </b><br />
-          Doctor <br />
-          ID: 54 <br />
-          M.D. Cardiology
+          Patient ID: 54 <br />
         </div>
       </div>
       <div id="reportTemplatesContainer">
+        <h3>Patient Info</h3>
+        <div class="reportTemplatesAside">Name: Bishal Koirala</div>
+        <div class="reportTemplatesAside">Patient ID: 54</div>
+        <div class="reportTemplatesAside">Age: 21</div>
+      </div>
+      <!-- <div id="reportTemplatesContainer">
         <h3>All Patients</h3>
         <div class="reportTemplatesAside">Mayukh Baral</div>
         <div class="reportTemplatesAside">Bishal Koirala</div>
         <div class="reportTemplatesAside">Sadikshya Banstola</div>
-      </div>
+      </div> -->
     </aside>
     <main>
       <section>
         <div class="header">
-          <h2>Appointed Patients</h2>
+          <h2>Recent Visits</h2>
+          <!-- <button class="add" onclick="addVisit()">Add Visit</button> -->
         </div>
         <div class="container">
+          <div class="month">February, 2024</div>
           <div class="boxContainer">
-            <div class="box">
-              Name: Mayukh Baral <br />
-              Patient ID: 54 <br />
-              Referred by: Dr. Ram Chandra Kafle
-            </div>
-            <div class="box" onclick="patient()">
-              Name: Bishal Koirala <br />
-              Patient ID: 21 <br />
-              Referred by: Dr. Nabin Bhattarai
+            <div class="box" onclick="visit()">
+              Date: 2024/ 02/ 17 <br />
+              Visit Type: Routine Check-up <br />
             </div>
             <div class="box">
-              Name: Sadikshya Banstola <br />
-              Patient ID: 32 <br />
-              Referred by: Dr. Manoj Tripathi
+              Date: 2022/ 09/ 07 <br />
+              Visit Type: Follow-up Consultation <br />
+            </div>
+            <div class="box">
+              Date: 2022/ 09/ 05 <br />
+              Visit Type: Routine Check-up <br />
             </div>
             <div class="box">7</div>
             <div class="box">8</div>
@@ -198,11 +210,53 @@
             <div class="box">10</div>
           </div>
         </div>
+
+        <div class="container">
+          <div class="month">September, 2022</div>
+          <div class="boxContainer">
+            <div class="box">
+              Date: 2022/ 09/ 07 <br />
+              Visit Type: Follow-up Consultation <br />
+            </div>
+            <div class="box">
+              Date: 2022/ 09/ 05 <br />
+              Visit Type: Routine Check-up <br />
+            </div>
+          </div>
+        </div>
       </section>
 
       <section>
         <div class="header">
-          <h2>Pending Patients</h2>
+          <h2>Recent Reports</h2>
+        </div>
+        <div class="container">
+          <div class="month">February, 2024</div>
+          <div class="boxContainer">
+            <div class="box" id="b" onclick="biochemistry()">BioChemistry</div>
+            <div class="box" onclick="haematology()">Hematology</div>
+            <div class="box" onclick="echocardiography()">EchoCardiography</div>
+          </div>
+        </div>
+
+        <div class="container">
+          <div class="month">September, 2024</div>
+          <div class="boxContainer">
+            <div class="box">Immunology</div>
+            <div class="box">4</div>
+            <div class="box">5</div>
+            <div class="box">6</div>
+            <div class="box">7</div>
+            <div class="box">8</div>
+            <div class="box">9</div>
+            <div class="box">10</div>
+          </div>
+        </div>
+      </section>
+ 
+      <section>
+        <div class="header">
+          <h2>Pending Reports</h2>
         </div>
         <div class="container">
           <div class="month">Pending Reports</div>
@@ -227,7 +281,7 @@
         </div>
 
         <div class="container">
-          <div class="month">Follow-up Patients</div>
+          <div class="month">Follow-up Visits</div>
           <div class="boxContainer">
             <div class="box">
               Date: 2022/ 09/ 07 <br />
@@ -241,44 +295,37 @@
         </div>
       </section>
 
-      <!-- <section>
-        <div class="headerContainer">
-          <h2>Recent Patients</h2>
-        </div>
+      <section>
+        <h2>Cuurrent Medication</h2>
         <div class="container">
-          <div class="box">
-            Name: Mayukh Baral <br />
-            Patient ID: 54 <br />
-            Referred by: Dr. Ram Chandra Kafle
+          <div class="boxContainer">
+            <table border="1">
+              <tr>
+                <td>Name</td>
+                <td>Dosage(mg)</td>
+                <td>Scheduling</td>
+                <td>Duration</td>
+              </tr>
+              <tr>
+                <td>Flexon</td>
+                <td>12</td>
+                <td>TBS</td>
+                <td>1 week</td>
+              </tr>
+            </table>
           </div>
-          <div class="box" onclick="patient()">
-            Name: Bishal Koirala <br />
-            Patient ID: 21 <br />
-            Referred by: Dr. Nabin Bhattarai
-          </div>
-          <div class="box">
-            Name: Sadikshya Banstola <br />
-            Patient ID: 32 <br />
-            Referred by: Dr. Manoj Tripathi
-          </div>
-          <div class="box">7</div>
-          <div class="box">8</div>
-          <div class="box">9</div>
-          <div class="box">10</div>
         </div>
-      </section> -->
-
+      </section>
     </main>
 
     <script>
-      function addPatient() {
-        window.location.href = "addPatient.php";
+      function addVisit() {
+        window.location.href = "addVisit.php";
       }
 
-      function patient() {
-        window.location.href = "doctorPatient.php";
+      function visit() {
+        window.location.href = "doctorPatientVisit.php";
       }
-
       function biochemistry() {
         window.location.href = "bioChemistry.php";
       }
@@ -290,6 +337,33 @@
       function echocardiography() {
         window.location.href = "echocardiography.php";
       }
+
+      // document.addEventListener('DOMContentLoaded', function(){
+      //     let box = document.querySelectorAll('.box');
+      //     box.forEach(function(bpar){
+      //         bpar.addEventListener("click", function(){
+      //             this.style.backgroundColor = "red";
+      //         });
+      //     });
+      // });
+
+      // let box = document.querySelectorAll(".box");
+      // box.forEach(function (bpar) {
+      //   bpar.addEventListener("click", function () {
+      //       this.style.transition = "all .2s";
+      //       // this.style.zIndex = "0";
+      //       if(this.style.backgroundColor == "red"){
+      //           this.style.backgroundColor = "grey";
+      //           this.style.transform = "scale(1)";
+      //           // this.style.zIndex = "0";
+      //       }
+      //       else{
+      //           // this.style.zIndex = "10";
+      //           this.style.transform = "scale(2)";
+      //           this.style.backgroundColor = "red";
+      //       }
+      //   });
+      // });
     </script>
   </body>
 </html>

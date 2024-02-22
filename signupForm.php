@@ -1,12 +1,15 @@
 <html>
+
 <head>
-    <link rel="stylesheet" href="custom-sweertalert.css">
+    <link rel="stylesheet" href="custom-sweertalert.php">
 </head>
+
 <body>
+
 
     <div id="signupForm">
 
-        
+
 
         <form action="index.php" method="POST">
 
@@ -60,6 +63,9 @@
                             <li class="dropdown-option" onclick="selectOption('Doctor')" value="Doctor">
                                 Doctor
                             </li>
+                            <li class="dropdown-option" onclick="selectOption('Lab Technician')" value="Lab Technician">
+                                Lab Technician
+                            </li>
                         </ul>
                     </div>
                 </div>
@@ -70,10 +76,26 @@
 
             <label id="doctorID">
                 <h3>Doctor ID</h3>
-                <input type="" name="ID"
+                <input type="" name="ID1"
                     value="<?php echo isset($_POST['ID']) ? htmlspecialchars($_POST['ID']) : ''; ?>">
                 <!-- <input type="hidden" name="type_field" id="type_field"> -->
             </label>
+
+            <label id="patientID">
+                <h3>Patient ID</h3>
+                <input type="" name="ID2"
+                    value="<?php echo isset($_POST['ID']) ? htmlspecialchars($_POST['ID']) : ''; ?>">
+                <!-- <input type="hidden" name="type_field" id="type_field"> -->
+            </label>
+
+
+            <label id="labTechnicianID">
+                <h3>Lab Technician ID</h3>
+                <input type="" name="ID3"
+                    value="<?php echo isset($_POST['ID']) ? htmlspecialchars($_POST['ID']) : ''; ?>">
+                <!-- <input type="hidden" name="type_field" id="type_field"> -->
+            </label>
+
             <!-- <div id="forgetPwd">Forgot password?</div> -->
             <div class="justText">
                 By continuing, you agree to MediDocX's
@@ -105,7 +127,9 @@ if (isset($_POST["register"])) {
     $name = $_POST["name"];
     $email = $_POST["email"];
     $type = $_POST["type"];
-    $ID = $_POST["ID"];
+    $ID1 = $_POST["ID1"];
+    $ID2 = $_POST["ID2"];
+    $ID3 = $_POST["ID3"];
     $birthDate = $_POST["birthDate"];
     $gender = isset($_POST["gender"]) ? $_POST["gender"] : null;
 
@@ -120,12 +144,16 @@ if (isset($_POST["register"])) {
     $_SESSION['name'] = $name;
     $_SESSION['email'] = $email;
 
-    $sql = "SELECT email FROM patient WHERE email = '$email' UNION SELECT email  FROM doctor WHERE email = '$email'";
-    $sql1 = "SELECT doctorID FROM doctor WHERE doctorID = '$ID'";
+    $sql = "SELECT email FROM patient WHERE email = '$email' UNION SELECT email  FROM doctor WHERE email = '$email' UNION SELECT email  FROM lab_technician WHERE email = '$email'";
+    $sql1 = "SELECT doctorID FROM doctor WHERE doctorID = '$ID1'";
+    $sql2 = "SELECT patientID FROM patient WHERE patientID = '$ID2'";
+    $sql3 = "SELECT labTechnicianID FROM lab_technician WHERE labTechnicianID = '$ID3'";
 
 
     $result = mysqli_query($conn, $sql);
     $result1 = mysqli_query($conn, $sql1);
+    $result2 = mysqli_query($conn, $sql2);
+    $result3 = mysqli_query($conn, $sql3);
 
 
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -189,23 +217,26 @@ if (isset($_POST["register"])) {
 
         $enteredDoctorEmail = $_POST["email"];
 
-        // Fetch valid doctor IDs from the hospital table based on the doctor's first name
-        $hospitalQuery = "SELECT doctorID FROM hospital WHERE email = '{$enteredDoctorEmail}'";
+
+        $hospitalQuery = "SELECT doctorID FROM hospital WHERE email = '{$enteredDoctorEmail}' AND userType = 'Doctor'";
+
+
+
         $hospitalResult = mysqli_query($conn, $hospitalQuery);
+
 
         if (mysqli_num_rows($hospitalResult) > 0) {
             $row = mysqli_fetch_assoc($hospitalResult);
             $validDoctorID = $row["doctorID"];
 
-            if ($ID != $validDoctorID) {
+            if ($ID1 != $validDoctorID) {
                 $errors['id'] = "Invalid Doctor ID.";
-                $errors1['id'] = "Please enter the correct Id provided by the hospital administrator";
                 ?>
                 <script>
 
                     swal({
                         title: "Error",
-                        text: "<?php echo $errors['id']; ?>\n" + "<?php echo $errors1['id']; ?>",
+                        text: "<?php echo $errors['id']; ?>",
                         icon: "error",
                         button: "Ok",
                     });
@@ -214,7 +245,7 @@ if (isset($_POST["register"])) {
                 <?php
             }
         } else {
-            $errors['id'] = "Doctor not found in the hospital records.";
+            $errors['id'] = "ID not found in the hospital records.";
             ?>
             <script>
                 swal({
@@ -227,12 +258,100 @@ if (isset($_POST["register"])) {
             </script>
             <?php
         }
+    } else if ($type === "Patient") {
+
+        $enteredPatientEmail = $_POST["email"];
+
+
+        $hospitalQuery1 = "SELECT patientID FROM hospital WHERE email = '{$enteredPatientEmail}' AND userType = 'Patient'";
+
+
+
+        $hospitalResult1 = mysqli_query($conn, $hospitalQuery1);
+        if (mysqli_num_rows($hospitalResult1) > 0) {
+            $row1 = mysqli_fetch_assoc($hospitalResult1);
+            $validPatientID = $row1["patientID"];
+
+            if ($ID2 != $validPatientID) {
+                $errors['id'] = "Invalid Patient ID.";
+
+                ?>
+                    <script>
+
+                        swal({
+                            title: "Error",
+                            text: "<?php echo $errors['id']; ?> ",
+                            icon: "error",
+                            button: "Ok",
+                        });
+
+                    </script>
+                <?php
+            }
+        } else {
+            $errors['id'] = "ID not found in the hospital records.";
+            ?>
+                <script>
+                    swal({
+                        title: "Error",
+                        text: "<?php echo $errors['id']; ?>",
+                        icon: "error",
+                        button: "Ok",
+                    });
+
+                </script>
+            <?php
+        }
+    } else if ($type === "Lab Technician") {
+
+        $enteredLabTechnicianEmail = $_POST["email"];
+
+
+        $hospitalQuery2 = "SELECT labTechnicianID FROM hospital WHERE email = '{$enteredLabTechnicianEmail}' AND userType = 'Lab Technician'";
+
+
+
+        $hospitalResult2 = mysqli_query($conn, $hospitalQuery2);
+        if (mysqli_num_rows($hospitalResult2) > 0) {
+            $row2 = mysqli_fetch_assoc($hospitalResult2);
+            $validLabTechnicianID = $row2["labTechnicianID"];
+
+            if ($ID3 != $validLabTechnicianID) {
+                $errors['id'] = "Invalid Lab Technician ID.";
+
+                ?>
+                        <script>
+
+                            swal({
+                                title: "Error",
+                                text: "<?php echo $errors['id']; ?>",
+                                icon: "error",
+                                button: "Ok",
+                            });
+
+                        </script>
+                <?php
+            }
+        } else {
+            $errors['id'] = "ID not found in the hospital records.";
+            ?>
+                    <script>
+                        swal({
+                            title: "Error",
+                            text: "<?php echo $errors['id']; ?>",
+                            icon: "error",
+                            button: "Ok",
+                        });
+
+                    </script>
+            <?php
+        }
     }
 
 
 
     if ($type === "Doctor") {
-        if (empty($ID)) {
+        if (empty($ID1)) {
             ?>
             <script>
 
@@ -260,53 +379,68 @@ if (isset($_POST["register"])) {
                 </script>
             <?php
         }
-
-    }
-
-    if (empty($type)) {
-        $errors["type"] = "Please select user type";
-        ?>
-        <script>
-            swal({
-                title: "Error",
-                text: "<?php echo $errors["type"]; ?>",
-                icon: "error",
-                button: "Ok",
-
-            });
-
-        </script>
-
-        <?php
-    }
-
-
-
-
-
-    if ($type === "Doctor") {
-
-        ?>
-
-        <script>
-            document.querySelector('#doctorID').style.display = 'block';
-            document.querySelector('.dropdown-label').textContent = 'Doctor';
-        </script>
-        <?php
     } else if ($type === "Patient") {
-        ?>
+        if (empty($ID2)) {
+            ?>
+                <script>
 
-            <script>
-                document.querySelector('#doctorID').style.display = 'none';
-                document.querySelector('.dropdown-label').textContent = 'Patient';
-            </script>
-        <?php
+                    swal({
+                        title: "Error",
+                        text: "Patient ID is required",
+                        icon: "error",
+                        button: "Ok",
+                    });
+
+
+
+                </script>
+            <?php
+        } else if (mysqli_num_rows($result2) > 0) {
+            ?>
+                    <script>
+                        swal({
+                            title: "Error",
+                            text: "Patient ID is already in use",
+                            icon: "error",
+                            button: "Ok",
+                        });
+
+                    </script>
+            <?php
+        }
+    } else if ($type === "Lab Technician") {
+        if (empty($ID3)) {
+            ?>
+                    <script>
+
+                        swal({
+                            title: "Error",
+                            text: "Lab Technician ID is required",
+                            icon: "error",
+                            button: "Ok",
+                        });
+
+
+
+                    </script>
+            <?php
+        } else if (mysqli_num_rows($result3) > 0) {
+            ?>
+                        <script>
+                            swal({
+                                title: "Error",
+                                text: "Lab Technician ID is already in use",
+                                icon: "error",
+                                button: "Ok",
+                            });
+
+                        </script>
+            <?php
+        }
+
     }
 
 
-
-
-    // Validate form fields
     if (empty($name) || empty($gender) || empty($email) || empty($birthDate) || empty($address) || empty($password)) {
         $errors['empty'] = "All fields are required";
         ?>
@@ -329,31 +463,33 @@ if (isset($_POST["register"])) {
 
 
 
-    if ($errors || $errors1) {
+
+
+
+
+
+
+
+
+    if (empty($type)) {
+        $errors["type"] = "Please select user type";
         ?>
+        <script>
+            swal({
+                title: "Error",
+                text: "<?php echo $errors["type"]; ?>",
+                icon: "error",
+                button: "Ok",
 
+            });
 
-        <style>
-           
-            #overlay {
-                position: fixed;
-                top: 0;
-                right: 0;
-                bottom: 0;
-                left: 0;
-                background-color: rgba(0, 0, 0, 0.6);
-                opacity: 0;
-                transition: opacity 0.4s ease-in-out;
-                z-index: 11;
-                pointer-events: none;
-            }
-        </style>
+        </script>
 
         <?php
-
-
-
     }
+
+
+
 
 
 
@@ -378,11 +514,14 @@ if (isset($_POST["register"])) {
 
 
         if ($type === "Patient") {
-            $query = "INSERT INTO patient (name, email, birthDate,gender, address, password, verificationCode, isVerified)
-            VALUES ('$name', '$email', '$birthDate', '$gender','$address','$passwordHash', '$v_code', '0')";
+            $query = "INSERT INTO patient (name, email, birthDate,gender, address, patientID, password, verificationCode, isVerified)
+            VALUES ('$name', '$email', '$birthDate', '$gender','$address', '$ID2', '$passwordHash', '$v_code', '0')";
         } elseif ($type === "Doctor") {
             $query = "INSERT INTO doctor (name, email, doctorID, birthDate, gender, address, password, verificationCode, isVerified)
-            VALUES ('$name', '$email', '$ID', '$birthDate','$gender','$address', '$passwordHash', '$v_code', '0')";
+            VALUES ('$name', '$email', '$ID1', '$birthDate','$gender','$address', '$passwordHash', '$v_code', '0')";
+        } elseif ($type === "Lab Technician") {
+            $query = "INSERT INTO lab_technician (name, email, labTechnicianID, birthDate, gender, address, password, verificationCode, isVerified)
+            VALUES ('$name', '$email', '$ID3', '$birthDate','$gender','$address', '$passwordHash', '$v_code', '0')";
         }
 
         if (mysqli_query($conn, $query)) {
@@ -442,4 +581,5 @@ if (isset($_POST["register"])) {
 
     }
 }
+
 ?>
