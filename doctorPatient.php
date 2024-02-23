@@ -23,7 +23,6 @@ if ($result) {
 //   $row2 = mysqli_fetch_assoc($result2);
 // }
 
-
 ?>
 
 <!DOCTYPE html>
@@ -46,10 +45,30 @@ if ($result) {
         width: 100vw;
         height: 15vh;
         position: fixed;
+        display: flex;
       }
 
       header img {
         height: 100%;
+      }
+
+      header input {
+        /* align-self: center; */
+        border: none;
+        margin: auto 4% auto auto;
+        padding: 1%;
+        height: fit-content;
+        background-color: rgb(252, 252, 252);
+        font-size: 16px;
+        border-radius: 12px;
+      }
+
+      header input:focus {
+        /* background-color: red; */
+        outline: none;
+        /* border-bottom: 1px solid gray; */
+        /* text-decoration: underline; */
+        /* text-decoration-line: underline; */
       }
 
       aside {
@@ -128,11 +147,24 @@ if ($result) {
         /* background-color: lightblue; */
         font-family: Cambria, Cochin, Georgia, Times, "Times New Roman", serif;
         padding: 1%;
+        display: flex;
       }
 
       main section .header button {
+        border: 1px solid gray;
+        margin: auto 4% auto auto;
+        padding: 1%;
+        height: fit-content;
+        background-color: rgb(252, 252, 252);
+        font-size: 16px;
+        border-radius: 12px;
         /* background-color: red; */
-        margin: 1% 0 0 0;
+      }
+
+      main section .header button:hover {
+        box-shadow: 2px 2px 4px 2px darkgrey;
+        cursor: pointer;
+        background-color: rgb(254, 254, 254);
       }
 
       main section .container {
@@ -187,13 +219,14 @@ if ($result) {
   <body>
     <header>
       <img src="MediDocX Logo.JPG" alt="" />
+      <input type="text" placeholder="Search Patient...">
     </header>
 
     <aside>
       <div id="profileInfo">
         <div id="profilePic"></div>
         <div id="details">
-          <b> <?php echo $row['name']; ?></b><br />
+          <b><?php echo $row['name']; ?></b><br />
           <?php echo $row['userType']; ?> <br />
           ID: <?php echo $row['doctorID']; ?> <br />
           <?php echo $row['doctorQualification']; ?> <br />
@@ -207,13 +240,8 @@ if ($result) {
         <div class="reportTemplatesAside">Age: <?php echo $patientage; ?></div>
         <div class="reportTemplatesAside">Gender: <?php echo $patientgender; ?></div>
       </div>
-      <!-- <div id="reportTemplatesContainer">
-        <h3>All Patients</h3>
-        <div class="reportTemplatesAside">Mayukh Baral</div>
-        <div class="reportTemplatesAside">Bishal Koirala</div>
-        <div class="reportTemplatesAside">Sadikshya Banstola</div>
-      </div> -->
     </aside>
+    
     <main>
       <section>
         <div class="header">

@@ -18,10 +18,30 @@
         width: 100vw;
         height: 15vh;
         position: fixed;
+        display: flex;
       }
 
       header img {
         height: 100%;
+      }
+
+      header input {
+        /* align-self: center; */
+        border: none;
+        margin: auto 4% auto auto;
+        padding: 1%;
+        height: fit-content;
+        background-color: rgb(252, 252, 252);
+        font-size: 16px;
+        border-radius: 12px;
+      }
+
+      header input:focus {
+        /* background-color: red; */
+        outline: none;
+        /* border-bottom: 1px solid gray; */
+        /* text-decoration: underline; */
+        /* text-decoration-line: underline; */
       }
 
       aside {
@@ -96,9 +116,27 @@
         box-shadow: 4px 4px 8px 5px darkgrey;
       }
 
-      main section .headerContainer {
+      main section .header {
         /* background-color: lightblue; */
         padding: 1%;
+        display: flex;
+      }
+
+      main section .header button {
+        border: 1px solid gray;
+        margin: auto 4% auto auto;
+        padding: 1%;
+        height: fit-content;
+        background-color: rgb(252, 252, 252);
+        font-size: 16px;
+        border-radius: 12px;
+        /* background-color: red; */
+      }
+
+      main section .header button:hover {
+        box-shadow: 2px 2px 4px 2px darkgrey;
+        cursor: pointer;
+        background-color: rgb(254, 254, 254);
       }
 
       main section .container {
@@ -121,6 +159,8 @@
         border-radius: 8px;
         border: 1px solid silver;
         font-family: Arial, Helvetica, sans-serif;
+        width: 100%;
+        max-width: 98%;
       }
       main section .container .box:hover {
         background-color: #e3e8f8;
@@ -128,11 +168,20 @@
         box-shadow: 2px 2px 8px 1px grey;
         /* transition: background-color, box-shadow 1s; */
       }
+
+      main section .container .box textarea {
+        /* background-color: red; */
+        min-width: 100%;
+        width:100%;
+        max-width: 100%;
+        height: 48vh;
+      }
     </style>
   </head>
   <body>
     <header>
       <img src="MediDocX Logo.JPG" alt="" />
+      <input type="text" placeholder="Search Patient...">
     </header>
 
     <aside>
@@ -160,44 +209,29 @@
     </aside>
     <main>
       <section>
-        <div class="headerContainer">
-          <h2><label for="newPrescription">Add Prescription</label></h2>
+        <div class="header">
+          <h2>Add Prescription</h2>
+          <button onclick="requestationLetter()">Request Letter</button>
         </div>
         <div class="container">
           <div class="box">
             <textarea
               name="newPrescription"
               id=""
-              cols="30"
-              rows="10"
+
             ></textarea>
           </div>
         </div>
         <!-- <button type="submit">Save</button> -->
     </section>
 
-      <section>
-        <div class="headerContainer">
-          <h2>Request Letter</h2>
-        </div>
-        <div class="container">
-          <div class="box" id="b" onclick="biochemistry()">BioChemistry</div>
-          <div class="box" onclick="haematology()">Hematology</div>
-          <div class="box" onclick="echocardiography()">EchoCardiography</div>
-          <div class="box" onclick="immunology()">Immunology</div>
-        </div>
-      </section>
-
     </main>
 
     <script>
-      function addVisit() {
-        window.location.href = "addVisit.php";
+      function requestationLetter() {
+        window.location.href = "requestationLetter.php"
       }
 
-      function visit() {
-        window.location.href = "doctorPatientVisit.php";
-      }
       function biochemistry() {
         window.location.href = "bioChemistry.php";
       }
