@@ -32,15 +32,17 @@
 
 
 if (isset($_POST['login'])) {
+//    session_start();
     include 'connection.php';
     $email = $_POST['email'];
     $password = $_POST['password'];
     $passwordHash = md5($password);
-
     $errors = array();
     $errors1 = array();
 
     $_SESSION['email'] = $email;
+   
+
 
     $sql = "SELECT * FROM patient WHERE email = '{$email}'";
     $sql1 = "SELECT * FROM doctor WHERE email = '{$email}'";
@@ -57,6 +59,7 @@ if (isset($_POST['login'])) {
         if ($row['isVerified'] == 1) {
             if ($password === $passwordHash) {
                 $_SESSION['name'] = $row['name'];
+                // $_SESSION['name'] = $row['email'];
                 ?>
                 <script>
                     // Redirect to patient.php on successful login

@@ -143,6 +143,7 @@ if (isset($_POST["register"])) {
 
     $_SESSION['name'] = $name;
     $_SESSION['email'] = $email;
+    $_SESSION['ID1'] = $ID1;
 
     $sql = "SELECT email FROM patient WHERE email = '$email' UNION SELECT email  FROM doctor WHERE email = '$email' UNION SELECT email  FROM lab_technician WHERE email = '$email'";
     $sql1 = "SELECT doctorID FROM doctor WHERE doctorID = '$ID1'";

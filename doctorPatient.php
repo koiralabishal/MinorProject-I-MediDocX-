@@ -1,3 +1,31 @@
+<?php
+session_start();
+include 'connection.php';
+
+$patientName = $_GET['patientName'];
+$patientID = $_GET['patientID'];
+$patientage = $_GET['age'];
+$patientgender = $_GET['gender'];
+$email = $_SESSION['email'];
+
+
+$sql = "SELECT * FROM hospital WHERE email = '{$email}' AND userType ='Doctor'";
+// $sql2 = "SELECT a.* FROM appointed_patient a JOIN hospital h on a.DoctorID = h.doctorID WHERE h.email = '{$email}' ORDER BY a.ID DESC ";
+
+$result = mysqli_query($conn, $sql);
+// $result2 = mysqli_query($conn, $sql2);
+
+if ($result) {
+  $row = mysqli_fetch_assoc($result);
+}
+
+// if ($result2) {
+//   $row2 = mysqli_fetch_assoc($result2);
+// }
+
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -165,18 +193,19 @@
       <div id="profileInfo">
         <div id="profilePic"></div>
         <div id="details">
-          <b> Mayukh Baral </b><br />
-          Doctor <br />
-          ID: 54 <br />
-          M.D. Cardiology <br />
-          (TU, GMC, Nepal)
+          <b> <?php echo $row['name']; ?></b><br />
+          <?php echo $row['userType']; ?> <br />
+          ID: <?php echo $row['doctorID']; ?> <br />
+          <?php echo $row['doctorQualification']; ?> <br />
+          (<?php echo $row['universityCollageCountry']; ?>)
         </div>
       </div>
       <div id="reportTemplatesContainer">
         <h3>Patient Info</h3>
-        <div class="reportTemplatesAside">Name: Bishal Koirala</div>
-        <div class="reportTemplatesAside">Patient ID: 54</div>
-        <div class="reportTemplatesAside">Age: 21</div>
+        <div class="reportTemplatesAside">Name: <?php echo $patientName; ?></div>
+        <div class="reportTemplatesAside">Patient ID: <?php echo $patientID; ?></div>
+        <div class="reportTemplatesAside">Age: <?php echo $patientage; ?></div>
+        <div class="reportTemplatesAside">Gender: <?php echo $patientgender; ?></div>
       </div>
       <!-- <div id="reportTemplatesContainer">
         <h3>All Patients</h3>
