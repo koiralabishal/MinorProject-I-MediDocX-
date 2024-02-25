@@ -6,8 +6,18 @@ $patientName = $_GET['patientName'];
 $patientID = $_GET['patientID'];
 $patientage = $_GET['age'];
 $patientgender = $_GET['gender'];
-$email = $_SESSION['email'];
 
+$email = $_SESSION['email'];
+// $patientName = $_SESSION['patientName'];
+// $patientID  = $_SESSION['patientID'];
+// $patientage = $_SESSION['age'];
+// $patientgender = $_SESSION['gender'];
+
+
+$_SESSION['patientName'] = $patientName;
+$_SESSION['patientID'] = $patientID;
+$_SESSION['age'] = $patientage;
+$_SESSION['gender'] = $patientgender;
 
 $sql = "SELECT * FROM hospital WHERE email = '{$email}' AND userType ='Doctor'";
 // $sql2 = "SELECT a.* FROM appointed_patient a JOIN hospital h on a.DoctorID = h.doctorID WHERE h.email = '{$email}' ORDER BY a.ID DESC ";
