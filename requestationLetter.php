@@ -31,20 +31,7 @@ if ($result) {
 //   $row2 = mysqli_fetch_assoc($result2);
 // }
 
-
-
-
-
-
-
-
-
 ?>
-
-
-
-
-
 
 <!DOCTYPE html>
 <html lang="en">

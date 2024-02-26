@@ -37,361 +37,389 @@ if ($result) {
 
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>doctorPatient</title>
-    <!-- <link rel="stylesheet" href="style.css"> -->
-    <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
 
-      header {
-        background-color: rgb(239, 239, 239);
-        padding: 1vw;
-        width: 100vw;
-        height: 15vh;
-        position: fixed;
-        display: flex;
-      }
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>doctorPatient</title>
+  <!-- <link rel="stylesheet" href="style.css"> -->
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-      header img {
-        height: 100%;
-      }
+    header {
+      background-color: rgb(239, 239, 239);
+      padding: 1vw;
+      width: 100vw;
+      height: 15vh;
+      position: fixed;
+      display: flex;
+    }
 
-      header input {
-        /* align-self: center; */
-        border: none;
-        margin: auto 4% auto auto;
-        padding: 1%;
-        height: fit-content;
-        background-color: rgb(252, 252, 252);
-        font-size: 16px;
-        border-radius: 12px;
-      }
+    header img {
+      height: 100%;
+    }
 
-      header input:focus {
-        /* background-color: red; */
-        outline: none;
-        /* border-bottom: 1px solid gray; */
-        /* text-decoration: underline; */
-        /* text-decoration-line: underline; */
-      }
+    header input {
+      /* align-self: center; */
+      border: none;
+      margin: auto 4% auto auto;
+      padding: 1%;
+      height: fit-content;
+      background-color: rgb(252, 252, 252);
+      font-size: 16px;
+      border-radius: 12px;
+    }
 
-      aside {
-        display: inline-block;
-        background-color: #3e588f;
-        color: #e3e8f8;
-        width: 15vw;
-        height: 85vh;
-        margin-top: 15vh;
-        position: fixed;
-      }
+    header input:focus {
+      /* background-color: red; */
+      outline: none;
+      /* border-bottom: 1px solid gray; */
+      /* text-decoration: underline; */
+      /* text-decoration-line: underline; */
+    }
 
-      aside #profileInfo {
-        /* background-color: red; */
-        width: 100%;
-        /* height: 32vh; */
-        padding-top: 16%;
-      }
+    aside {
+      display: inline-block;
+      background-color: #3e588f;
+      color: #e3e8f8;
+      width: 15vw;
+      height: 85vh;
+      margin-top: 15vh;
+      position: fixed;
+    }
 
-      aside #profileInfo #profilePic {
-        width: 48%;
-        aspect-ratio: 1/1;
-        margin: auto auto;
-        background-image: url(Mayukh\ Baral.jpg);
-        background-repeat: no-repeat;
-        background-position: center top;
-        background-size: 100%;
-        border-radius: 50%;
-      }
+    aside #profileInfo {
+      /* background-color: red; */
+      width: 100%;
+      /* height: 32vh; */
+      padding-top: 16%;
+    }
 
-      aside #profileInfo #details {
-        width: fit-content;
-        /* background-color: gold; */
-        color: #e3e8f8;
-        margin: 8% auto 0;
-        text-align: center;
-      }
+    aside #profileInfo #profilePic {
+      width: 48%;
+      aspect-ratio: 1/1;
+      margin: auto auto;
+      background-image: url(Mayukh\ Baral.jpg);
+      background-repeat: no-repeat;
+      background-position: center top;
+      background-size: 100%;
+      border-radius: 50%;
+    }
 
-      aside #reportTemplatesContainer {
-        background-color: #2f426b;
-        margin-top: 8%;
-      }
-      aside #reportTemplatesContainer h3 {
-        /* background-color: red; */
-        padding: 4%;
-        padding-left: 6%;
-        border-bottom: 1px solid rgb(190, 177, 104);
-      }
+    aside #profileInfo #details {
+      width: fit-content;
+      /* background-color: gold; */
+      color: #e3e8f8;
+      margin: 8% auto 0;
+      text-align: center;
+    }
 
-      aside #reportTemplatesContainer .reportTemplatesAside {
-        /* background-color: red; */
-        border-bottom: 1px solid #3e588f;
-        padding: 2%;
-        padding-left: 12%;
-      }
+    aside #reportTemplatesContainer {
+      background-color: #2f426b;
+      margin-top: 8%;
+    }
 
-      main {
-        display: inline-block;
-        background-color: #e3e8f8;
-        margin-top: 15vh;
-        margin-left: 15vw;
-        width: 85vw;
-        /* padding-top: 4vh; */
-        /* padding: 2%; */
-      }
+    aside #reportTemplatesContainer h3 {
+      /* background-color: red; */
+      padding: 4%;
+      padding-left: 6%;
+      border-bottom: 1px solid rgb(190, 177, 104);
+    }
 
-      main section {
-        background-color: whitesmoke;
-        margin: 4% 6%;
-        padding: 1%;
-        border-radius: 8px;
-        box-shadow: 4px 4px 8px 5px darkgrey;
-      }
+    aside #reportTemplatesContainer .reportTemplatesAside {
+      /* background-color: red; */
+      border-bottom: 1px solid #3e588f;
+      padding: 2%;
+      padding-left: 12%;
+    }
 
-      main section .header {
-        /* background-color: lightblue; */
-        font-family: Cambria, Cochin, Georgia, Times, "Times New Roman", serif;
-        padding: 1%;
-        display: flex;
-      }
+    main {
+      display: inline-block;
+      background-color: #e3e8f8;
+      margin-top: 15vh;
+      margin-left: 15vw;
+      width: 85vw;
+      /* padding-top: 4vh; */
+      /* padding: 2%; */
+    }
 
-      main section .header button {
-        border: 1px solid gray;
-        margin: auto 4% auto auto;
-        padding: 1%;
-        height: fit-content;
-        background-color: rgb(252, 252, 252);
-        font-size: 16px;
-        border-radius: 12px;
-        /* background-color: red; */
-      }
+    main section {
+      background-color: whitesmoke;
+      margin: 4% 6%;
+      padding: 1%;
+      border-radius: 8px;
+      box-shadow: 4px 4px 8px 5px darkgrey;
+    }
 
-      main section .header button:hover {
-        box-shadow: 2px 2px 4px 2px darkgrey;
-        cursor: pointer;
-        background-color: rgb(254, 254, 254);
-      }
+    main section .header {
+      /* background-color: lightblue; */
+      font-family: Cambria, Cochin, Georgia, Times, "Times New Roman", serif;
+      padding: 1%;
+      display: flex;
+    }
 
-      main section .container {
-        /* background-color: rgb(239, 239, 239); */
-        background-color: #e3e8f8;
-        padding: 1%;
-        margin: 2% 1%;
-        border-radius: 8px;
-      }
+    main section .header button {
+      border: 1px solid gray;
+      margin: auto 4% auto auto;
+      padding: 1%;
+      height: fit-content;
+      background-color: rgb(252, 252, 252);
+      font-size: 16px;
+      border-radius: 12px;
+      /* background-color: red; */
+    }
 
-      main section .container .month {
-        /* background-color:cadetblue; */
-        padding: 1%;
-        font-family: Arial, Helvetica, sans-serif;
-        border-bottom: 1px solid silver;
-      }
+    main section .header button:hover {
+      box-shadow: 2px 2px 4px 2px darkgrey;
+      cursor: pointer;
+      background-color: rgb(254, 254, 254);
+    }
 
-      main section .boxContainer {
-        /* background-color: lightgreen; */
-        /* padding-top: 1%; */
-        display: flex;
-        /* flex-wrap:wrap; */
-      }
+    main section .container {
+      /* background-color: rgb(239, 239, 239); */
+      background-color: #e3e8f8;
+      padding: 1%;
+      margin: 2% 1%;
+      border-radius: 8px;
+    }
 
-      main section .boxContainer .box {
-        background-color: #4e6eb2;
-        color: #e3e8f8;
-        padding: 2%;
-        /* height: 100px; */
-        margin: 1%;
-        display: inline-block;
-        transition: all 0.2s;
-        cursor: pointer;
-        border-radius: 8px;
-        border: 1px solid silver;
-        font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS",
-          sans-serif;
-      }
-      main section .boxContainer .box:hover {
-        background-color: whitesmoke;
-        color: #2f426b;
-        box-shadow: 2px 2px 8px 1px grey;
-        /* transition: background-color, box-shadow 1s; */
-      }
+    main section .container .month {
+      /* background-color:cadetblue; */
+      padding: 1%;
+      font-family: Arial, Helvetica, sans-serif;
+      border-bottom: 1px solid silver;
+    }
 
-      main section .boxContainer table {
-        background-color: #4e6eb2;
-        font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-      }
-    </style>
-  </head>
-  <body>
-    <header>
-      <img src="MediDocX Logo.JPG" alt="" />
-      <input type="text" placeholder="Search Patient...">
-    </header>
+    main section .boxContainer {
+      /* background-color: lightgreen; */
+      /* padding-top: 1%; */
+      display: flex;
+      /* flex-wrap:wrap; */
+    }
 
-    <aside>
-      <div id="profileInfo">
-        <div id="profilePic"></div>
-        <div id="details">
-          <b><?php echo $row['name']; ?></b><br />
-          <?php echo $row['userType']; ?> <br />
-          ID: <?php echo $row['doctorID']; ?> <br />
-          <?php echo $row['doctorQualification']; ?> <br />
-          (<?php echo $row['universityCollageCountry']; ?>)
+    main section .boxContainer .box {
+      background-color: #4e6eb2;
+      color: #e3e8f8;
+      padding: 2%;
+      /* height: 100px; */
+      margin: 1%;
+      display: inline-block;
+      transition: all 0.2s;
+      cursor: pointer;
+      border-radius: 8px;
+      border: 1px solid silver;
+      font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS",
+        sans-serif;
+    }
+
+    main section .boxContainer .box:hover {
+      background-color: whitesmoke;
+      color: #2f426b;
+      box-shadow: 2px 2px 8px 1px grey;
+      /* transition: background-color, box-shadow 1s; */
+    }
+
+    main section .boxContainer table {
+      background-color: #4e6eb2;
+      font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <img src="MediDocX Logo.JPG" alt="" />
+    <input type="text" placeholder="Search Patient...">
+  </header>
+
+  <aside>
+    <div id="profileInfo">
+      <div id="profilePic"></div>
+      <div id="details">
+        <b>
+          <?php echo $row['name']; ?>
+        </b><br />
+        <?php echo $row['userType']; ?> <br />
+        ID:
+        <?php echo $row['doctorID']; ?> <br />
+        <?php echo $row['doctorQualification']; ?> <br />
+        (
+        <?php echo $row['universityCollageCountry']; ?>)
+      </div>
+    </div>
+    <div id="reportTemplatesContainer">
+      <h3>Patient Info</h3>
+      <div class="reportTemplatesAside">Name:
+        <?php echo $patientName; ?>
+      </div>
+      <div class="reportTemplatesAside">Patient ID:
+        <?php echo $patientID; ?>
+      </div>
+      <div class="reportTemplatesAside">Age:
+        <?php echo $patientage; ?>
+      </div>
+      <div class="reportTemplatesAside">Gender:
+        <?php echo $patientgender; ?>
+      </div>
+    </div>
+  </aside>
+
+  <main>
+    <section>
+      <div class="header">
+        <h2>Recent Visits</h2>
+        <button class="add" onclick="requestationLetter()">
+          Request Letter
+        </button>
+        <button class="add" onclick="addPrescription()">
+          Add Prescription
+        </button>
+      </div>
+      <div class="container">
+        <div class="month">February, 2024</div>
+        <div class="boxContainer">
+          <div class="box" onclick="visit()">
+            Date: 2024/ 02/ 17 <br />
+            Visit Type: Routine Check-up <br />
+          </div>
+          <div class="box">
+            Date: 2022/ 09/ 07 <br />
+            Visit Type: Follow-up Consultation <br />
+          </div>
+          <div class="box">
+            Date: 2022/ 09/ 05 <br />
+            Visit Type: Routine Check-up <br />
+          </div>
+          <div class="box">7</div>
+          <div class="box">8</div>
+          <div class="box">9</div>
+          <div class="box">10</div>
         </div>
       </div>
-      <div id="reportTemplatesContainer">
-        <h3>Patient Info</h3>
-        <div class="reportTemplatesAside">Name: <?php echo $patientName; ?></div>
-        <div class="reportTemplatesAside">Patient ID: <?php echo $patientID; ?></div>
-        <div class="reportTemplatesAside">Age: <?php echo $patientage; ?></div>
-        <div class="reportTemplatesAside">Gender: <?php echo $patientgender; ?></div>
+
+      <div class="container">
+        <div class="month">September, 2022</div>
+        <div class="boxContainer">
+          <div class="box">
+            Date: 2022/ 09/ 07 <br />
+            Visit Type: Follow-up Consultation <br />
+          </div>
+          <div class="box">
+            Date: 2022/ 09/ 05 <br />
+            Visit Type: Routine Check-up <br />
+          </div>
+        </div>
       </div>
-    </aside>
-    
-    <main>
-      <section>
-        <div class="header">
-          <h2>Recent Visits</h2>
-          <button class="add" onclick="addVisit()">Add Visit</button>
+    </section>
+
+    <section>
+      <div class="header">
+        <h2>Recent Reports</h2>
+      </div>
+      <div class="container">
+        <div class="month">February, 2024</div>
+        <div class="boxContainer">
+          <div class="box" id="b" onclick="biochemistry()">BioChemistry</div>
+          <div class="box" onclick="haematology()">Hematology</div>
+          <div class="box" onclick="echocardiography()">EchoCardiography</div>
         </div>
-        <div class="container">
-          <div class="month">February, 2024</div>
-          <div class="boxContainer">
-            <div class="box" onclick="visit()">
-              Date: 2024/ 02/ 17 <br />
-              Visit Type: Routine Check-up <br />
-            </div>
-            <div class="box">
-              Date: 2022/ 09/ 07 <br />
-              Visit Type: Follow-up Consultation <br />
-            </div>
-            <div class="box">
-              Date: 2022/ 09/ 05 <br />
-              Visit Type: Routine Check-up <br />
-            </div>
-            <div class="box">7</div>
-            <div class="box">8</div>
-            <div class="box">9</div>
-            <div class="box">10</div>
-          </div>
+      </div>
+
+      <div class="container">
+        <div class="month">September, 2024</div>
+        <div class="boxContainer">
+          <div class="box">Immunology</div>
+          <div class="box">4</div>
+          <div class="box">5</div>
+          <div class="box">6</div>
+          <div class="box">7</div>
+          <div class="box">8</div>
+          <div class="box">9</div>
+          <div class="box">10</div>
         </div>
+      </div>
+    </section>
 
-        <div class="container">
-          <div class="month">September, 2022</div>
-          <div class="boxContainer">
-            <div class="box">
-              Date: 2022/ 09/ 07 <br />
-              Visit Type: Follow-up Consultation <br />
-            </div>
-            <div class="box">
-              Date: 2022/ 09/ 05 <br />
-              Visit Type: Routine Check-up <br />
-            </div>
-          </div>
+    <section>
+      <h2>Cuurrent Medication</h2>
+      <div class="container">
+        <div class="boxContainer">
+          <table border="1">
+            <tr>
+              <td>Name</td>
+              <td>Dosage(mg)</td>
+              <td>Scheduling</td>
+              <td>Duration</td>
+            </tr>
+            <tr>
+              <td>Flexon</td>
+              <td>12</td>
+              <td>TBS</td>
+              <td>1 week</td>
+            </tr>
+          </table>
         </div>
-      </section>
+      </div>
+    </section>
+  </main>
 
-      <section>
-        <div class="header">
-          <h2>Recent Reports</h2>
-        </div>
-        <div class="container">
-          <div class="month">February, 2024</div>
-          <div class="boxContainer">
-            <div class="box" id="b" onclick="biochemistry()">BioChemistry</div>
-            <div class="box" onclick="haematology()">Hematology</div>
-            <div class="box" onclick="echocardiography()">EchoCardiography</div>
-          </div>
-        </div>
+  <script>
+    function requestationLetter() {
+      window.location.href = "requestationLetter.html";
+    }
+    function addPrescription() {
+      window.location.href = "doctorPatientVisit.html";
+    }
+    function addVisit() {
+      window.location.href = "addVisit.php";
+    }
 
-        <div class="container">
-          <div class="month">September, 2024</div>
-          <div class="boxContainer">
-            <div class="box">Immunology</div>
-            <div class="box">4</div>
-            <div class="box">5</div>
-            <div class="box">6</div>
-            <div class="box">7</div>
-            <div class="box">8</div>
-            <div class="box">9</div>
-            <div class="box">10</div>
-          </div>
-        </div>
-      </section>
+    function visit() {
+      window.location.href = "doctorPatientVisit.php";
+    }
+    function biochemistry() {
+      window.location.href = "bioChemistry.php";
+    }
 
-      <section>
-        <h2>Cuurrent Medication</h2>
-        <div class="container">
-          <div class="boxContainer">
-            <table border="1">
-              <tr>
-                <td>Name</td>
-                <td>Dosage(mg)</td>
-                <td>Scheduling</td>
-                <td>Duration</td>
-              </tr>
-              <tr>
-                <td>Flexon</td>
-                <td>12</td>
-                <td>TBS</td>
-                <td>1 week</td>
-              </tr>
-            </table>
-          </div>
-        </div>
-      </section>
-    </main>
+    function haematology() {
+      window.location.href = "haematology.php";
+    }
 
-    <script>
-      function addVisit() {
-        window.location.href = "addVisit.php";
-      }
+    function echocardiography() {
+      window.location.href = "echocardiography.php";
+    }
 
-      function visit() {
-        window.location.href = "doctorPatientVisit.php";
-      }
-      function biochemistry() {
-        window.location.href = "bioChemistry.php";
-      }
+    // document.addEventListener('DOMContentLoaded', function(){
+    //     let box = document.querySelectorAll('.box');
+    //     box.forEach(function(bpar){
+    //         bpar.addEventListener("click", function(){
+    //             this.style.backgroundColor = "red";
+    //         });
+    //     });
+    // });
 
-      function haematology() {
-        window.location.href = "haematology.php";
-      }
+    // let box = document.querySelectorAll(".box");
+    // box.forEach(function (bpar) {
+    //   bpar.addEventListener("click", function () {
+    //       this.style.transition = "all .2s";
+    //       // this.style.zIndex = "0";
+    //       if(this.style.backgroundColor == "red"){
+    //           this.style.backgroundColor = "grey";
+    //           this.style.transform = "scale(1)";
+    //           // this.style.zIndex = "0";
+    //       }
+    //       else{
+    //           // this.style.zIndex = "10";
+    //           this.style.transform = "scale(2)";
+    //           this.style.backgroundColor = "red";
+    //       }
+    //   });
+    // });
+  </script>
+</body>
 
-      function echocardiography() {
-        window.location.href = "echocardiography.php";
-      }
-
-      // document.addEventListener('DOMContentLoaded', function(){
-      //     let box = document.querySelectorAll('.box');
-      //     box.forEach(function(bpar){
-      //         bpar.addEventListener("click", function(){
-      //             this.style.backgroundColor = "red";
-      //         });
-      //     });
-      // });
-
-      // let box = document.querySelectorAll(".box");
-      // box.forEach(function (bpar) {
-      //   bpar.addEventListener("click", function () {
-      //       this.style.transition = "all .2s";
-      //       // this.style.zIndex = "0";
-      //       if(this.style.backgroundColor == "red"){
-      //           this.style.backgroundColor = "grey";
-      //           this.style.transform = "scale(1)";
-      //           // this.style.zIndex = "0";
-      //       }
-      //       else{
-      //           // this.style.zIndex = "10";
-      //           this.style.transform = "scale(2)";
-      //           this.style.backgroundColor = "red";
-      //       }
-      //   });
-      // });
-    </script>
-  </body>
 </html>
