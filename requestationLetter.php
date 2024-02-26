@@ -680,8 +680,8 @@ if ($result) {
 
 if (isset($_POST['submit'])) {
   // Check if checkboxes are set
-  if (isset($_POST['BioChemistry']) || isset($_POST['Haematology']) || isset($_POST['Bacteriology']) || isset($_POST['Mycology']) || isset($_POST['Virology']) || isset($_POST['TumorMarkers']) || isset($_POST['Parasitology']) || isset($_POST['Cytology']) || isset($_POST['HormoneAssays']) || isset($_POST['Immunology'])) {
-    $categories = ['BioChemistry', 'Haematology', 'Bacteriology', 'Mycology', 'Virology', 'TumerMarkers', 'Parasitology', 'Cytology', 'HormoneAssays', 'Immunology'];
+  if (isset($_POST['BioChemistry']) || isset($_POST['Haematology']) || isset($_POST['Bacteriology']) || isset($_POST['Mycology']) || isset($_POST['Virology']) || isset($_POST['TumarMarkers']) || isset($_POST['Parasitology']) || isset($_POST['Cytology']) || isset($_POST['HormoneAssays']) || isset($_POST['Immunology'])) {
+    $categories = ['BioChemistry', 'Haematology', 'Bacteriology', 'Mycology', 'Virology', 'TumarMarkers', 'Parasitology', 'Cytology', 'HormoneAssays', 'Immunology'];
     $queries = [];
 
     foreach ($categories as $category) {

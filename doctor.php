@@ -7,7 +7,7 @@ $email = $_SESSION['email'];
 
 $sql = "SELECT * FROM hospital WHERE email = '{$email}' AND userType ='Doctor'";
 $sql2 = "SELECT a.* FROM appointed_patient a JOIN hospital h on a.DoctorID = h.doctorID WHERE h.email = '{$email}' ORDER BY a.ID DESC";
-
+// $sql2 = "SELECT distinct patientName from test_data";
 $sql3 = "SELECT a.* FROM all_patient a JOIN hospital h on a.referredToDoctorID = h.doctorID WHERE h.email = '{$email}' ORDER BY a.ID DESC";
 
 $result = mysqli_query($conn, $sql);
@@ -18,6 +18,9 @@ if ($result) {
   $row = mysqli_fetch_assoc($result);
 }
 
+// if($result2){
+//   $row = mysqli_fetch_assoc($result2);
+// }
 ?>
 
 <!DOCTYPE html>
