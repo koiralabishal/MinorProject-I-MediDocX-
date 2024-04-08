@@ -1,0 +1,70 @@
+main section .tableContainer {
+    background-color: rgb(239, 239, 239);
+    margin: 1%;
+  }
+
+  main section .tableContainer table {
+    margin: auto;
+    border-collapse: collapse;
+    font-family: Arial, Helvetica, sans-serif;
+    border: 1px solid silver;
+  }
+
+  main section .tableContainer table th,
+  td {
+    padding: 4px 8px;
+    text-align: left;
+    vertical-align: top;
+    font-size: 14px;
+    text-wrap: balance;
+  }
+
+  main section .tableContainer table th[scope="col"] {
+    color: whitesmoke;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 16px;
+    font-weight: bold;
+    background-color: #4e6eb2;
+    border: none;
+    text-wrap: nowrap;
+  }
+
+  main section .tableContainer table th[scope="row"] {
+    font-weight: normal;
+    padding-left: 2%;
+  }
+
+  main section .tableContainer table .testCategoryTitle {
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-weight: bold;
+    background-color: rgb(239, 239, 239);
+    font-size: 14px;
+    border-bottom: 1px solid silver;
+    margin-top: 24px;
+  }
+
+  main section .tableContainer table td .result {
+    display: inline-block;
+    background-color: transparent;
+    border: 1px solid gray;
+    width: 80%;
+    padding: 1%;
+    height: 16px;
+  }
+
+  main section .tableContainer table td .flag {
+    display: inline-block;
+    background-color: transparent;
+    border: 1px solid gray;
+    width: 40%;
+    padding: 1%;
+    height: 16px;
+  }
+
+  main section .tableContainer table td ul {
+    padding-left: 5%;
+  }
+
+  main section .tableContainer table td ul ul {
+    padding-left: 10%;
+  }
