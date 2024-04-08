@@ -2,8 +2,18 @@
 session_start();
 include 'connection.php';
 
+if (!isset($_SESSION['doctorEmail'])) {
+  header('Location:index.php');
+}
 
-$email = $_SESSION['email'];
+
+if (!isset($_SESSION['patientID'], $_SESSION['age'], $_SESSION['gender'])) {
+  header('Location:labTechnician.php');
+}
+
+
+
+$email = $_SESSION['doctorEmail'];
 $patientName = $_SESSION['patientName'];
 $patientID = $_SESSION['patientID'];
 $patientage = $_SESSION['age'];
@@ -30,7 +40,7 @@ if ($result) {
 // if ($result2) {
 //   $row2 = mysqli_fetch_assoc($result2);
 // }
-
+// session_start();
 ?>
 
 <!DOCTYPE html>
@@ -305,20 +315,52 @@ if ($result) {
         <div class="container">
           <ul>
             <li>
-              <input type="checkbox" id="rbsFbsPpbs" name="BioChemistry[]" value="RBS, FBS, PPBS" /><label
-                for="rbsFbsPpbs">RBS, FBS,
+              <input type="checkbox" id="rbs" name="BioChemistry[]" value="RBS" /><label
+                for="rbs">RBS</label>
+            </li>
+            <li>
+              <input type="checkbox" id="Fbs" name="BioChemistry[]" value="FBS" /><label
+                for="fbs">FBS</label>
+            </li>
+            <li>
+              <input type="checkbox" id="ppbs" name="BioChemistry[]" value="PPBS" /><label
+                for="ppbs">
                 PPBS</label>
             </li>
             <li>
-              <input type="checkbox" id="lft" name="BioChemistry[]" value="LFT" /><label for="lft">LFT</label>
+              <input type="checkbox" id="totalBilirubin" name="BioChemistry[]" value="Total Bilirubin" /><label for="totalBilirubin">Total Bilirubin</label>
             </li>
             <li>
-              <input type="checkbox" id="rft" name="BioChemistry[]" value="RFT" /><label for="rft">RFT</label>
+              <input type="checkbox" id="alt" name="BioChemistry[]" value="ALT" /><label for="alt">ALT</label>
             </li>
             <li>
-              <input type="checkbox" id="lipidProfile" name="BioChemistry[]" value="Lipid Profile" /><label
-                for="lipidProfile">Lipid
-                Profile</label>
+              <input type="checkbox" id="ast" name="BioChemistry[]" value="AST" /><label for="ast">AST</label>
+            </li>
+            <li>
+              <input type="checkbox" id="urea" name="BioChemistry[]" value="Urea" /><label for="urea">Urea</label>
+            </li>
+            <li>
+              <input type="checkbox" id="serumCreatinine" name="BioChemistry[]" value="Serum Creatinine" /><label for="serumCreatinine">Serum Creatinine</label>
+            </li>
+            <li>
+              <input type="checkbox" id="eGFR" name="BioChemistry[]" value="eGFR" /><label for="eGFR">eGFR</label>
+            </li>
+            <li>
+              <input type="checkbox" id="totalCholesterol" name="BioChemistry[]" value="Total Cholesterol" /><label
+                for="totalCholesterol">Total Cholesterol</label>
+            </li>
+            <li>
+            <li>
+              <input type="checkbox" id="triglycerides" name="BioChemistry[]" value="Triglycerides" /><label
+                for="triglycerides">Triglycerides</label>
+            </li>
+            <li>
+              <input type="checkbox" id="hdlCholesterol" name="BioChemistry[]" value="HDL Cholesterol" /><label
+                for="hdlCholesterol">HDL Cholesterol</label>
+            </li>
+            <li>
+              <input type="checkbox" id="ldlCholesterol" name="BioChemistry[]" value="LDL Cholesterol" /><label
+                for="ldlCholesterol">LDL Cholesterol</label>
             </li>
             <li>
               <input type="checkbox" id="ca++" name="BioChemistry[]" value="Ca++" /><label for="ca++">Ca++</label>
@@ -335,17 +377,20 @@ if ($result) {
                 Acid</label>
             </li>
             <li>
-              <input type="checkbox" id="cpk-mb" name="BioChemistry[]" value="CPK-MB" /><label
+              <input type="checkbox" id="cpk-mb" name="BioChemistry[]" value="CPK - MB" /><label
                 for="cpk-mb">CPK-MB</label>
             </li>
             <li>
-              <input type="checkbox" id="cpk-nac" name="BioChemistry[]" value="CPL-NAC" /><label
+              <input type="checkbox" id="cpk-nac" name="BioChemistry[]" value="CPL - NAC" /><label
                 for="cpk-nac">CPL-NAC</label>
             </li>
             <li>
-              <input type="checkbox" id="ironProfile" name="BioChemistry[]" value="Iron Profile" /><label
-                for="ironProfile">Iron
-                Profile</label>
+              <input type="checkbox" id="serumIron" name="BioChemistry[]" value="Serum Iron" /><label
+                for="serumIron">Serum Iron</label>
+            </li>
+            <li>
+              <input type="checkbox" id="tibc" name="BioChemistry[]" value="TIBC" /><label
+                for="tibc">TIBC</label>
             </li>
           </ul>
         </div>
@@ -359,7 +404,13 @@ if ($result) {
         <div class="container">
           <ul>
             <li>
-              <input type="checkbox" id="cbc" name="Haematology[]" value="CBC" /><label for="cbc">CBC</label>
+              <input type="checkbox" id="hb" name="Haematology[]" value="Hb" /><label for="hb">Hb</label>
+            </li>
+            <li>
+              <input type="checkbox" id="tlc" name="Haematology[]" value="TLC" /><label for="tlc">TLC</label>
+            </li>
+            <li>
+              <input type="checkbox" id="plateletCount" name="Haematology[]" value="Platelet Count" /><label for="plateletCount">Platelet Count</label>
             </li>
             <li>
               <input type="checkbox" id="esr" name="Haematology[]" value="ESR" /><label for="esr">ESR</label>
@@ -377,11 +428,16 @@ if ($result) {
                 for="retics">Retics</label>
             </li>
             <li>
-              <input type="checkbox" id="bt.ct" name="Haematology[]" value="BT. CT" /><label for="bt.ct">BT. CT</label>
+              <input type="checkbox" id="bt" name="Haematology[]" value="BT" /><label for="bt">BT</label>
             </li>
             <li>
-              <input type="checkbox" id="ptInr" name="Haematology[]" value="PT | INR" /><label for="prInr">PT |
-                INR</label>
+              <input type="checkbox" id="ct" name="Haematology[]" value="CT" /><label for="ct">CT</label>
+            </li>
+            <li>
+              <input type="checkbox" id="pt" name="Haematology[]" value="PT" /><label for="pt">PT</label>
+            </li>
+            <li>
+              <input type="checkbox" id="inr" name="Haematology[]" value="INR" /><label for="Inr">INR</label>
             </li>
             <li>
               <input type="checkbox" id="aptt" name="Haematology[]" value="APTT" /><label for="aptt">APTT</label>
@@ -396,8 +452,7 @@ if ($result) {
               <input type="checkbox" id="anc" name="Haematology[]" value="ANC" /><label for="anc">ANC</label>
             </li>
             <li>
-              <input type="checkbox" id="d-dimer" name="Haematology[]" value="D - Dimer" /><label for="d-dimer">D -
-                Dimer</label>
+              <input type="checkbox" id="d-dimer" name="Haematology[]" value="D-Dimer" /><label for="d-dimer">D-Dimer</label>
             </li>
           </ul>
         </div>
@@ -521,11 +576,13 @@ if ($result) {
                 OBT</label>
             </li>
             <li>
-              <input type="checkbox" id="bence-sonesProtein" name="Parasitology[]" value="Bence - sones protein" /><label for="bence-sonesProtein">Bence
+              <input type="checkbox" id="bence-sonesProtein" name="Parasitology[]"
+                value="Bence - sones protein" /><label for="bence-sonesProtein">Bence
                 - sones protein</label>
             </li>
             <li>
-              <input type="checkbox" id="bilePigmentInUrine" name="Parasitology[]" value="Bile pigment in urine" /><label for="bilePigmentInUrine">Bile
+              <input type="checkbox" id="bilePigmentInUrine" name="Parasitology[]"
+                value="Bile pigment in urine" /><label for="bilePigmentInUrine">Bile
                 pigment in urine</label>
             </li>
           </ul>
@@ -670,16 +727,26 @@ if (isset($_POST['submit'])) {
   if (isset($_POST['BioChemistry']) || isset($_POST['Haematology']) || isset($_POST['Bacteriology']) || isset($_POST['Mycology']) || isset($_POST['Virology']) || isset($_POST['TumarMarkers']) || isset($_POST['Parasitology']) || isset($_POST['Cytology']) || isset($_POST['HormoneAssays']) || isset($_POST['Immunology'])) {
     $categories = ['BioChemistry', 'Haematology', 'Bacteriology', 'Mycology', 'Virology', 'TumarMarkers', 'Parasitology', 'Cytology', 'HormoneAssays', 'Immunology'];
     $queries = [];
+    $last_report_id_query = "SELECT MAX(reportID) AS max_report_id FROM test_data";
+    $last_report_id_result = mysqli_query($conn, $last_report_id_query);
+    $last_report_id_row = mysqli_fetch_assoc($last_report_id_result);
+    $last_report_id = $last_report_id_row['max_report_id'];
+
+    if ($last_report_id === "") {
+      $reportID = 1; // If table is empty, set report ID to 1
+    } else {
+      $reportID = $last_report_id + 1; // Otherwise, increment the last report ID
+    }
 
     foreach ($categories as $category) {
       if (isset($_POST[$category])) {
         $testNames = implode(", ", $_POST[$category]); // Concatenate test names
-        $query = "INSERT INTO test_data (`category`, `testNames`,  `patientID`, `patientName`, `doctorID`) 
-                  VALUES ('$category', '$testNames', '$patientID', '$patientName', '{$row['doctorID']}')";
+        $query = "INSERT INTO test_data (`category`, `testNames`,  `patientID`, `patientName`, `doctorID`,`date`, `reportID`) 
+                  VALUES ('$category', '$testNames', '$patientID', '$patientName', '{$row['doctorID']}',CURDATE(),'$reportID')";
         $queries[] = $query;
       }
     }
-    
+
     // Execute all queries
     foreach ($queries as $query) {
       if (!mysqli_query($conn, $query)) {

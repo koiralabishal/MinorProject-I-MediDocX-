@@ -142,8 +142,10 @@ if (isset($_POST["register"])) {
 
 
     $_SESSION['name'] = $name;
-    $_SESSION['email'] = $email;
+    // $_SESSION['email'] = $email;
     $_SESSION['ID1'] = $ID1;
+
+    session_write_close();
 
     $sql = "SELECT email FROM patient WHERE email = '$email' UNION SELECT email  FROM doctor WHERE email = '$email' UNION SELECT email  FROM lab_technician WHERE email = '$email'";
     $sql1 = "SELECT doctorID FROM doctor WHERE doctorID = '$ID1'";
@@ -521,7 +523,7 @@ if (isset($_POST["register"])) {
             $query = "INSERT INTO doctor (name, email, doctorID, birthDate, gender, address, password, verificationCode, isVerified)
             VALUES ('$name', '$email', '$ID1', '$birthDate','$gender','$address', '$passwordHash', '$v_code', '0')";
         } elseif ($type === "Lab Technician") {
-            $query = "INSERT INTO lab_technician (name, email, labTechnicianID, birthDate, gender, address, password, verificationCode, isVerified)
+            $query = "INSERT INTO lab_technician (name, technicianEmail, labTechnicianID, birthDate, gender, address, password, verificationCode, isVerified)
             VALUES ('$name', '$email', '$ID3', '$birthDate','$gender','$address', '$passwordHash', '$v_code', '0')";
         }
 

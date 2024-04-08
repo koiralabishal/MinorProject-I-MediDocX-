@@ -1,817 +1,702 @@
+<?php
+
+session_start();
+include 'connection.php';
+
+
+
+
+
+if (isset($_POST['submit'])) {
+  $reportIDs = $_POST['reportID'];
+  $resultValues = $_POST['result'];
+  // $flags = $_POST['flag'];
+  $testNames = $_POST['testName'];
+  foreach ($testNames as $index => $testName) {
+    // Get the corresponding values for the current test
+    $reportID = $reportIDs[$index];
+    $resultValue = $resultValues[$index];
+    // $flag = $flags[$index];
+    // echo $testName;
+
+    $referenceRange = getReferenceRange($conn, $testName);
+    // Determine flag based on result value and reference range
+    $flag = determineFlag($resultValue, $referenceRange);
+    $updateQuery = "UPDATE report 
+                        SET resultValue = '$resultValue', flag = '$flag' 
+                        WHERE TestName = '$testName' AND ReportID = '$reportID'";
+
+
+    $resultQuery = mysqli_query($conn, $updateQuery);
+
+    if ($resultQuery) {
+
+      $deleteQuery = "DELETE FROM test_data WHERE patientID = '{$_GET['patientID']}' AND reportID = '{$_GET['reportID']}' AND doctorID = '{$_GET['doctorID']}'";
+      $resultDelete = mysqli_query($conn, $deleteQuery);
+
+      if ($resultDelete) {
+        ?>
+        <!DOCTYPE html>
+        <html lang="en">
+
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Success</title>
+          <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+        </head>
+
+        <body>
+
+          <script>
+
+            document.addEventListener('DOMContentLoaded', function () {
+              // Hide the form
+              document.getElementById('testForm').style.display = 'none';
+
+              // Show success message
+              swal({
+                title: "Success",
+                text: "Sent Successfully",
+                icon: "success",
+                button: "Ok",
+              }).then(function () {
+                // Redirect to labTechnician.php
+                window.location = "labTechnician.php";
+              });
+            });
+
+
+          </script>
+        </body>
+
+        </html>
+        <?php
+      }
+    }
+
+  }
+
+
+
+}
+
+function getReferenceRange($conn, $testName)
+{
+  $query = "SELECT ReferenceRange FROM tests WHERE TestName = '$testName'";
+  $result = mysqli_query($conn, $query);
+  if ($result && mysqli_num_rows($result) > 0) {
+    $row = mysqli_fetch_assoc($result);
+    return $row['ReferenceRange'];
+  }
+  return null;
+}
+
+
+function determineFlag($resultValue, $referenceRange)
+{
+  if ($resultValue === "") {
+    return "P";
+  } elseif (!empty($referenceRange)) {
+    // Check if reference range has special characters like '<'
+    if (strpos($referenceRange, '<') !== false) {
+      $referenceValue = floatval(substr($referenceRange, 1)); // Remove '<' and convert to float
+      $result = floatval($resultValue);
+      if ($result > $referenceValue) {
+        return "H"; 
+      } else {
+        return ""; //Normal
+      }
+    } elseif (strpos($referenceRange, '>') !== false) {
+      $referenceValue = floatval(substr($referenceRange, 1)); // Remove '<' and convert to float
+      $result = floatval($resultValue);
+      if ($result < $referenceValue) {
+        return "L";
+      } else {
+        return ""; // Normal
+      }
+    } elseif (strpos($referenceRange, '-') !== false) {
+      // If reference range is expressed as a range
+      $ranges = explode("-", $referenceRange);
+      $lowerLimit = floatval(trim($ranges[0]));
+      $upperLimit = floatval(trim($ranges[1]));
+      $result = floatval($resultValue);
+      if ($result < $lowerLimit) {
+        return "L";
+      } elseif ($result > $upperLimit) {
+        return "H";
+      } else {
+        return ""; // Normal
+      }
+    } else {
+      // If reference range is a single value (integer or float)
+      $referenceValue = floatval($referenceRange);
+      $result = floatval($resultValue);
+      if ($result !== $referenceValue) {
+        return "High";
+      } else {
+        return ""; // Normal
+      }
+    }
+  } else {
+    return ""; // Reference range not available
+  }
+}
+
+// if (!isset()) {
+//   header('Location: index.php');
+// }
+
+
+
+
+
+if (!isset($_SESSION['technicianEmail'],$_GET['patientName'], $_GET['patientID'], $_GET['doctorID'], $_GET['reportID'])) {
+  // Redirect to index.php if any of the parameters are missing
+  header('Location: index.php');
+  exit();
+}
+
+
+
+
+
+
+
+
+
+
+
+if (isset($_SESSION['technicianEmail'])) {
+
+  $email = $_SESSION['technicianEmail'];
+  $patientName = $_GET['patientName'];
+  $patientID = $_GET['patientID'];
+  $doctorID = $_GET['doctorID'];
+  $reportID = $_GET['reportID'];
+  // echo $reportID;
+
+
+
+
+
+
+
+  $sql5 = "SELECT age, gender FROM appointed_patient WHERE patientID = '$patientID'";
+
+  $result5 = mysqli_query($conn, $sql5);
+
+  if ($result5) {
+    $row6 = mysqli_fetch_assoc($result5);
+  }
+
+  $sql = "SELECT * FROM hospital WHERE email = '{$email}' AND userType ='Lab Technician'";
+  // session_write_close();
+  $sql4 = "SELECT patientID from hospital WHERE userType = 'Patient'";
+  $result4 = mysqli_query($conn, $sql4);
+
+  if ($result4) {
+    $row5 = mysqli_fetch_assoc($result4);
+    $patientID = $row5['patientID'];
+
+  }
+
+
+  $sql2 = "SELECT distinct patientName FROM  test_data WHERE patientID = '$patientID'";
+  $result2 = mysqli_query($conn, $sql2);
+  // $sql2 = "SELECT Distinct h.name FROM hospital h JOIN test_data t ON h.doctorID = t.doctorID";
+  $sql3 = "SELECT distinct t.patientName, t.patientID, h.name, t.doctorID
+        FROM test_data t
+        INNER JOIN hospital h ON t.doctorID = h.doctorID
+        ORDER BY t.id DESC ";
+
+  // $sql3 = "SELECT a.* FROM all_patient a JOIN hospital h on a.referredToDoctorID = h.doctorID WHERE h.email = '{$email}' ORDER BY a.ID DESC";
+
+
+
+  $result = mysqli_query($conn, $sql);
+
+  $result3 = mysqli_query($conn, $sql3);
+  // $result3 = mysqli_query($conn, $sql3);
+
+
+  if ($result) {
+    $row = mysqli_fetch_assoc($result);
+  }
+
+
+  // $sql7 = "SELECT DISTINCT category FROM test_data WHERE patientID = '$patientID' AND doctorID = '$doctorID'";
+// $result7 = mysqli_query($conn, $sql7);
+
+  $tests = array();
+
+  // if ($result7) {
+
+
+  // while ($row7 = mysqli_fetch_assoc($result7)) {
+// $testType = $row7['category'];
+  $tests = array();
+  $testTypes = array("Biochemistry", "Haematology");
+  // $sql3 = "SELECT category, testName, ReferenceRange, Methods FROM bichemistry WHERE category IN (SELECT DISTINCT category FROM test_data WHERE testTypes = '$testType' AND patientID = '$patientID' AND doctorID = '$doctorID')";
+  foreach ($testTypes as $testType) {
+    $query = "SELECT $testType.TestName, $testType.subCategory, $testType.Units, $testType.Methods, $testType.ReferenceRange
+        FROM $testType 
+        JOIN test_data ON FIND_IN_SET($testType.testName, REPLACE(test_data.testNames, ', ', ','))
+        WHERE test_data.patientID = '{$_GET['patientID']}'
+        AND test_data.category = '$testType'
+        AND test_data.doctorID = '{$_GET['doctorID']}'
+        AND test_data.reportID = '{$_GET['reportID']}'";
+
+    $result8 = mysqli_query($conn, $query);
+
+    if ($result8) {
+      while ($row9 = mysqli_fetch_assoc($result8)) {
+        $category = $row9['subCategory'];
+
+
+        $referenceRanges = explode(',', $row9['ReferenceRange']);
+
+        // Initialize an empty array to store reference range list
+        $referenceRangeList = array();
+
+        // Process each part of the reference range
+        foreach ($referenceRanges as $range) {
+          // Check if the range contains a semicolon
+          if (strpos($range, ',;') !== false) {
+            // Split range by semicolon to create nested lists
+            $nestedRanges = explode(';', $range);
+            $nestedList .= '<ul>';
+            // for ($i = 1; $i < count($nestedRanges); $i++) {
+            //   $nestedList .= "<li>{$nestedRange[$i]}</li>";
+            // }
+            // foreach ($nestedRanges as $nestedRange) {
+            //   // Add nested list items
+
+            //   $nestedList .= "<li>{$nestedRange}</li>";
+
+            // }
+            $nestedList .= '</ul>';
+
+            // Add the nested list to the main reference range list
+            $referenceRangeList[] = $nestedList;
+          } else {
+            // Add individual range to the main reference range list
+            $referenceRangeList[] = $range;
+          }
+        }
+
+
+        if (!isset($tests[$testType][$category])) {
+          $tests[$testType][$category] = array();
+        }
+
+        $tests[$testType][$category][] = array(
+          'testName' => $row9['TestName'],
+          'referenceRange' => $referenceRangeList,
+          // 'referenceRange' => $ran,
+          'unit' => $row9['Units'],
+          'methods' => $row9['Methods']
+        );
+      }
+    }
+  }
+
+}
+
+
+// session_start();
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>labTechnicianPatient</title>
-    <!-- <link rel="stylesheet" href="style.css"> -->
-    <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
 
-      header {
-        background-color: rgb(239, 239, 239);
-        padding: 1vw;
-        width: 100vw;
-        height: 15vh;
-        position: fixed;
-        display: flex;
-      }
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>labTechnicianPatient</title>
+  <!-- <link rel="stylesheet" href="style.css"> -->
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-      header img {
-        height: 100%;
-      }
+    header {
+      background-color: rgb(239, 239, 239);
+      padding: 1vw;
+      width: 100vw;
+      height: 15vh;
+      position: fixed;
+      display: flex;
+    }
 
-      header input {
-        /* align-self: center; */
-        border: none;
-        margin: auto 4% auto auto;
-        padding: 1%;
-        height: fit-content;
-        background-color: rgb(252, 252, 252);
-        font-size: 16px;
-        border-radius: 12px;
-      }
+    header img {
+      height: 100%;
+    }
 
-      header input:focus {
-        /* background-color: red; */
-        outline: none;
-        /* border-bottom: 1px solid gray; */
-        /* text-decoration: underline; */
-        /* text-decoration-line: underline; */
-      }
+    header input {
+      /* align-self: center; */
+      border: none;
+      margin: auto 4% auto auto;
+      padding: 1%;
+      height: fit-content;
+      background-color: rgb(252, 252, 252);
+      font-size: 16px;
+      border-radius: 12px;
+    }
 
-      aside {
-        display: inline-block;
-        background-color: #3e588f;
-        color: #e3e8f8;
-        width: 15vw;
-        height: 85vh;
-        margin-top: 15vh;
-        position: fixed;
-      }
+    header input:focus {
+      /* background-color: red; */
+      outline: none;
+      /* border-bottom: 1px solid gray; */
+      /* text-decoration: underline; */
+      /* text-decoration-line: underline; */
+    }
 
-      aside #profileInfo {
-        /* background-color: red; */
-        width: 100%;
-        /* height: 32vh; */
-        padding-top: 16%;
-      }
+    aside {
+      display: inline-block;
+      background-color: #3e588f;
+      color: #e3e8f8;
+      width: 15vw;
+      height: 85vh;
+      margin-top: 15vh;
+      position: fixed;
+    }
 
-      aside #profileInfo #profilePic {
-        width: 48%;
-        aspect-ratio: 1/1;
-        margin: auto auto;
-        background-image: url(Mayukh\ Baral.jpg);
-        background-repeat: no-repeat;
-        background-position: center top;
-        background-size: 100%;
-        border-radius: 50%;
-      }
+    aside #profileInfo {
+      /* background-color: red; */
+      width: 100%;
+      /* height: 32vh; */
+      padding-top: 16%;
+    }
 
-      aside #profileInfo #details {
-        width: fit-content;
-        /* background-color: gold; */
-        color: #e3e8f8;
-        margin: 8% auto 0;
-        text-align: center;
-      }
+    aside #profileInfo #profilePic {
+      width: 48%;
+      aspect-ratio: 1/1;
+      margin: auto auto;
+      background-image: url(Mayukh\ Baral.jpg);
+      background-repeat: no-repeat;
+      background-position: center top;
+      background-size: 100%;
+      border-radius: 50%;
+    }
 
-      aside #reportTemplatesContainer {
-        background-color: #2f426b;
-        margin-top: 8%;
-      }
-      aside #reportTemplatesContainer h3 {
-        /* background-color: red; */
-        padding: 4%;
-        padding-left: 6%;
-        border-bottom: 1px solid rgb(190, 177, 104);
-      }
+    aside #profileInfo #details {
+      width: fit-content;
+      /* background-color: gold; */
+      color: #e3e8f8;
+      margin: 8% auto 0;
+      text-align: center;
+    }
 
-      aside #reportTemplatesContainer .reportTemplatesAside {
-        /* background-color: red; */
-        border-bottom: 1px solid #3e588f;
-        padding: 2%;
-        padding-left: 12%;
-      }
+    aside #reportTemplatesContainer {
+      background-color: #2f426b;
+      margin-top: 8%;
+    }
 
-      main {
-        display: inline-block;
-        background-color: #e3e8f8;
-        margin-top: 15vh;
-        margin-left: 15vw;
-        width: 85vw;
-        /* padding-top: 4vh; */
-        /* padding: 2%; */
-      }
+    aside #reportTemplatesContainer h3 {
+      /* background-color: red; */
+      padding: 4%;
+      padding-left: 6%;
+      border-bottom: 1px solid rgb(190, 177, 104);
+    }
 
-      main section {
-        background-color: whitesmoke;
-        margin: 4% 6%;
-        padding: 1%;
-        border-radius: 8px;
-        box-shadow: 4px 4px 8px 5px darkgrey;
-      }
+    aside #reportTemplatesContainer .reportTemplatesAside {
+      /* background-color: red; */
+      border-bottom: 1px solid #3e588f;
+      padding: 2%;
+      padding-left: 12%;
+    }
 
-      main section .header {
-        /* background-color: lightblue; */
-        font-family: Cambria, Cochin, Georgia, Times, "Times New Roman", serif;
-        padding: 1%;
-        display: flex;
-      }
+    main {
+      display: inline-block;
+      background-color: #e3e8f8;
+      margin-top: 15vh;
+      margin-left: 15vw;
+      width: 85vw;
+      /* padding-top: 4vh; */
+      /* padding: 2%; */
+    }
 
-      main section .header h2 {
-        margin-right: auto;
-      }
+    main section {
+      background-color: whitesmoke;
+      margin: 4% 6%;
+      padding: 1%;
+      border-radius: 8px;
+      box-shadow: 4px 4px 8px 5px darkgrey;
+    }
 
-      main section .header button {
-        border: 1px solid gray;
-        /* margin: auto 4% auto auto; */
-        margin: 1%;
-        padding: 1%;
-        height: fit-content;
-        background-color: rgb(252, 252, 252);
-        font-size: 16px;
-        border-radius: 12px;
-        /* background-color: red; */
-      }
+    main section .header {
+      /* background-color: lightblue; */
+      font-family: Cambria, Cochin, Georgia, Times, "Times New Roman", serif;
+      padding: 1%;
+      display: flex;
+    }
 
-      main section .header button:hover {
-        box-shadow: 2px 2px 4px 2px darkgrey;
-        cursor: pointer;
-        background-color: rgb(254, 254, 254);
-      }
+    main section .header h2 {
+      margin-right: auto;
+    }
 
-      main section .container {
-        /* background-color: rgb(239, 239, 239); */
-        /* background-color: #e3e8f8; */
-        padding: 1%;
-        margin: 2% 1%;
-        border-radius: 8px;
-      }
+    main section .header button {
+      border: 1px solid gray;
+      /* margin: auto 4% auto auto; */
+      margin: 1%;
+      padding: 1%;
+      height: fit-content;
+      background-color: rgb(252, 252, 252);
+      font-size: 16px;
+      border-radius: 12px;
+      /* background-color: red; */
+    }
 
-      main section .container .month {
-        /* background-color:cadetblue; */
-        padding: 1%;
-        font-family: Arial, Helvetica, sans-serif;
-        border-bottom: 1px solid silver;
-      }
+    main section .header button:hover {
+      box-shadow: 2px 2px 4px 2px darkgrey;
+      cursor: pointer;
+      background-color: rgb(254, 254, 254);
+    }
 
-      main section .boxContainer {
-        /* background-color: lightgreen; */
-        /* padding-top: 1%; */
-        display: flex;
-        /* flex-wrap:wrap; */
-      }
+    main section .container {
+      /* background-color: rgb(239, 239, 239); */
+      /* background-color: #e3e8f8; */
+      padding: 1%;
+      margin: 2% 1%;
+      border-radius: 8px;
+    }
 
-      main section .boxContainer .box {
-        background-color: #4e6eb2;
-        color: #e3e8f8;
-        padding: 2%;
-        /* height: 100px; */
-        margin: 1%;
-        display: inline-block;
-        transition: all 0.2s;
-        cursor: pointer;
-        border-radius: 8px;
-        border: 1px solid silver;
-        font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS",
-          sans-serif;
-      }
-      main section .boxContainer .box:hover {
-        background-color: whitesmoke;
-        color: #2f426b;
-        box-shadow: 2px 2px 8px 1px grey;
-        /* transition: background-color, box-shadow 1s; */
-      }
+    main section .container .month {
+      /* background-color:cadetblue; */
+      padding: 1%;
+      font-family: Arial, Helvetica, sans-serif;
+      border-bottom: 1px solid silver;
+    }
 
-      main section .container .boxContainer table {
-        /* background-color: rgb(239, 239, 239); */
-        margin: auto;
-        border-collapse: collapse;
-        font-family: Arial, Helvetica, sans-serif;
-        border: 1px solid silver;
-      }
+    main section .boxContainer {
+      /* background-color: lightgreen; */
+      /* padding-top: 1%; */
+      display: flex;
+      /* flex-wrap:wrap; */
+    }
 
-      main section .container .boxContainer table th,
-      td {
-        padding: 4px 8px;
-        text-align: left;
-        vertical-align: top;
-        font-size: 14px;
-        text-wrap: balance;
-        /* border: 1px solid black; */
-      }
+    main section .boxContainer .box {
+      background-color: #4e6eb2;
+      color: #e3e8f8;
+      padding: 2%;
+      /* height: 100px; */
+      margin: 1%;
+      display: inline-block;
+      transition: all 0.2s;
+      cursor: pointer;
+      border-radius: 8px;
+      border: 1px solid silver;
+      font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS",
+        sans-serif;
+    }
 
-      main section .container .boxContainer table th[scope="col"] {
-        color: whitesmoke;
-        font-family: Verdana, Geneva, Tahoma, sans-serif;
-        /* font-family: Arial, Helvetica, sans-serif; */
-        font-size: 16px;
-        font-weight: bold;
-        background-color: #4e6eb2;
-        border: none;
-        text-wrap: nowrap;
-      }
+    main section .boxContainer .box:hover {
+      background-color: whitesmoke;
+      color: #2f426b;
+      box-shadow: 2px 2px 8px 1px grey;
+      /* transition: background-color, box-shadow 1s; */
+    }
 
-      main section .container .boxContainer table th[scope="row"] {
-        font-weight: normal;
-        padding-left: 2%;
-      }
+    main section .container .boxContainer table {
+      /* background-color: rgb(239, 239, 239); */
+      margin: auto;
+      border-collapse: collapse;
+      font-family: Arial, Helvetica, sans-serif;
+      border: 1px solid silver;
+    }
 
-      main section .container .boxContainer table .testCategoryTitle {
-        font-family: Verdana, Geneva, Tahoma, sans-serif;
-        /* font-family: Arial, Helvetica, sans-serif; */
-        font-weight: bold;
-        background-color: rgb(239, 239, 239);
-        font-size: 14px;
-        /* border-top: 1px solid silver; */
-        border-bottom: 1px solid silver;
-        margin-top: 24px;
-        /* background-color: red; */
-      }
+    main section .container .boxContainer table th,
+    td {
+      padding: 4px 8px;
+      text-align: left;
+      vertical-align: top;
+      font-size: 14px;
+      text-wrap: balance;
+      /* border: 1px solid black; */
+    }
 
-      main section .container .boxContainer table td .result {
-        background-color: transparent;
-        border: 1px solid gray;
-        width: 80%;
-      }
+    main section .container .boxContainer table th[scope="col"] {
+      color: whitesmoke;
+      font-family: Verdana, Geneva, Tahoma, sans-serif;
+      /* font-family: Arial, Helvetica, sans-serif; */
+      font-size: 16px;
+      font-weight: bold;
+      background-color: #4e6eb2;
+      border: none;
+      text-wrap: nowrap;
+    }
 
-      main section .container .boxContainer table td .flag {
-        background-color: transparent;
-        border: 1px solid gray;
-        width: 40%;
-      }
+    main section .container .boxContainer table th[scope="row"] {
+      font-weight: normal;
+      padding-left: 2%;
+    }
 
-      main section .container .boxContainer table td ul {
-        padding-left: 5%;
-      }
+    main section .container .boxContainer table .testCategoryTitle {
+      font-family: Verdana, Geneva, Tahoma, sans-serif;
+      /* font-family: Arial, Helvetica, sans-serif; */
+      font-weight: bold;
+      background-color: rgb(239, 239, 239);
+      font-size: 14px;
+      /* border-top: 1px solid silver; */
+      border-bottom: 1px solid silver;
+      margin-top: 24px;
+      /* background-color: red; */
+    }
 
-      main section .container .boxContainer table td ul ul {
-        padding-left: 10%;
-      }
-    </style>
-  </head>
-  <body>
-    <header>
-      <img src="MediDocX Logo.JPG" alt="" />
-      <input type="text" placeholder="Search Patient..." />
-    </header>
+    main section .container .boxContainer table td .result {
+      background-color: transparent;
+      border: 1px solid gray;
+      width: 80%;
+    }
 
-    <aside>
-      <div id="profileInfo">
-        <div id="profilePic"></div>
-        <div id="details">
-          <b> Mayukh Baral </b><br />
-          Doctor <br />
-          ID: 54 <br />
-          M.D. Cardiology <br />
-          (TU, GMC, Nepal)
-        </div>
+    main section .container .boxContainer table td .flag {
+      background-color: transparent;
+      border: 1px solid gray;
+      width: 40%;
+    }
+
+    main section .container .boxContainer table td ul {
+      padding-left: 5%;
+    }
+
+    main section .container .boxContainer table td ul ul {
+      padding-left: 10%;
+    }
+
+    #testForm {
+      display: block;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <img src="MediDocX Logo.JPG" alt="" />
+    <input type="text" placeholder="Search Patient..." />
+  </header>
+  <aside>
+    <div id="profileInfo">
+      <div id="profilePic"></div>
+      <div id="details">
+        <?php echo $row['name']; ?>
+        </b><br>
+        <?php echo $row['userType']; ?> <br>
+        ID:
+        <?php echo $row['labTechnicianID']; ?> <br>
       </div>
-      <div id="reportTemplatesContainer">
-        <h3>Patient Info</h3>
-        <div class="reportTemplatesAside">Name: Bishal Koirala</div>
-        <div class="reportTemplatesAside">Patient ID: 54</div>
-        <div class="reportTemplatesAside">Age: 21</div>
+    </div>
+    <div id="reportTemplatesContainer">
+      <h3>Patient Info</h3>
+      <div class="reportTemplatesAside">Name:
+        <?php echo $patientName; ?>
       </div>
-      <!-- <div id="reportTemplatesContainer">
-        <h3>All Patients</h3>
-        <div class="reportTemplatesAside">Mayukh Baral</div>
-        <div class="reportTemplatesAside">Bishal Koirala</div>
-        <div class="reportTemplatesAside">Sadikshya Banstola</div>
-      </div> -->
-    </aside>
-    <main>
-      <section>
-        <div class="header">
-          <h2>BioChemistry</h2>
-        </div>
-        <div class="container">
-          <div class="boxContainer">
-            <table>
-              <tr>
-                <th scope="col">Test Name</th>
-                <th scope="col">Result</th>
-                <th scope="col">Unit</th>
-                <th scope="col">Flag</th>
-                <th scope="col">Reference Range</th>
-                <th scope="col">Method</th>
-              </tr>
+      <div class="reportTemplatesAside">Patient ID:
+        <?php echo $_GET['patientID']; ?>
+      </div>
+      <div class="reportTemplatesAside">Age:
+        <?php echo $row6['age']; ?>
+      </div>
+      <div class="reportTemplatesAside">Gender:
+        <?php echo $row6['gender']; ?>
+      </div>
+    </div>
+  </aside>
+  <main>
+    <form id = "testForm"
+      action="labTechnicianPatient.php?patientName=<?php echo $patientName; ?>&patientID=<?php echo $_GET['patientID'] ?>&doctorID=<?php echo $doctorID; ?>&reportID=<?php echo $reportID; ?>"
+      method="POST">
+      <!-- <label for="recordID">Record ID</label>
+      <input type="text" name="recordID">
+      <label for="date">Date</label>
+      <input type="date" name="date"> -->
+      <?php foreach ($tests as $testType => $categories) { ?>
 
-              <tr class="testCategoryTitle">
-                <td colspan="6">Complete BioChemistry Profile</td>
-              </tr>
 
-              <tr>
-                <th scope="row">RBS</th>
-                <td><input type="text" class="result" /></td>
-                <td>mg/dL</td>
-                <td><input type="text" class="flag" /></td>
-                <td>70 - 140</td>
-                <td>Glucose oxidase-peroxidase</td>
-              </tr>
+        <section>
 
-              <tr>
-                <th scope="row">FBS</th>
-                <td><input type="text" class="result" /></td>
-                <td>mg/dL</td>
-                <td><input type="text" class="flag" /></td>
-                <td>70 - 100</td>
-                <td>Glucose oxidase-peroxidase</td>
-              </tr>
-
-              <tr>
-                <th scope="row">PPBS</th>
-                <td><input type="text" class="result" /></td>
-                <td>mg/dL</td>
-                <td><input type="text" class="flag" /></td>
-                <td>&lt; 140 (postprandial)</td>
-                <td>Glucose oxidase-peroxidase</td>
-              </tr>
-
-              <tr class="testCategoryTitle">
-                <td colspan="6">Liver Function Tests</td>
-              </tr>
-
-              <tr>
-                <th scope="row">LFT</th>
-                <td><input type="text" class="result" /></td>
-                <td>IU/L</td>
-                <td><input type="text" class="flag" /></td>
-                <td>
-                  <ul>
-                    <li>Total Bilirubin: 0.2 - 1.2 mg/ dL</li>
-                    <li>
-                      Alanine aminotransferase (ALR or SGPT): 7 - 56 IU/ L
-                    </li>
-                    <li>
-                      Aspartate aminotransferase (AST or SGOT): 5 - 40 IU/ L
-                    </li>
-                  </ul>
-                </td>
-                <td>Various enzymatic and colorimetric methods</td>
-              </tr>
-
-              <tr>
-                <td class="testCategoryTitle" colspan="6">
-                  Renal Function Tests
-                </td>
-              </tr>
-              <tr>
-                <th scope="row">Renal Function Tests</th>
-                <td><input type="text" class="result" /></td>
-                <td>mg/dL</td>
-                <td><input type="text" class="flag" /></td>
-                <td>
-                  <ul>
-                    <li>Blood Urea Nitrogen (BUN or Urea): 7 - 20 mg/ dL</li>
-                    <li>
-                      Serum Creatinine:
-                      <ul>
-                        <li>0.6 - 1.2 mg/ dL (adult males)</li>
-                        <li>0.5 - 1.1 mg/ dL (adult females)</li>
-                      </ul>
-                    </li>
-                    <li>
-                      Estimated Glomerular Filtration Rate (eGFR): &gt; 60
-                      mL/min/1.73m<sup>2</sup>
-                    </li>
-                  </ul>
-                </td>
-                <td>Various enzymatic and colorimetric methodss</td>
-              </tr>
-
-              <tr class="testCategoryTitle">
-                <td>Lipid Profile</td>
-              </tr>
-              <tr>
-                <th scope="row">Lipid Profile</th>
-                <td><input type="text" class="result" /></td>
-                <td>mg/dL</td>
-                <td><input type="text" class="flag" /></td>
-                <td>
-                  <ul>
-                    <li>Total Cholesterol: &lt; 200 mg/ dL</li>
-                    <li>Triglycerides: &lt; 150 mg/ dL</li>
-                    <li>
-                      High-Density Lipoprotein (HDL) Cholesterol:
-                      <ul>
-                        <li>&gt; 40 mg/ dL (men)</li>
-                        <li>&gt; 50 mg/ dL (women)</li>
-                      </ul>
-                    </li>
-                    <li>
-                      Low-Density Lipoprotein (LDL) Cholesterol: &lt; 130 mg/ dL
-                    </li>
-                  </ul>
-                </td>
-                <td>Various enzymatic methods</td>
-              </tr>
-
-              <tr class="testCategoryTitle">
-                <td colspan="6">Electrolytes and Minerals</td>
-              </tr>
-              <tr>
-                <th scope="row">Ca++</th>
-                <td><input type="text" class="result" /></td>
-                <td>mg/dL</td>
-                <td><input type="text" class="flag" /></td>
-                <td>8.5 - 10.5</td>
-                <td>Colorimetric method</td>
-              </tr>
-
-              <tr>
-                <th scope="row">Mg++</th>
-                <td><input type="text" class="result" /></td>
-                <td>mg/dL</td>
-                <td><input type="text" class="flag" /></td>
-                <td>1.7 - 2.2</td>
-                <td>Colorimetric method</td>
-              </tr>
-
-              <tr>
-                <th scope="row">Phosphorus</th>
-                <td><input type="text" class="result" /></td>
-                <td>mg/dL</td>
-                <td><input type="text" class="flag" /></td>
-                <td>2.5 - 4.5</td>
-                <td>Colorimetric method</td>
-              </tr>
-
-              <tr>
-                <th scope="row">Uric Acid</th>
-                <td><input type="text" class="result" /></td>
-                <td>mg/dL</td>
-                <td><input type="text" class="flag" /></td>
-                <td>
-                  <ul>
-                    <li>3.5 - 7.2 (male)</li>
-                    <li>2.6 - 6.0 (female)</li>
-                  </ul>
-                </td>
-                <td>Uricase method</td>
-              </tr>
-
-              <tr class="testCategoryTitle">
-                <td colspan="6">Cardiac Markers</td>
-              </tr>
-              <tr>
-                <th scope="row">CPK - MB</th>
-                <td><input type="text" class="result" /></td>
-                <td>IU/L</td>
-                <td><input type="text" class="flag" /></td>
-                <td>&lt; 5 ng/mL</td>
-                <td>Enzymatic method</td>
-              </tr>
-
-              <tr>
-                <th scope="row">CPK - NAC</th>
-                <td><input type="text" class="result" /></td>
-                <td>IU/L</td>
-                <td><input type="text" class="flag" /></td>
-                <td>&lt; 5 ng/mL</td>
-                <td>Enzymatic method</td>
-              </tr>
-
-              <tr class="testCategoryTitle">
-                <td colspan="6">Iron Profile</td>
-              </tr>
-              <tr>
-                <th scope="row">Iron Profile</th>
-                <td><input type="text" class="result" /></td>
-                <td>μg/dL</td>
-                <td><input type="text" class="flag" /></td>
-                <td>
-                  <ul>
-                    <li>Serum Iron: 60 - 170</li>
-                    <li>Total Iron-Binding Capacity (TIBC): 240 - 450</li>
-                    <li>Transferrin Saturation: 20% - 50%</li>
-                  </ul>
-                </td>
-                <td>Colorimetric and spectrophotometric methods</td>
-              </tr>
-            </table>
+          <div class="header">
+            <h2>
+              <?php echo $testType; ?>
+            </h2>
           </div>
-        </div>
-      </section>
+          <div class="container">
+            <div class="boxContainer">
+              <table>
+                <tr>
+                  <th scope="col">Test Name</th>
+                  <th scope="col">Result</th>
+                  <th scope="col">Unit</th>
+                  <!-- <th scope="col">Flag</th> -->
+                  <th scope="col">Reference Range</th>
+                  <th scope="col">Method</th>
+                </tr>
+                <?php foreach ($categories as $category => $testsData) { ?>
+                  <tr class="testCategoryTitle">
+                    <td colspan="5">
+                      <?php echo $category; ?>
+                    </td>
+                    <?php foreach ($testsData as $testData => $Data) { ?>
+                    <tr>
+                      <td scope="row">
+                        <?php echo $Data['testName']; ?>
+                        <input type="hidden" name="reportID[]" value="<?php echo $reportID; ?>" />
+                        <input type="hidden" name="testName[]" value="<?php echo $Data['testName']; ?>" />
 
-      <section>
-        <div class="header">
-          <h2>Hematology</h2>
-        </div>
-        <div class="container">
-          <div class="boxContainer">
-            <table>
-              <tr>
-                <th scope="col">Test Name</th>
-                <th scope="col">Result</th>
-                <th scope="col">Unit</th>
-                <th scope="col">Flag</th>
-                <th scope="col">Reference Range</th>
-                <th scope="col">Method</th>
-              </tr>
-
-              <tr class="testCategoryTitle">
-                <td colspan="6">Complete Blood Count</td>
-              </tr>
-              <tr>
-                <th scope="row">Complete Blood Count</th>
-                <td><input type="text" class="result" /></td>
-                <td>%</td>
-                <td><input type="text" class="flag" /></td>
-                <td>
-                  <ul>
-                    <li>
-                      Hemoglobin (Hb):
-                      <ul>
-                        <li>13.5 - 17.5 g/gL (male)</li>
-                        <li>12 - 16 g/dL (female)</li>
-                      </ul>
-                    </li>
-                    <li>Total Leukocyte Count (TLC or WBC): 4,000 - 11,000 cells/μL</li>
-                    <li>Platelet Count: 150,000 - 450,000 platelets/μL</li>
-                  </ul>
-                </td>
-                <td>Automated cell counting and impedance or flow cytometry</td>
-              </tr>
-
-              <tr class="testCategoryTitle"><td colspan="6">Erythrocyte Sedimentation Rate(ESR)</td></tr>
-              <tr>
-                <th scope="row">Erythrocyte Sedimentation Rate</th>
-                <td><input type="text" class="result"></td>
-                <td>mm/h</td>
-                <td><input type="text" class="flag"></td>
-                <td><ul>
-                  <li>0 - 20 mm/h (male)</li>
-                  <li>0 - 30 mm/h (female)</li>
-                </ul></td>
-                <td>Westergren method or modified Westergren method</td>
-              </tr>
-
-              <tr class="testCategoryTitle"><td colspan="6">Blood Grouping</td></tr>
-              <tr>
-                <th scope="row">Blood Grouping</th>
-                <td><input type="text" class="result"></td>
-                <td>A, B, AB or O</td>
-                <td><input type="text" class="flag"></td>
-                <td>Categorized into blood groups</td>
-                <td>Agglutination tests</td>
-              </tr>
-
-              <tr class="testCategoryTitle"><td colspan="6">Peripheral Blood Smear</td></tr>
-              <tr>
-                <th scope="row">Peripheral Blood Smear</th>
-                <td><input type="text" class="result"></td>
-                <td></td>
-                <td><input type="text" class="flag"></td>
-                <td>Evaluation of blood cell morphology</td>
-                <td>Microscopic examination of stained blood smear</td>
-              </tr>
-
-              <tr class="testCategoryTitle"><td colspan="6">Reticulocyte Count</td></tr>
-              <tr>
-                <th scope="row">Retics</th>
-                <td><input type="text" class="result"></td>
-                <td>cells/μL</td>
-                <td><input type="text" class="flag"></td>
-                <td>0.5% - 1.5% of total RBC or 25,000 - 75,000 cells/μL</td>
-                <td>Flow cytometry or manual counting with supracital stains</td>
-              </tr>
-
-              <tr class="testCategoryTitle"><td colspan="6">Bleeding Time and Clotting Time</td></tr>
-              <tr>
-                <th scope="row">Bleeding Time and Clotting Time</th>
-                <td><input type="text" class="result"></td>
-                <td>minutes</td>
-                <td class="flag"></td>
-                <td><ul>
-                  <li>BT: 2 - 7 minutes</li>
-                  <li>CT: 2 - 5 minutes</li>
-                </ul></td>
-                <td>Ivy method for BT, Lee-White method for CT</td>
-              </tr>
-
-              <tr class="testCategoryTitle"><td colspan="6">Prothrobin Time and International Normalized Ratio</td></tr>
-              <th scope="row">Prothrobin Time and International Normalized Ratio</th>
-              <td><input type="text" class="result"></td>
-              <td><ul>
-                <li>Second(s) for PT</li>
-                <li>Ration for INR</li>
-              </ul></td>
-              <td><input type="text" class="flag"></td>
-              <td><ul>
-                <li>PT: 11 - 13.5 seconds</li>
-                <li>INR: 0.8 - 1.2 (normal range)</li>
-              </ul></td>
-              <td>Clotting assays using thromboplastin reagents</td>
-
-              <tr class="testCategoryTitle"><td colspan="6">Activated Partial Thromboplastin Time</td></tr>
-              <tr>
-              <th scope="row">Activated Partial Thromboplastin Time</th>
-              <td><input type="text" class="result"></td>
-              <td>Seconds</td>
-              <td><input type="text" class="flag"></td>
-              <td>25 - 30 seconds</td>
-              <td>Clotting assays using phospholipid and activator reagents</td>
-            </tr>
-
-            <tr class="testCategoryTitle"><td colspan="6">Absolute Eosinophil Count</td></tr>
-            <tr>
-              <th scope="row">Absolute Eosinophil Count</th>
-              <td><input type="text" class="result"></td>
-              <td>cells/μL</td>
-              <td><input type="text" class="flag"></td>
-              <td>50 - 500 cells/μL</td>
-              <td>Automated cell counting with specific staining</td>
-            </tr>
-
-            <tr class="testCategoryTitle"><td colspan="6">Absolute Basophil Count</td></tr>
-            <tr>
-              <th scope="row">Absolute Basophil Count</th>
-              <td><input type="text" class="result"></td>
-              <td>cells/μL</td>
-              <td><input type="text" class="flag"></td>
-              <td>0 - 200 cells/μL</td>
-              <td>Automated cell couning with specific staining</td>
-            </tr>
-
-            <tr class="testCategoryTitle"><td colspan="6">Absolute Neutrophil Count</td></tr>
-            <tr>
-              <th scope="row">Absolute Neutrophil Count</th>
-              <td><input type="text" class="result"></td>
-              <td>cells/μL</td>
-              <td><input type="text" class="flag"></td>
-              <td>1,500 - 8,000 cells/μL</td>
-              <td>Automated cell counting with specific staining</td>
-            </tr>
-
-            <tr class="testCategoryTitle"><td colspan="6">D-Dimer</td></tr>
-            <tr>
-              <th scope="row">D-Dimer</th>
-              <td><input type="text" class="result"></td>
-              <td>ng/mL</td>
-              <td><input type="text" class="flag"></td>
-              <td>&lt; 500 ng/mL or &lt; 0.5 μg/mL</td>
-              <td>Enzyme-linked immunosorbent assay (ELISA) or latex agglutination assay</td>
-            </tr>
-            </table>
-          </div>
-        </div>
-      </section>
-
-      <section>
-        <div class="header">
-          <h2>Recent Visits</h2>
-          <button class="add" onclick="requestationLetter()">
-            Request Letter
-          </button>
-          <button class="add" onclick="addPrescription()">
-            Add Prescription
-          </button>
-        </div>
-        <div class="container">
-          <div class="month">February, 2024</div>
-          <div class="boxContainer">
-            <div class="box" onclick="visit()">
-              Date: 2024/ 02/ 17 <br />
-              Visit Type: Routine Check-up <br />
-            </div>
-            <div class="box">
-              Date: 2022/ 09/ 07 <br />
-              Visit Type: Follow-up Consultation <br />
-            </div>
-            <div class="box">
-              Date: 2022/ 09/ 05 <br />
-              Visit Type: Routine Check-up <br />
-            </div>
-            <div class="box">7</div>
-            <div class="box">8</div>
-            <div class="box">9</div>
-            <div class="box">10</div>
-          </div>
-        </div>
-
-        <div class="container">
-          <div class="month">September, 2022</div>
-          <div class="boxContainer">
-            <div class="box">
-              Date: 2022/ 09/ 07 <br />
-              Visit Type: Follow-up Consultation <br />
-            </div>
-            <div class="box">
-              Date: 2022/ 09/ 05 <br />
-              Visit Type: Routine Check-up <br />
+                      </td>
+                      <td><input type="text" name="result[]" class="result" /></td>
+                      <td>
+                        <?php echo $Data['unit']; ?>
+                      </td>
+                      <!-- <td><input type="text" name="flag[]" class="flag" /></td> -->
+                      <td>
+                        <?php
+                        $referenceRanges = $Data['referenceRange'];
+                        if (count($referenceRanges) > 1) {
+                          echo '<ul>';
+                          foreach ($referenceRanges as $range) {
+                            if (strpos($range, ';') !== false) {
+                              $nestedRanges = explode(';', $range);
+                              echo '<ul>';
+                              foreach ($nestedRanges as $nestedRange) {
+                                echo "<li>{$nestedRange}</li>";
+                              }
+                              echo '</ul>';
+                            } else {
+                              echo "<li>{$range}</li>";
+                            }
+                          }
+                          echo '</ul>';
+                        } else {
+                          echo $referenceRanges[0];
+                        }
+                        ?>
+                      </td>
+                      <td>
+                        <?php echo $Data['methods']; ?>
+                      </td>
+                    </tr>
+                  <?php } ?>
+                  </tr>
+                <?php } ?>
+              </table>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      <section>
-        <div class="header">
-          <h2>Recent Reports</h2>
-        </div>
-        <div class="container">
-          <div class="month">February, 2024</div>
-          <div class="boxContainer">
-            <div class="box" id="b" onclick="biochemistry()">BioChemistry</div>
-            <div class="box" onclick="haematology()">Hematology</div>
-            <div class="box" onclick="echocardiography()">EchoCardiography</div>
-          </div>
-        </div>
+      <?php } ?>
+      <button type="submit" name="submit">Submit</button>
+    </form>
 
-        <div class="container">
-          <div class="month">September, 2024</div>
-          <div class="boxContainer">
-            <div class="box">Immunology</div>
-            <div class="box">4</div>
-            <div class="box">5</div>
-            <div class="box">6</div>
-            <div class="box">7</div>
-            <div class="box">8</div>
-            <div class="box">9</div>
-            <div class="box">10</div>
-          </div>
-        </div>
-      </section>
 
-      <section>
-        <div class="header">
-          <h2>Cuurrent Medication</h2>
-        </div>
-        <div class="container">
-          <div class="boxContainer">
-            <table border="1">
-              <tr>
-                <td>Name</td>
-                <td>Dosage(mg)</td>
-                <td>Scheduling</td>
-                <td>Duration</td>
-              </tr>
-              <tr>
-                <td>Flexon</td>
-                <td>12</td>
-                <td>TBS</td>
-                <td>1 week</td>
-              </tr>
-            </table>
-          </div>
-        </div>
-      </section>
-    </main>
 
-    <script>
-      function requestationLetter() {
-        window.location.href = "requestationLetter.html";
-      }
-      function addPrescription() {
-        window.location.href = "doctorPatientVisit.html";
-      }
 
-      function visit() {
-        window.location.href = "doctorPatientVisit.html";
-      }
-      function biochemistry() {
-        window.location.href = "bioChemistry.html";
-      }
+  </main>
+  <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+</body>
 
-      function haematology() {
-        window.location.href = "haematology.html";
-      }
 
-      function echocardiography() {
-        window.location.href = "echocardiography.html";
-      }
-
-      // document.addEventListener('DOMContentLoaded', function(){
-      //     let box = document.querySelectorAll('.box');
-      //     box.forEach(function(bpar){
-      //         bpar.addEventListener("click", function(){
-      //             this.style.backgroundColor = "red";
-      //         });
-      //     });
-      // });
-
-      // let box = document.querySelectorAll(".box");
-      // box.forEach(function (bpar) {
-      //   bpar.addEventListener("click", function () {
-      //       this.style.transition = "all .2s";
-      //       // this.style.zIndex = "0";
-      //       if(this.style.backgroundColor == "red"){
-      //           this.style.backgroundColor = "grey";
-      //           this.style.transform = "scale(1)";
-      //           // this.style.zIndex = "0";
-      //       }
-      //       else{
-      //           // this.style.zIndex = "10";
-      //           this.style.transform = "scale(2)";
-      //           this.style.backgroundColor = "red";
-      //       }
-      //   });
-      // });
-    </script>
-  </body>
 </html>

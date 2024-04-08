@@ -1,26 +1,44 @@
 <?php
 session_start();
-include 'connection.php';
 
-$email = $_SESSION['email'];
+if (!isset($_SESSION['doctorEmail'])) {
+  header('Location:index.php');
 
-
-$sql = "SELECT * FROM hospital WHERE email = '{$email}' AND userType ='Doctor'";
-$sql2 = "SELECT a.* FROM appointed_patient a JOIN hospital h on a.DoctorID = h.doctorID WHERE h.email = '{$email}' ORDER BY a.ID DESC";
-// $sql2 = "SELECT distinct patientName from test_data";
-$sql3 = "SELECT a.* FROM all_patient a JOIN hospital h on a.referredToDoctorID = h.doctorID WHERE h.email = '{$email}' ORDER BY a.ID DESC";
-
-$result = mysqli_query($conn, $sql);
-$result2 = mysqli_query($conn, $sql2);
-$result3 = mysqli_query($conn, $sql3);
-
-if ($result) {
-  $row = mysqli_fetch_assoc($result);
 }
 
-// if($result2){
+if (isset($_SESSION['doctorEmail']) ) {
+  $doctorEmail = $_SESSION['doctorEmail'];
+  // if (isset($doctorEmail) && !is_null($doctorEmail)) {
+  include 'connection.php';
+
+  // $email = $_SESSION['email'];
+
+
+
+
+  $sql = "SELECT * FROM hospital WHERE email = '{$doctorEmail}' AND userType ='Doctor'";
+
+  // var_dump($doctorEmail);
+  $sql2 = "SELECT a.* FROM appointed_patient a JOIN hospital h on a.DoctorID = h.doctorID WHERE h.email = '{$doctorEmail}' ORDER BY a.ID DESC";
+  // $sql2 = "SELECT distinct patientName from test_data";
+  $sql3 = "SELECT a.* FROM patientVisitDetails a JOIN patient  JOIN hospital h on a.referredToDoctorID = h.doctorID WHERE h.email = '{$doctorEmail}' ORDER BY a.ID DESC";
+
+
+  // session_write_close();
+
+  $result = mysqli_query($conn, $sql);
+  $result2 = mysqli_query($conn, $sql2);
+  $result3 = mysqli_query($conn, $sql3);
+
+  if ($result) {
+    $row = mysqli_fetch_assoc($result);
+  }
+
+  // if($result2){
 //   $row = mysqli_fetch_assoc($result2);
 // }
+}
+// session_start();
 ?>
 
 <!DOCTYPE html>
@@ -29,7 +47,7 @@ if ($result) {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>doctorl</title>
+  <title>doctor</title>
   <!-- <link rel="stylesheet" href="style.css"> -->
   <style>
     * {
@@ -198,6 +216,7 @@ if ($result) {
 <body>
   <header>
     <img src="MediDocX Logo.JPG" alt="" />
+    <a href="logout.php"><button>Log out</button></a>
     <!-- <button onclick="addPatient()">Add Patient <i class="fa fa-search">Hi</i> </button> -->
     <input type="text" placeholder="Search Patient...">
   </header>
@@ -213,26 +232,27 @@ if ($result) {
         ID:
         <?php echo $row['doctorID']; ?> <br />
         <?php echo $row['doctorQualification']; ?> <br />
-        
-        (<?php echo $row['universityCollageCountry']; ?>)
+
+        (
+        <?php echo $row['universityCollageCountry']; ?>)
       </div>
     </div>
-    <div id="reportTemplatesContainer">
-      <h3>All Patients</h3>
-       <?php
-       if($result3){
-        while($row3 = mysqli_fetch_array($result3)){
-        echo '<div class="reportTemplatesAside">';
-        echo $row3['patientName'];
-        echo "</div>";
-        //  <div class="reportTemplatesAside">Bishal Koirala</div>
-        // <div class="reportTemplatesAside">Sadikshya Banstola</div>
-        
-       }
-      }
-      ?>
-    </div>
+    <!-- <div id="reportTemplatesContainer"> -->
+    <!-- <h3>All Patients</h3> -->
+    <?php
+    // if ($result3) {
+    // while ($row3 = mysqli_fetch_array($result3)) {
+    // echo '<div class="reportTemplatesAside">';
+    // echo $row3['patientName'];
+    // echo "</div>";
+    //  <div class="reportTemplatesAside">Bishal Koirala</div>
+    // <div class="reportTemplatesAside">Sadikshya Banstola</div>
     
+    // }
+    // }
+    ?>
+    </div>
+
   </aside>
   <main>
     <section>

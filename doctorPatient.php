@@ -2,36 +2,56 @@
 session_start();
 include 'connection.php';
 
-$patientName = $_GET['patientName'];
-$patientID = $_GET['patientID'];
-$patientage = $_GET['age'];
-$patientgender = $_GET['gender'];
+// if (!isset($_SESSION['doctorEmail'])) {
+//   header('Location:index.php');
+// }
 
-$email = $_SESSION['email'];
-// $patientName = $_SESSION['patientName'];
+// if (!isset($_SESSION['patientID'], $_SESSION['age'], $_SESSION['gender'])) {
+//   header('Location:index.php');
+// }
+
+
+if (isset($_SESSION['doctorEmail'])) {
+
+
+
+  $patientName = $_GET['patientName'];
+  $patientID = $_GET['patientID'];
+  $patientage = $_GET['age'];
+  $patientgender = $_GET['gender'];
+
+  $doctorEmail = $_SESSION['doctorEmail'];
+  // $patientName = $_SESSION['patientName'];
 // $patientID  = $_SESSION['patientID'];
 // $patientage = $_SESSION['age'];
 // $patientgender = $_SESSION['gender'];
 
 
-$_SESSION['patientName'] = $patientName;
-$_SESSION['patientID'] = $patientID;
-$_SESSION['age'] = $patientage;
-$_SESSION['gender'] = $patientgender;
+  $_SESSION['patientName'] = $patientName;
+  $_SESSION['patientID'] = $patientID;
+  $_SESSION['age'] = $patientage;
+  $_SESSION['gender'] = $patientgender;
 
-$sql = "SELECT * FROM hospital WHERE email = '{$email}' AND userType ='Doctor'";
-// $sql2 = "SELECT a.* FROM appointed_patient a JOIN hospital h on a.DoctorID = h.doctorID WHERE h.email = '{$email}' ORDER BY a.ID DESC ";
 
-$result = mysqli_query($conn, $sql);
-// $result2 = mysqli_query($conn, $sql2);
 
-if ($result) {
-  $row = mysqli_fetch_assoc($result);
-}
+  $sql = "SELECT * FROM hospital WHERE email = '{$doctorEmail}' AND userType ='Doctor'";
+  // $sql2 = "SELECT a.* FROM appointed_patient a JOIN hospital h on a.DoctorID = h.doctorID WHERE h.email = '{$email}' ORDER BY a.ID DESC ";
+  
 
-// if ($result2) {
+  $result = mysqli_query($conn, $sql);
+  // $result2 = mysqli_query($conn, $sql2);
+
+  if ($result) {
+    $row = mysqli_fetch_assoc($result);
+  }
+
+  // if ($result2) {
 //   $row2 = mysqli_fetch_assoc($result2);
 // }
+}else if(!isset($_SESSION['patientID'], $_SESSION['age'], $_SESSION['gender'])){
+  header('Location: index.php');
+}
+
 
 ?>
 
@@ -369,10 +389,10 @@ if ($result) {
 
   <script>
     function requestationLetter() {
-      window.location.href = "requestationLetter.html";
+      window.location.href = "requestationLetter.php";
     }
     function addPrescription() {
-      window.location.href = "doctorPatientVisit.html";
+      window.location.href = "doctorPatientVisit.php";
     }
     function addVisit() {
       window.location.href = "addVisit.php";

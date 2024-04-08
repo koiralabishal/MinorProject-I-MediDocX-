@@ -1,3 +1,6 @@
+
+
+
 <html>
 
 
@@ -40,13 +43,14 @@ if (isset($_POST['login'])) {
     $errors = array();
     $errors1 = array();
 
-    $_SESSION['email'] = $email;
+    
    
 
+    $sql = "SELECT * FROM patient WHERE patientEmail = '{$email}'";
+    $sql1 = "SELECT * FROM doctor WHERE doctorEmail = '{$email}'";
+    $sql2 = "SELECT * FROM lab_technician WHERE technicianEmail = '{$email}'";
 
-    $sql = "SELECT * FROM patient WHERE email = '{$email}'";
-    $sql1 = "SELECT * FROM doctor WHERE email = '{$email}'";
-    $sql2 = "SELECT * FROM lab_technician WHERE email = '{$email}'";
+
 
     $result = mysqli_query($conn, $sql);
     $result1 = mysqli_query($conn, $sql1);
@@ -55,11 +59,16 @@ if (isset($_POST['login'])) {
     if (mysqli_num_rows($result) > 0) {
         $row = mysqli_fetch_assoc($result);
         $password = $row['password'];
-        $dbemail = $row['email'];
+        $dbemail = $row['patientEmail'];
+        $_SESSION['patientEmail'] = $dbemail;
         if ($row['isVerified'] == 1) {
             if ($password === $passwordHash) {
                 $_SESSION['name'] = $row['name'];
+                // $_SESSION['email'] = $row['email'];
                 // $_SESSION['name'] = $row['email'];
+                // $_SESSION['role'] = 'patient';
+                // $_SESSION['email'] = '$email'
+
                 ?>
                 <script>
                     // Redirect to patient.php on successful login
@@ -101,10 +110,13 @@ if (isset($_POST['login'])) {
     } else if (mysqli_num_rows($result1) > 0) {
         $row = mysqli_fetch_assoc($result1);
         $password = $row['password'];
-        $dbemail = $row['email'];
+        $dbemail = $row['doctorEmail'];
+        $_SESSION['doctorEmail'] = $dbemail;
         if ($row['isVerified'] == 1) {
             if ($password === $passwordHash) {
                 $_SESSION['name'] = $row['name'];
+                // $_SESSION['email'] = $email;
+                // $_SESSION['role'] = 'doctor';
                 
                 ?>
                     <script>
@@ -148,10 +160,13 @@ if (isset($_POST['login'])) {
     else if (mysqli_num_rows($result2) > 0) {
         $row = mysqli_fetch_assoc($result2);
         $password = $row['password'];
-        $dbemail = $row['email'];
+        $dbemail = $row['technicianEmail'];
+        $_SESSION['technicianEmail'] = $dbemail;
         if ($row['isVerified'] == 1) {
             if ($password === $passwordHash) {
                 $_SESSION['name'] = $row['name'];
+                // $_SESSION['email'] = $row['email'];
+                // $_SESSION['role'] = 'labTechnician';
                 
                 ?>
                     <script>
@@ -217,5 +232,7 @@ if (isset($_POST['login'])) {
 
 
 }
+
+
 
 ?>

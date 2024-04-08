@@ -2,45 +2,66 @@
 session_start();
 include 'connection.php';
 
-$email = $_SESSION['email'];
+if(!isset($_SESSION['technicianEmail'])){
+  header('Location:index.php');
+}
 
 
-$sql = "SELECT * FROM hospital WHERE email = '{$email}' AND userType ='Lab Technician'";
-$sql4 = "SELECT patientID from hospital WHERE userType = 'Patient'";
-$result4 = mysqli_query($conn,$sql4);
-
-if ($result4 ){
-  $row5 = mysqli_fetch_assoc($result4);
-  $patientID = $row5['patientID'];
+if (isset($_SESSION['technicianEmail']) && !is_null($_SESSION['technicianEmail'])) {
+  $labTechnicianEmail = $_SESSION['technicianEmail'];
+  
  
-}
-
-$sql2 = "SELECT distinct patientName FROM  test_data WHERE patientID = '$patientID'";
-$result2 = mysqli_query($conn, $sql2);
-// $sql2 = "SELECT Distinct h.name FROM hospital h JOIN test_data t ON h.doctorID = t.doctorID";
-$sql3 = "SELECT distinct t.patientName, t.patientID, h.name, t.doctorID
-        FROM test_data t
-        INNER JOIN hospital h ON t.doctorID = h.doctorID
-        ORDER BY t.id DESC";
-
-// $sql3 = "SELECT a.* FROM all_patient a JOIN hospital h on a.referredToDoctorID = h.doctorID WHERE h.email = '{$email}' ORDER BY a.ID DESC";
+ 
+    // echo $labTechnicianEmail;
 
 
 
-$result = mysqli_query($conn, $sql);
+    $sql = "SELECT * FROM hospital WHERE email = '{$labTechnicianEmail}' AND userType ='Lab Technician'";
+  
+  
+    $sql4 = "SELECT patientID from hospital WHERE userType = 'Patient'";
+    $result4 = mysqli_query($conn, $sql4);
+  
+    if ($result4) {
+      $row5 = mysqli_fetch_assoc($result4);
+      $patientID = $row5['patientID'];
+  
+    }
+  
+    $sql2 = "SELECT distinct patientName FROM  test_data WHERE patientID = '$patientID'";
+    $result2 = mysqli_query($conn, $sql2);
+    // $sql2 = "SELECT Distinct h.name FROM hospital h JOIN test_data t ON h.doctorID = t.doctorID";
+    $sql3 = "SELECT distinct t.patientName, t.patientID, h.name, t.doctorID, t.reportID
+          FROM test_data t
+          INNER JOIN hospital h ON t.doctorID = h.doctorID
+          ORDER BY t.id DESC";
+  
+    // $sql3 = "SELECT a.* FROM all_patient a JOIN hospital h on a.referredToDoctorID = h.doctorID WHERE h.email = '{$email}' ORDER BY a.ID DESC";
+  
+  
+  
+    $result = mysqli_query($conn, $sql);
+  
+    $result3 = mysqli_query($conn, $sql3);
+    // $result3 = mysqli_query($conn, $sql3);
+  
+  
+    if ($result) {
+      $row = mysqli_fetch_assoc($result);
+    }
+  
+  }
 
-$result3 = mysqli_query($conn, $sql3);
-// $result3 = mysqli_query($conn, $sql3);
 
 
-if ($result) {
-  $row = mysqli_fetch_assoc($result);
-}
+  $sqlPendingTests = "SELECT distinct  r.patientID, h.name, r.doctorID, r.ReportID FROM report r JOIN hospital h ON r.doctorID = h.doctorID WHERE r.flag = 'P' " ;
+  $resultPendingTests = mysqli_query($conn, $sqlPendingTests);
 
-
-// if ($result2) {
+  // if ($result2) {
 //   $row2 = mysqli_fetch_assoc($result2);
 // }
+
+// session_start();
 
 ?>
 
@@ -245,19 +266,19 @@ if ($result) {
         <h2>New Tests</h2>
       </div>
       <div class="container">
-          <?php
-          if ($result3) {
-            while ($row3 = mysqli_fetch_array($result3)) {
-              echo '<div class="box">';
-              echo '<a href="code.php?patientName=' . $row3['patientName'] . '&patientID=' . $row3['patientID'] . '&doctorID=' . $row3['doctorID'] . ' ">';
-              echo "Name: " . $row3['patientName'] . "<br />";
-              echo "Patient ID: " . $row3['patientID'] . "<br />";
-              echo "Referred by: " . $row3['name'];
-              echo '</a>';
-              echo '</div>';
-            }
+        <?php
+        if ($result3) {
+          while ($row3 = mysqli_fetch_array($result3)) {
+            echo '<div class="box">';
+            echo '<a href="labTechnicianPatient.php?patientName=' . $row3['patientName'] . '&patientID=' . $row3['patientID'] . '&doctorID=' . $row3['doctorID'] . '&reportID=' . $row3['reportID'] . ' ">';
+            echo "Name: " . $row3['patientName'] . "<br />";
+            echo "Patient ID: " . $row3['patientID'] . "<br />";
+            echo "Referred by: Dr." . $row3['name'];
+            echo '</a>';
+            echo '</div>';
           }
-          echo "<style>
+        }
+        echo "<style>
                a{
                 text-decoration:none;
                 color:white;
@@ -270,51 +291,47 @@ if ($result) {
              </style>";
 
 
-          ?>
+        ?>
 
-        <!-- <div class="box"> -->
-        <!-- Name: Mayukh Baral <br />
-            Patient ID: 54 <br />
-            Referred by: Dr. Ram Chandra Kafle -->
-        <!-- </div> -->
-        <!-- <div class="box">
-            Name: Bishal Koirala <br />
-            Patient ID: 21 <br />
-            Referred by: Dr. Nabin Bhattarai
-          </div>
-          <div class="box">
-            Name: Sadikshya Banstola <br />
-            Patient ID: 32 <br />
-            Referred by: Dr. Manoj Tripathi
-          </div>
-          <div class="box">7</div>
-          <div class="box">8</div>
-          <div class="box">9</div>
-          <div class="box">10</div> -->
+       
       </div>
     </section>
 
-    <!-- <section>
-      <div class="headerContainer">
-        <h2>Report Templates</h2>
-      </div>
-      <div class="container">
-        <div class="box" id="b" onclick="biochemistry()">BioChemistry</div>
-        <div class="box" onclick="haematology()">Hematology</div>
-        <div class="box" onclick="echocardiography()">EchoCardiography</div>
-        <div class="box">Bacteriology</div>
-        <div class="box">Mycology</div>
-        <div class="box">Virology</div>
-        <div class="box">Tumar Markers</div>
-        <div class="box">Parasitology</div>
-        <div class="box">Cytology</div>
-        <div class="box">Hormone Assays</div>
-        <div class="box">Immunology</div>
-      </div>
-    </section> -->
 
     <section>
-      <h2>Pending Tests</h2>
+    <div class="headerContainer">
+        <h2>Pending Tests</h2>
+    </div>
+    <div class="container">
+        <?php
+        if ($resultPendingTests) {
+          while ($rowPendingTests = mysqli_fetch_array($resultPendingTests)) {
+            echo '<div class="box">';
+            echo '<a href="pendingTests.php?patientID=' . $rowPendingTests['patientID'] . '&doctorID=' . $rowPendingTests['doctorID'] . '&reportID=' . $rowPendingTests['ReportID'] . ' ">';
+            // echo "Name: " . $rowPendingTests['patientName'] . "<br />";
+            echo "Patient ID: " . $rowPendingTests['patientID'] . "<br />";
+            echo "Referred by: Dr." . $rowPendingTests['name'];
+            echo '</a>';
+            echo '</div>';
+          }
+        }
+        echo "<style>
+               a{
+                text-decoration:none;
+                color:white;
+               }
+
+               .box:hover a {
+                color: black;
+               }
+
+             </style>";
+
+
+        ?>
+
+       
+      </div>
     </section>
 
     <section>
