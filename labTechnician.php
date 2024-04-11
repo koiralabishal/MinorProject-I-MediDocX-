@@ -62,6 +62,7 @@ $resultPendingTests = mysqli_query($conn, $sqlPendingTests);
 <body>
     <header>
         <img src="MediDocX Logo.JPG" alt="" />
+        <a href="logout.php"><button>Log out</button></a>
         <input type="text" placeholder="Search Patient..." />
     </header>
 
@@ -84,7 +85,7 @@ $resultPendingTests = mysqli_query($conn, $sqlPendingTests);
             <div class="sectionTitle">
                 <h2>New Tests</h2>
             </div>
-            <div class="container">
+            <!-- <div class="container"> -->
                 <div class="boxContainer">
                     <?php
                     if ($result3) {
@@ -111,14 +112,14 @@ $resultPendingTests = mysqli_query($conn, $sqlPendingTests);
              </style>";
                     ?>
                 </div>
-            </div>
+            <!-- </div> -->
         </section>
 
         <section>
             <div class="sectionTitle">
                 <h2>Pending Tests</h2>
             </div>
-            <div class="container">
+            <!-- <div class="container"> -->
                 <div class="boxContainer">
                     <?php
                     if ($resultPendingTests) {
@@ -145,27 +146,9 @@ $resultPendingTests = mysqli_query($conn, $sqlPendingTests);
              </style>";
                     ?>
                 </div>
-            </div>
+            <!-- </div> -->
         </section>
     </main>
-
-    <script>
-        function labTechnicianPatient() {
-            window.location.href = "labTechnicianPatient.html";
-        }
-
-        function biochemistry() {
-            window.location.href = "bioChemistry.html";
-        }
-
-        function haematology() {
-            window.location.href = "haematology.html";
-        }
-
-        function echocardiography() {
-            window.location.href = "echocardiography.html";
-        }
-    </script>
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 </body>
 

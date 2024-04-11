@@ -18,12 +18,18 @@ $patientName = $_SESSION['patientName'];
 $patientID = $_SESSION['patientID'];
 $patientage = $_SESSION['age'];
 $patientgender = $_SESSION['gender'];
-
+// $visitID = $_SESSION['visitID'];
 // $patientName = $_GET['patientName'];
 // $patientID = $_GET['patientID'];
 // $patientage = $_GET['age'];
 // $patientgender = $_GET['gender'];
+$date = $_SESSION['date'];
+$sqlVisitID = "SELECT visitID FROM patientVisitDetails WHERE date = '$date'";
+$resultVisitID = mysqli_query($conn, $sqlVisitID);
 
+if ($resultVisitID) {
+    $rowVisitID = mysqli_fetch_assoc($resultVisitID);
+}
 
 
 
@@ -723,6 +729,7 @@ if ($result) {
 
 
 if (isset($_POST['submit'])) {
+  // $date = $_SESSION['date'];
   // Check if checkboxes are set
   if (isset($_POST['BioChemistry']) || isset($_POST['Haematology']) || isset($_POST['Bacteriology']) || isset($_POST['Mycology']) || isset($_POST['Virology']) || isset($_POST['TumarMarkers']) || isset($_POST['Parasitology']) || isset($_POST['Cytology']) || isset($_POST['HormoneAssays']) || isset($_POST['Immunology'])) {
     $categories = ['BioChemistry', 'Haematology', 'Bacteriology', 'Mycology', 'Virology', 'TumarMarkers', 'Parasitology', 'Cytology', 'HormoneAssays', 'Immunology'];
@@ -741,8 +748,8 @@ if (isset($_POST['submit'])) {
     foreach ($categories as $category) {
       if (isset($_POST[$category])) {
         $testNames = implode(", ", $_POST[$category]); // Concatenate test names
-        $query = "INSERT INTO test_data (`category`, `testNames`,  `patientID`, `patientName`, `doctorID`,`date`, `reportID`) 
-                  VALUES ('$category', '$testNames', '$patientID', '$patientName', '{$row['doctorID']}',CURDATE(),'$reportID')";
+        $query = "INSERT INTO test_data (`category`, `testNames`,  `patientID`, `patientName`, `doctorID`,`date`, `reportID`, `visitID`) 
+                  VALUES ('$category', '$testNames', '$patientID', '$patientName', '{$row['doctorID']}','$date','$reportID','{$rowVisitID['visitID']}')";
         $queries[] = $query;
       }
     }
@@ -757,6 +764,8 @@ if (isset($_POST['submit'])) {
             text: "Test data not sent successfully",
             icon: "error",
             button: "Ok",
+          }).then(function(){
+             window.location = "doctor.php";
           });
         </script>
         <?php
@@ -765,16 +774,25 @@ if (isset($_POST['submit'])) {
 
     // Check if any queries were executed successfully
     if (count($queries) > 0) {
-      ?>
-      <script>
-        swal({
-          title: "Success",
-          text: "Test data sent successfully",
-          icon: "success",
-          button: "Ok",
-        });
-      </script>
-      <?php
+      $deleteQuery = "DELETE FROM appointed_patient WHERE patientID='$patientID' AND doctorID='{$row['doctorID']}' AND visitID='{$rowVisitID['visitID']}'";
+      $resultDelete = mysqli_query($conn, $deleteQuery);
+
+      if($resultDelete){
+        ?>
+        <script>
+          swal({
+            title: "Success",
+            text: "Test data sent successfully",
+            icon: "success",
+            button: "Ok",
+          }).then(function(){
+            window.location = "doctor.php";
+          });
+        </script>
+        <?php
+
+      }
+     
     }
   }
 }

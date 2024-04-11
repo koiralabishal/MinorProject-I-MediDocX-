@@ -163,3 +163,22 @@
     max-width: 98%;
     min-height: 48vh;
   }
+
+  aside #reportTemplatesContainer {
+    background-color: #2f426b;
+    margin-top: 8%;
+  }
+
+  aside #reportTemplatesContainer h3 {
+    /* background-color: red; */
+    padding: 4%;
+    padding-left: 6%;
+    border-bottom: 1px solid rgb(190, 177, 104);
+  }
+
+  aside #reportTemplatesContainer .reportTemplatesAside {
+    /* background-color: red; */
+    border-bottom: 1px solid #3e588f;
+    padding: 2%;
+    padding-left: 12%;
+  }

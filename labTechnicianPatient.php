@@ -6,6 +6,7 @@ include 'connection.php';
 if (isset($_POST['submit'])) {
     $reportIDs = $_POST['reportID'];
     $resultValues = $_POST['result'];
+    $technicianID = $_POST['technicianID'];
     // $flags = $_POST['flag'];
     $testNames = $_POST['testName'];
     foreach ($testNames as $index => $testName) {
@@ -19,7 +20,7 @@ if (isset($_POST['submit'])) {
         // Determine flag based on result value and reference range
         $flag = determineFlag($resultValue, $referenceRange);
         $updateQuery = "UPDATE report 
-                        SET resultValue = '$resultValue', flag = '$flag' 
+                        SET resultValue = '$resultValue', flag = '$flag' , technicianID = '$technicianID'
                         WHERE TestName = '$testName' AND ReportID = '$reportID'";
 
         $resultQuery = mysqli_query($conn, $updateQuery);
@@ -152,13 +153,20 @@ if (isset($_SESSION['technicianEmail'])) {
     // echo $reportID;
 
 
-    $sql5 = "SELECT age, gender FROM appointed_patient WHERE patientID = '$patientID'";
+    $sqlTechnicianID = "SELECT labTechnicianID FROM lab_technician WHERE technicianEmail = '$email'";
+    $resultTechnicianID = mysqli_query($conn,$sqlTechnicianID);
 
-    $result5 = mysqli_query($conn, $sql5);
-
-    if ($result5) {
-        $row6 = mysqli_fetch_assoc($result5);
+    if ($resultTechnicianID){
+        $rowTechnicianID = mysqli_fetch_assoc($resultTechnicianID);
     }
+
+    // $sql5 = "SELECT age, gender FROM patient WHERE patientID = '$patientID'";
+
+    // $result5 = mysqli_query($conn, $sql5);
+
+    // if ($result5) {
+    //     $row6 = mysqli_fetch_assoc($result5);
+    // }
 
     $sql = "SELECT * FROM hospital WHERE email = '{$email}' AND userType ='Lab Technician'";
     // session_write_close();
@@ -304,12 +312,12 @@ if (isset($_SESSION['technicianEmail'])) {
             <div class="reportTemplatesAside">Patient ID:
                 <?php echo $_GET['patientID']; ?>
             </div>
-            <div class="reportTemplatesAside">Age:
-                <?php echo $row6['age']; ?>
-            </div>
-            <div class="reportTemplatesAside">Gender:
-                <?php echo $row6['gender']; ?>
-            </div>
+            <!-- <div class="reportTemplatesAside">Age: -->
+                <!-- <?php echo $row6['age']; ?> -->
+            <!-- </div> -->
+            <!-- <div class="reportTemplatesAside">Gender: -->
+                <!-- <?php echo $row6['gender']; ?> -->
+            <!-- </div> -->
         </div>
     </aside>
 
@@ -351,6 +359,7 @@ if (isset($_SESSION['technicianEmail'])) {
                       <td scope="row">
                         <?php echo $Data['testName']; ?>
                         <input type="hidden" name="reportID[]" value="<?php echo $reportID; ?>" />
+                        <input type="hidden" name="technicianID" value="<?php echo $rowTechnicianID['labTechnicianID']; ?>" />
                         <input type="hidden" name="testName[]" value="<?php echo $Data['testName']; ?>" />
 
                       </td>
@@ -399,29 +408,7 @@ if (isset($_SESSION['technicianEmail'])) {
 
   </main>
 
-    <script>
-        function requestationLetter() {
-            window.location.href = "requestationLetter.html";
-        }
-        function addPrescription() {
-            window.location.href = "doctorPatientVisit.html";
-        }
-
-        function visit() {
-            window.location.href = "doctorPatientVisit.html";
-        }
-        function biochemistry() {
-            window.location.href = "bioChemistry.html";
-        }
-
-        function haematology() {
-            window.location.href = "haematology.html";
-        }
-
-        function echocardiography() {
-            window.location.href = "echocardiography.html";
-        }
-    </script>
+    
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 </body>
 

@@ -147,7 +147,7 @@ if (isset($_POST["register"])) {
 
     session_write_close();
 
-    $sql = "SELECT email FROM patient WHERE email = '$email' UNION SELECT email  FROM doctor WHERE email = '$email' UNION SELECT email  FROM lab_technician WHERE email = '$email'";
+    $sql = "SELECT patientEmail FROM patient WHERE patientEmail = '$email' UNION SELECT doctorEmail  FROM doctor WHERE doctorEmail = '$email' UNION SELECT technicianEmail  FROM lab_technician WHERE technicianEmail = '$email'";
     $sql1 = "SELECT doctorID FROM doctor WHERE doctorID = '$ID1'";
     $sql2 = "SELECT patientID FROM patient WHERE patientID = '$ID2'";
     $sql3 = "SELECT labTechnicianID FROM lab_technician WHERE labTechnicianID = '$ID3'";
@@ -517,10 +517,10 @@ if (isset($_POST["register"])) {
 
 
         if ($type === "Patient") {
-            $query = "INSERT INTO patient (name, email, birthDate,gender, address, patientID, password, verificationCode, isVerified)
+            $query = "INSERT INTO patient (name, patientEmail, birthDate,gender, address, patientID, password, verificationCode, isVerified)
             VALUES ('$name', '$email', '$birthDate', '$gender','$address', '$ID2', '$passwordHash', '$v_code', '0')";
         } elseif ($type === "Doctor") {
-            $query = "INSERT INTO doctor (name, email, doctorID, birthDate, gender, address, password, verificationCode, isVerified)
+            $query = "INSERT INTO doctor (name, doctorEmail, doctorID, birthDate, gender, address, password, verificationCode, isVerified)
             VALUES ('$name', '$email', '$ID1', '$birthDate','$gender','$address', '$passwordHash', '$v_code', '0')";
         } elseif ($type === "Lab Technician") {
             $query = "INSERT INTO lab_technician (name, technicianEmail, labTechnicianID, birthDate, gender, address, password, verificationCode, isVerified)
@@ -563,8 +563,10 @@ if (isset($_POST["register"])) {
             $mail->SMTPAuth = true;
             $mail->Username = 'koiralabishal3@gmail.com';
             $mail->Password = 'rtvxlvouimebormx';
-            $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
-            $mail->Port = 465;
+            // $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+            $mail->SMTPSecure = 'tls';
+            $mail->Port = 587;
+
 
             $mail->setFrom('koiralabishal3@gmail.com', 'MediDocX');
             $mail->addAddress($email);

@@ -11,6 +11,7 @@ if (isset($_POST['submit'])) {
     $reportIDs = $_POST['reportID'];
     $resultValues = $_POST['result'];
     // $flags = $_POST['flag'];
+    $technicianID = $_POST['technicianID'];
     $testNames = $_POST['testName'];
     foreach ($testNames as $index => $testName) {
         // Get the corresponding values for the current test
@@ -23,7 +24,7 @@ if (isset($_POST['submit'])) {
         // Determine flag based on result value and reference range
         $flag = determineFlag($resultValue, $referenceRange);
         $updateQuery = "UPDATE report 
-                        SET resultValue = '$resultValue', flag = '$flag' 
+                        SET resultValue = '$resultValue', flag = '$flag' , technicianID = '$technicianID'
                         WHERE TestName = '$testName' AND ReportID = '$reportID'";
 
 
@@ -151,10 +152,10 @@ function determineFlag($resultValue, $referenceRange)
 
 
 
-if (!isset($_SESSION['technicianEmail'],$_GET['patientID'], $_GET['doctorID'], $_GET['reportID'])) {
-  // Redirect to index.php if any of the parameters are missing
-  header('Location: index.php');
-  exit();
+if (!isset($_SESSION['technicianEmail'], $_GET['patientID'], $_GET['doctorID'], $_GET['reportID'])) {
+    // Redirect to index.php if any of the parameters are missing
+    header('Location: index.php');
+    exit();
 }
 
 
@@ -178,17 +179,29 @@ if (isset($_SESSION['technicianEmail'])) {
 
 
 
+    $sqlTechnicianID = "SELECT labTechnicianID FROM lab_technician WHERE technicianEmail = '$email'";
+    $resultTechnicianID = mysqli_query($conn, $sqlTechnicianID);
 
-
-
-
-    $sql5 = "SELECT age, gender FROM appointed_patient WHERE patientID = '$patientID'";
-
-    $result5 = mysqli_query($conn, $sql5);
-
-    if ($result5) {
-        $row6 = mysqli_fetch_assoc($result5);
+    if ($resultTechnicianID) {
+        $rowTechnicianID = mysqli_fetch_assoc($resultTechnicianID);
     }
+
+
+
+    $sqlPatientName = "SELECT name FROM hospital WHERE patientID = '$patientID'";
+    $resultPatientName = mysqli_query($conn, $sqlPatientName);
+
+    if ($resultPatientName) {
+        $rowPatientName = mysqli_fetch_assoc($resultPatientName);
+    }
+
+    // $sql5 = "SELECT age, gender FROM appointed_patient WHERE patientID = '$patientID'";
+
+    // $result5 = mysqli_query($conn, $sql5);
+
+    // if ($result5) {
+    //     $row6 = mysqli_fetch_assoc($result5);
+    // }
 
     $sql = "SELECT * FROM hospital WHERE email = '{$email}' AND userType ='Lab Technician'";
     // session_write_close();
@@ -317,261 +330,8 @@ if (isset($_SESSION['technicianEmail'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>labTechnicianPatient</title>
     <!-- <link rel="stylesheet" href="style.css"> -->
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        header {
-            background-color: rgb(239, 239, 239);
-            padding: 1vw;
-            width: 100vw;
-            height: 15vh;
-            position: fixed;
-            display: flex;
-        }
-
-        header img {
-            height: 100%;
-        }
-
-        header input {
-            /* align-self: center; */
-            border: none;
-            margin: auto 4% auto auto;
-            padding: 1%;
-            height: fit-content;
-            background-color: rgb(252, 252, 252);
-            font-size: 16px;
-            border-radius: 12px;
-        }
-
-        header input:focus {
-            /* background-color: red; */
-            outline: none;
-            /* border-bottom: 1px solid gray; */
-            /* text-decoration: underline; */
-            /* text-decoration-line: underline; */
-        }
-
-        aside {
-            display: inline-block;
-            background-color: #3e588f;
-            color: #e3e8f8;
-            width: 15vw;
-            height: 85vh;
-            margin-top: 15vh;
-            position: fixed;
-        }
-
-        aside #profileInfo {
-            /* background-color: red; */
-            width: 100%;
-            /* height: 32vh; */
-            padding-top: 16%;
-        }
-
-        aside #profileInfo #profilePic {
-            width: 48%;
-            aspect-ratio: 1/1;
-            margin: auto auto;
-            background-image: url(Mayukh\ Baral.jpg);
-            background-repeat: no-repeat;
-            background-position: center top;
-            background-size: 100%;
-            border-radius: 50%;
-        }
-
-        aside #profileInfo #details {
-            width: fit-content;
-            /* background-color: gold; */
-            color: #e3e8f8;
-            margin: 8% auto 0;
-            text-align: center;
-        }
-
-        aside #reportTemplatesContainer {
-            background-color: #2f426b;
-            margin-top: 8%;
-        }
-
-        aside #reportTemplatesContainer h3 {
-            /* background-color: red; */
-            padding: 4%;
-            padding-left: 6%;
-            border-bottom: 1px solid rgb(190, 177, 104);
-        }
-
-        aside #reportTemplatesContainer .reportTemplatesAside {
-            /* background-color: red; */
-            border-bottom: 1px solid #3e588f;
-            padding: 2%;
-            padding-left: 12%;
-        }
-
-        main {
-            display: inline-block;
-            background-color: #e3e8f8;
-            margin-top: 15vh;
-            margin-left: 15vw;
-            width: 85vw;
-            /* padding-top: 4vh; */
-            /* padding: 2%; */
-        }
-
-        main section {
-            background-color: whitesmoke;
-            margin: 4% 6%;
-            padding: 1%;
-            border-radius: 8px;
-            box-shadow: 4px 4px 8px 5px darkgrey;
-        }
-
-        main section .header {
-            /* background-color: lightblue; */
-            font-family: Cambria, Cochin, Georgia, Times, "Times New Roman", serif;
-            padding: 1%;
-            display: flex;
-        }
-
-        main section .header h2 {
-            margin-right: auto;
-        }
-
-        main section .header button {
-            border: 1px solid gray;
-            /* margin: auto 4% auto auto; */
-            margin: 1%;
-            padding: 1%;
-            height: fit-content;
-            background-color: rgb(252, 252, 252);
-            font-size: 16px;
-            border-radius: 12px;
-            /* background-color: red; */
-        }
-
-        main section .header button:hover {
-            box-shadow: 2px 2px 4px 2px darkgrey;
-            cursor: pointer;
-            background-color: rgb(254, 254, 254);
-        }
-
-        main section .container {
-            /* background-color: rgb(239, 239, 239); */
-            /* background-color: #e3e8f8; */
-            padding: 1%;
-            margin: 2% 1%;
-            border-radius: 8px;
-        }
-
-        main section .container .month {
-            /* background-color:cadetblue; */
-            padding: 1%;
-            font-family: Arial, Helvetica, sans-serif;
-            border-bottom: 1px solid silver;
-        }
-
-        main section .boxContainer {
-            /* background-color: lightgreen; */
-            /* padding-top: 1%; */
-            display: flex;
-            /* flex-wrap:wrap; */
-        }
-
-        main section .boxContainer .box {
-            background-color: #4e6eb2;
-            color: #e3e8f8;
-            padding: 2%;
-            /* height: 100px; */
-            margin: 1%;
-            display: inline-block;
-            transition: all 0.2s;
-            cursor: pointer;
-            border-radius: 8px;
-            border: 1px solid silver;
-            font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS",
-                sans-serif;
-        }
-
-        main section .boxContainer .box:hover {
-            background-color: whitesmoke;
-            color: #2f426b;
-            box-shadow: 2px 2px 8px 1px grey;
-            /* transition: background-color, box-shadow 1s; */
-        }
-
-        main section .container .boxContainer table {
-            /* background-color: rgb(239, 239, 239); */
-            margin: auto;
-            border-collapse: collapse;
-            font-family: Arial, Helvetica, sans-serif;
-            border: 1px solid silver;
-        }
-
-        main section .container .boxContainer table th,
-        td {
-            padding: 4px 8px;
-            text-align: left;
-            vertical-align: top;
-            font-size: 14px;
-            text-wrap: balance;
-            /* border: 1px solid black; */
-        }
-
-        main section .container .boxContainer table th[scope="col"] {
-            color: whitesmoke;
-            font-family: Verdana, Geneva, Tahoma, sans-serif;
-            /* font-family: Arial, Helvetica, sans-serif; */
-            font-size: 16px;
-            font-weight: bold;
-            background-color: #4e6eb2;
-            border: none;
-            text-wrap: nowrap;
-        }
-
-        main section .container .boxContainer table th[scope="row"] {
-            font-weight: normal;
-            padding-left: 2%;
-        }
-
-        main section .container .boxContainer table .testCategoryTitle {
-            font-family: Verdana, Geneva, Tahoma, sans-serif;
-            /* font-family: Arial, Helvetica, sans-serif; */
-            font-weight: bold;
-            background-color: rgb(239, 239, 239);
-            font-size: 14px;
-            /* border-top: 1px solid silver; */
-            border-bottom: 1px solid silver;
-            margin-top: 24px;
-            /* background-color: red; */
-        }
-
-        main section .container .boxContainer table td .result {
-            background-color: transparent;
-            border: 1px solid gray;
-            width: 80%;
-        }
-
-        main section .container .boxContainer table td .flag {
-            background-color: transparent;
-            border: 1px solid gray;
-            width: 40%;
-        }
-
-        main section .container .boxContainer table td ul {
-            padding-left: 5%;
-        }
-
-        main section .container .boxContainer table td ul ul {
-            padding-left: 10%;
-        }
-
-        #testForm {
-            display: block;
-        }
-    </style>
+    <link rel="stylesheet" href="style1.css">
+    <link rel="stylesheet" href="style2Tables.css">
 </head>
 
 <body>
@@ -592,18 +352,18 @@ if (isset($_SESSION['technicianEmail'])) {
         </div>
         <div id="reportTemplatesContainer">
             <h3>Patient Info</h3>
-            <!-- <div class="reportTemplatesAside">Name: -->
-            <!-- <?php echo $patientName; ?> -->
-            <!-- </div> -->
+            <div class="reportTemplatesAside">Name:
+                <?php echo $rowPatientName['name']; ?>
+            </div>
             <div class="reportTemplatesAside">Patient ID:
                 <?php echo $_GET['patientID']; ?>
             </div>
-            <div class="reportTemplatesAside">Age:
-                <?php echo $row6['age']; ?>
-            </div>
-            <div class="reportTemplatesAside">Gender:
-                <?php echo $row6['gender']; ?>
-            </div>
+            <!-- <div class="reportTemplatesAside">Age: -->
+                <!-- <?php echo $row6['age']; ?> -->
+            <!-- </div> -->
+            <!-- <div class="reportTemplatesAside">Gender: -->
+                <!-- <?php echo $row6['gender']; ?> -->
+            <!-- </div> -->
         </div>
     </aside>
     <main>
@@ -619,73 +379,75 @@ if (isset($_SESSION['technicianEmail'])) {
 
                 <section>
 
-                    <div class="header">
+                    <div class="sectionTitle">
                         <h2>
                             <?php echo $testType; ?>
                         </h2>
                     </div>
-                    <div class="container">
-                        <div class="boxContainer">
-                            <table>
-                                <tr>
-                                    <th scope="col">Test Name</th>
-                                    <th scope="col">Result</th>
-                                    <th scope="col">Unit</th>
-                                    <!-- <th scope="col">Flag</th> -->
-                                    <th scope="col">Reference Range</th>
-                                    <th scope="col">Method</th>
-                                </tr>
-                                <?php foreach ($categories as $category => $testsData) { ?>
-                                    <tr class="testCategoryTitle">
-                                        <td colspan="5">
-                                            <?php echo $category; ?>
-                                        </td>
-                                        <?php foreach ($testsData as $testData => $Data) { ?>
-                                        <tr>
-                                            <td scope="row">
-                                                <?php echo $Data['testName']; ?>
-                                                <input type="hidden" name="reportID[]" value="<?php echo $reportID; ?>" />
-                                                <input type="hidden" name="testName[]" value="<?php echo $Data['testName']; ?>" />
+                    <!-- <div class="container"> -->
+                    <div class="tableContainer">
+                        <table>
+                            <tr>
+                                <th scope="col">Test Name</th>
+                                <th scope="col">Result</th>
+                                <th scope="col">Unit</th>
+                                <!-- <th scope="col">Flag</th> -->
+                                <th scope="col">Reference Range</th>
+                                <th scope="col">Method</th>
+                            </tr>
+                            <?php foreach ($categories as $category => $testsData) { ?>
+                                <tr class="testCategoryTitle">
+                                    <td colspan="5">
+                                        <?php echo $category; ?>
+                                    </td>
+                                    <?php foreach ($testsData as $testData => $Data) { ?>
+                                    <tr>
+                                        <td scope="row">
+                                            <?php echo $Data['testName']; ?>
+                                            <input type="hidden" name="reportID[]" value="<?php echo $reportID; ?>" />
+                                            <input type="hidden" name="technicianID"
+                                                value="<?php echo $rowTechnicianID['labTechnicianID']; ?>" />
+                                            <input type="hidden" name="testName[]" value="<?php echo $Data['testName']; ?>" />
 
-                                            </td>
-                                            <td><input type="text" name="result[]" class="result" /></td>
-                                            <td>
-                                                <?php echo $Data['unit']; ?>
-                                            </td>
-                                            <!-- <td><input type="text" name="flag[]" class="flag" /></td> -->
-                                            <td>
-                                                <?php
-                                                $referenceRanges = $Data['referenceRange'];
-                                                if (count($referenceRanges) > 1) {
-                                                    echo '<ul>';
-                                                    foreach ($referenceRanges as $range) {
-                                                        if (strpos($range, ';') !== false) {
-                                                            $nestedRanges = explode(';', $range);
-                                                            echo '<ul>';
-                                                            foreach ($nestedRanges as $nestedRange) {
-                                                                echo "<li>{$nestedRange}</li>";
-                                                            }
-                                                            echo '</ul>';
-                                                        } else {
-                                                            echo "<li>{$range}</li>";
+                                        </td>
+                                        <td><input type="text" name="result[]" class="result" /></td>
+                                        <td>
+                                            <?php echo $Data['unit']; ?>
+                                        </td>
+                                        <!-- <td><input type="text" name="flag[]" class="flag" /></td> -->
+                                        <td>
+                                            <?php
+                                            $referenceRanges = $Data['referenceRange'];
+                                            if (count($referenceRanges) > 1) {
+                                                echo '<ul>';
+                                                foreach ($referenceRanges as $range) {
+                                                    if (strpos($range, ';') !== false) {
+                                                        $nestedRanges = explode(';', $range);
+                                                        echo '<ul>';
+                                                        foreach ($nestedRanges as $nestedRange) {
+                                                            echo "<li>{$nestedRange}</li>";
                                                         }
+                                                        echo '</ul>';
+                                                    } else {
+                                                        echo "<li>{$range}</li>";
                                                     }
-                                                    echo '</ul>';
-                                                } else {
-                                                    echo $referenceRanges[0];
                                                 }
-                                                ?>
-                                            </td>
-                                            <td>
-                                                <?php echo $Data['methods']; ?>
-                                            </td>
-                                        </tr>
-                                    <?php } ?>
+                                                echo '</ul>';
+                                            } else {
+                                                echo $referenceRanges[0];
+                                            }
+                                            ?>
+                                        </td>
+                                        <td>
+                                            <?php echo $Data['methods']; ?>
+                                        </td>
                                     </tr>
                                 <?php } ?>
-                            </table>
-                        </div>
+                                </tr>
+                            <?php } ?>
+                        </table>
                     </div>
+                    <!-- </div> -->
                 </section>
 
             <?php } ?>

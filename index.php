@@ -7,9 +7,9 @@ include 'connection.php';
 
 if (isset($_GET['email']) && isset($_GET['v_code'])) {
   // $sql = "SELECT * FROM patient WHERE email = '$_GET[email]' AND verificationCode = '$_GET[v_code]'";
-  $sql = "SELECT * FROM patient WHERE email = '$_GET[email]' AND verificationCode = '$_GET[v_code]'";
-  $sql1 = "SELECT * FROM doctor WHERE email = '$_GET[email]' AND verificationCode = '$_GET[v_code]'";
-  $sql2 = "SELECT * FROM lab_technician WHERE email = '$_GET[email]' AND verificationCode = '$_GET[v_code]'";
+  $sql = "SELECT * FROM patient WHERE patientEmail = '$_GET[email]' AND verificationCode = '$_GET[v_code]'";
+  $sql1 = "SELECT * FROM doctor WHERE doctorEmail = '$_GET[email]' AND verificationCode = '$_GET[v_code]'";
+  $sql2 = "SELECT * FROM lab_technician WHERE technicianEmail = '$_GET[email]' AND verificationCode = '$_GET[v_code]'";
 
   $result = mysqli_query($conn, $sql);
   $result1 = mysqli_query($conn, $sql1);
@@ -18,7 +18,7 @@ if (isset($_GET['email']) && isset($_GET['v_code'])) {
   if (mysqli_num_rows($result) > 0) {
     $row = mysqli_fetch_assoc($result);
     if ($row['isVerified'] == 0) {
-      $update = "UPDATE patient SET isVerified = 1 WHERE email = '$row[email]'";
+      $update = "UPDATE patient SET isVerified = 1 WHERE patientEmail = '$row[patientEmail]'";
       // $update1 = "UPDATE doctor SET isVerified = 1 WHERE email = '$row[email]'";
       if (mysqli_query($conn, $update)) {
         ?>
@@ -87,7 +87,7 @@ if (isset($_GET['email']) && isset($_GET['v_code'])) {
     $row = mysqli_fetch_assoc($result1);
     if ($row['isVerified'] == 0) {
       // $update = "UPDATE patient SET isVerified = 1 WHERE email = '$row[email]'";
-      $update1 = "UPDATE doctor SET isVerified = 1 WHERE email = '$row[email]'";
+      $update1 = "UPDATE doctor SET isVerified = 1 WHERE doctorEmail = '$row[doctorEmail]'";
       if (mysqli_query($conn, $update1)) {
         ?>
 
@@ -157,7 +157,7 @@ if (isset($_GET['email']) && isset($_GET['v_code'])) {
     $row = mysqli_fetch_assoc($result2);
     if ($row['isVerified'] == 0) {
       // $update = "UPDATE patient SET isVerified = 1 WHERE email = '$row[email]'";
-      $update2 = "UPDATE lab_technician SET isVerified = 1 WHERE email = '$row[email]'";
+      $update2 = "UPDATE lab_technician SET isVerified = 1 WHERE technicianEmail = '$row[technicianEmail]'";
       if (mysqli_query($conn, $update2)) {
         ?>
 
