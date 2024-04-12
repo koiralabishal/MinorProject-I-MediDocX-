@@ -8,6 +8,10 @@ if (!isset($_SESSION['technicianEmail'])) {
 
 if (isset($_SESSION['technicianEmail']) && !is_null($_SESSION['technicianEmail'])) {
     $labTechnicianEmail = $_SESSION['technicianEmail'];
+    // $patientName = $_SESSION['patientName'];
+    // $gender = $_SESSION['gender'];
+    // $age = $_SESSION['age'];
+    // $patientID = $_SESSION['patientID'];
 
     // echo $labTechnicianEmail;
 
@@ -21,10 +25,10 @@ if (isset($_SESSION['technicianEmail']) && !is_null($_SESSION['technicianEmail']
         $patientID = $row5['patientID'];
     }
 
-    $sql2 = "SELECT distinct patientName FROM  test_data WHERE patientID = '$patientID'";
-    $result2 = mysqli_query($conn, $sql2);
+    // $sql2 = "SELECT distinct patientName FROM  test_data WHERE patientID = '$patientID'";
+    // $result2 = mysqli_query($conn, $sql2);
     // $sql2 = "SELECT Distinct h.name FROM hospital h JOIN test_data t ON h.doctorID = t.doctorID";
-    $sql3 = "SELECT distinct t.patientName, t.patientID, h.name, t.doctorID, t.reportID
+    $sql3 = "SELECT distinct t.patientName, t.patientID, h.name, t.doctorID, t.reportID,t.visitID
           FROM test_data t
           INNER JOIN hospital h ON t.doctorID = h.doctorID
           ORDER BY t.id DESC";
@@ -41,8 +45,20 @@ if (isset($_SESSION['technicianEmail']) && !is_null($_SESSION['technicianEmail']
     }
 }
 
-$sqlPendingTests = "SELECT distinct  r.patientID, h.name, r.doctorID, r.ReportID FROM report r JOIN hospital h ON r.doctorID = h.doctorID WHERE r.flag = 'P' ";
+$sqlPendingTests = "SELECT distinct  r.patientID, h.name, r.doctorID, r.ReportID, r.visitID, v.patientName FROM report r JOIN hospital h ON r.doctorID = h.doctorID JOIN patientVisitDetails v ON h.doctorID = v.referredToDoctorID WHERE r.flag = 'P' ORDER BY r.id DESC";
 $resultPendingTests = mysqli_query($conn, $sqlPendingTests);
+
+// $patientName = "SELECT name FROM hospital WHERE patientID = '{$patientID}'";
+// $resultPatientName = mysqli_query($conn, $patientName);
+
+// if ($resultPatientName) {
+//     $rowPatientName = mysqli_fetch_assoc($resultPatientName);
+// }
+// $sqlPatientInfo = "SELECT * FROM patientVisitDetails WHERE patientID = '$patientID' AND referredToDoctorID = '$doctorID' AND visitID = '$visitID'";
+// $resultPatientInfo = mysqli_query($conn,$sqlPatientInfo);
+// if($resultPatientInfo){
+//     $rowPatientInfo = mysqli_fetch_assoc($resultPatientInfo);
+// }
 
 // if ($result2) {
 //   $row2 = mysqli_fetch_assoc($result2);
@@ -91,7 +107,7 @@ $resultPendingTests = mysqli_query($conn, $sqlPendingTests);
                     if ($result3) {
                         while ($row3 = mysqli_fetch_array($result3)) {
                             echo '<div class="box">';
-                            echo '<a href="labTechnicianPatient.php?patientName=' . $row3['patientName'] . '&patientID=' . $row3['patientID'] . '&doctorID=' . $row3['doctorID'] . '&reportID=' . $row3['reportID'] . ' ">';
+                            echo '<a href="labTechnicianPatient.php?patientName=' . $row3['patientName'] . '&patientID=' . $row3['patientID'] . '&doctorID=' . $row3['doctorID'] . '&reportID=' . $row3['reportID'] . '&visitID='.$row3['visitID'].' ">';
                             echo "Name: " . $row3['patientName'] . "<br />";
                             echo "Patient ID: " . $row3['patientID'] . "<br />";
                             echo "Referred by: Dr." . $row3['name'];
@@ -125,8 +141,9 @@ $resultPendingTests = mysqli_query($conn, $sqlPendingTests);
                     if ($resultPendingTests) {
                         while ($rowPendingTests = mysqli_fetch_array($resultPendingTests)) {
                             echo '<div class="box">';
-                            echo '<a href="pendingTests.php?patientID=' . $rowPendingTests['patientID'] . '&doctorID=' . $rowPendingTests['doctorID'] . '&reportID=' . $rowPendingTests['ReportID'] . ' ">';
-                            // echo "Name: " . $rowPendingTests['patientName'] . "<br />";
+                            echo '<a href="pendingTests.php?patientID=' . $rowPendingTests['patientID'] . '&doctorID=' . $rowPendingTests['doctorID'] . '&reportID=' . $rowPendingTests['ReportID'] . '&visitID='.$rowPendingTests['visitID'].' ">';
+                            echo "Name: " . $rowPendingTests['patientName'] . "<br />";
+                            // echo "Patient Name: " . $rowPendingTests['patientName']. "<br />";
                             echo "Patient ID: " . $rowPendingTests['patientID'] . "<br />";
                             echo "Referred by: Dr." . $rowPendingTests['name'];
                             echo '</a>';

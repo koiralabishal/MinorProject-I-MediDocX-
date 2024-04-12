@@ -6,9 +6,9 @@ include 'connection.php';
 //   header('Location:index.php');
 // }
 
-if (!isset($_SESSION['doctorEmail'], $_SESSION['patientID'], $_SESSION['age'], $_SESSION['gender'])) {
-    header('Location:index.php');
-}
+// if (!isset($_SESSION['doctorEmail'], $_SESSION['patientID'], $_SESSION['age'], $_SESSION['gender'],$_SESSION['visitID'],$_SESSION['date'])) {
+//     header('Location:index.php');
+// }
 
 // $patientName = $_GET['patientName'];
 // $patientID = $_GET['patientID'];
@@ -16,10 +16,10 @@ if (!isset($_SESSION['doctorEmail'], $_SESSION['patientID'], $_SESSION['age'], $
 // $patientgender = $_GET['gender'];
 
 $email = $_SESSION['doctorEmail'];
-$patientName = $_SESSION['patientName'];
-$patientID = $_SESSION['patientID'];
-$patientage = $_SESSION['age'];
-$patientgender = $_SESSION['gender'];
+// $patientName = $_SESSION['patientName'];
+// $patientID = $_SESSION['patientID'];
+// $patientage = $_SESSION['age'];
+// $patientgender = $_SESSION['gender'];
 // $visitID = $_SESSION['visitID'];
 $visitID = $_GET['visitID'];
 $_SESSION['visitID'] = $visitID;
@@ -34,8 +34,8 @@ $_SESSION['date'] = $date;
 // $_SESSION['age'] = $patientage;
 // $_SESSION['gender'] = $patientgender;
 
-$sqlVisitID = "SELECT visitID FROM patientVisitDetails WHERE date = '$date'";
-$resultVisitID = mysqli_query($conn, $sqlVisitID);
+// $sqlVisitID = "SELECT visitID FROM patientVisitDetails WHERE date = '$date'";
+// $resultVisitID = mysqli_query($conn, $sqlVisitID);
 
 // if ($resultVisitID) {
 //     $rowVisitID = mysqli_fetch_assoc($resultVisitID);
@@ -59,13 +59,19 @@ if ($result) {
 //   $row2 = mysqli_fetch_assoc($result2);
 // }
 
+$sqlPatientInfo = "SELECT * FROM patientVisitDetails WHERE visitID = '$visitID' AND date = '$date'";
+$resultPatientInfo = mysqli_query($conn,$sqlPatientInfo);
+if($resultPatientInfo){
+    $rowPatientInfo = mysqli_fetch_assoc($resultPatientInfo);
+}
 
 
 //for prescription section
 
-$sqlPrescription = "SELECT prescriptions FROM prescription WHERE patientID = '$patientID'
+$sqlPrescription = "SELECT prescriptions FROM prescription WHERE patientID = '{$rowPatientInfo['patientID']}'
 AND doctorID = {$row['doctorID']}
-AND visitID = '$visitID'";
+AND visitID = '$visitID'
+-- AND date = '$date'";
 
 $resultPrescription = mysqli_query($conn, $sqlPrescription);
 
@@ -82,10 +88,10 @@ foreach ($testTypes as $testType) {
     $query = "SELECT $testType.TestName, $testType.subCategory, $testType.Units, $testType.Methods, $testType.ReferenceRange,report.flag, report.resultValue
         FROM $testType 
         JOIN report ON $testType.TestName = report.TestName
-        WHERE report.patientID = '$patientID'
+        WHERE report.patientID = '{$rowPatientInfo['patientID']}'
         -- AND test_data.category = '$testType'
         AND report.doctorID = '{$row['doctorID']}'
-        AND report.visitID = {$visitID}
+        AND report.visitID = '$visitID'
         AND report.date = '$date'";
 
     $result8 = mysqli_query($conn, $query);
@@ -186,16 +192,16 @@ foreach ($testTypes as $testType) {
         <div id="reportTemplatesContainer">
             <h3>Patient Info</h3>
             <div class="reportTemplatesAside">Name:
-                <?php echo $patientName; ?>
+                <?php echo $rowPatientInfo['patientName']; ?>
             </div>
             <div class="reportTemplatesAside">Patient ID:
-                <?php echo $patientID; ?>
+                <?php echo $rowPatientInfo['patientID']; ?>
             </div>
             <div class="reportTemplatesAside">Age:
-                <?php echo $patientage; ?>
+                <?php echo $rowPatientInfo['age']; ?>
             </div>
             <div class="reportTemplatesAside">Gender:
-                <?php echo $patientgender; ?>
+                <?php echo $rowPatientInfo['gender']; ?>
             </div>
         </div>
     </aside>

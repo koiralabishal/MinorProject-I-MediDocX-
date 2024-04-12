@@ -24,12 +24,13 @@ $patientgender = $_SESSION['gender'];
 // $patientage = $_GET['age'];
 // $patientgender = $_GET['gender'];
 $date = $_SESSION['date'];
-$sqlVisitID = "SELECT visitID FROM patientVisitDetails WHERE date = '$date'";
-$resultVisitID = mysqli_query($conn, $sqlVisitID);
+$visitID = $_SESSION['visitID'];
+// $sqlVisitID = "SELECT visitID FROM patientVisitDetails WHERE date = '$date'";
+// $resultVisitID = mysqli_query($conn, $sqlVisitID);
 
-if ($resultVisitID) {
-    $rowVisitID = mysqli_fetch_assoc($resultVisitID);
-}
+// if ($resultVisitID) {
+//     $rowVisitID = mysqli_fetch_assoc($resultVisitID);
+// }
 
 
 
@@ -734,7 +735,7 @@ if (isset($_POST['submit'])) {
   if (isset($_POST['BioChemistry']) || isset($_POST['Haematology']) || isset($_POST['Bacteriology']) || isset($_POST['Mycology']) || isset($_POST['Virology']) || isset($_POST['TumarMarkers']) || isset($_POST['Parasitology']) || isset($_POST['Cytology']) || isset($_POST['HormoneAssays']) || isset($_POST['Immunology'])) {
     $categories = ['BioChemistry', 'Haematology', 'Bacteriology', 'Mycology', 'Virology', 'TumarMarkers', 'Parasitology', 'Cytology', 'HormoneAssays', 'Immunology'];
     $queries = [];
-    $last_report_id_query = "SELECT MAX(reportID) AS max_report_id FROM test_data";
+    $last_report_id_query = "SELECT MAX(reportID) AS max_report_id FROM report";
     $last_report_id_result = mysqli_query($conn, $last_report_id_query);
     $last_report_id_row = mysqli_fetch_assoc($last_report_id_result);
     $last_report_id = $last_report_id_row['max_report_id'];
@@ -749,7 +750,7 @@ if (isset($_POST['submit'])) {
       if (isset($_POST[$category])) {
         $testNames = implode(", ", $_POST[$category]); // Concatenate test names
         $query = "INSERT INTO test_data (`category`, `testNames`,  `patientID`, `patientName`, `doctorID`,`date`, `reportID`, `visitID`) 
-                  VALUES ('$category', '$testNames', '$patientID', '$patientName', '{$row['doctorID']}','$date','$reportID','{$rowVisitID['visitID']}')";
+                  VALUES ('$category', '$testNames', '$patientID', '$patientName', '{$row['doctorID']}','$date','$reportID','$visitID')";
         $queries[] = $query;
       }
     }
@@ -774,7 +775,7 @@ if (isset($_POST['submit'])) {
 
     // Check if any queries were executed successfully
     if (count($queries) > 0) {
-      $deleteQuery = "DELETE FROM appointed_patient WHERE patientID='$patientID' AND doctorID='{$row['doctorID']}' AND visitID='{$rowVisitID['visitID']}'";
+      $deleteQuery = "DELETE FROM appointed_patient WHERE patientID='$patientID' AND doctorID='{$row['doctorID']}' AND visitID='$visitID'";
       $resultDelete = mysqli_query($conn, $deleteQuery);
 
       if($resultDelete){

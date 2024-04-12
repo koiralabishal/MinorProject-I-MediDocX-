@@ -2,31 +2,33 @@
 session_start();
 include 'connection.php';
 
-$date = $_SESSION['date'];
+
 
 if (isset($_POST['submit'])) {
     $patientID = $_POST['patientID'];
     $doctorID = $_POST['doctorID'];
     $visitID = $_POST['visitID'];
+    $date = $_POST['date'];
     $prescription = $_POST['newPrescription'];
 
     $sqlUpdateQuery = "UPDATE prescription set prescriptions='$prescription' WHERE patientID='$patientID'
     AND doctorID='$doctorID'
-    AND visitID='$visitID'";
+    AND visitID='$visitID'
+    AND date = '$date'";
 
     $resultUpdateQuery = mysqli_query($conn, $sqlUpdateQuery);
 
     if ($resultUpdateQuery) {
 
         // Check if there are any rows in appointed_patient table for the given conditions
-        $countQuery = "SELECT COUNT(*) AS count FROM appointed_patient WHERE patientID='$patientID' AND doctorID='$doctorID'";
+        $countQuery = "SELECT COUNT(*) AS count FROM appointed_patient WHERE patientID='$patientID' AND doctorID='$doctorID' AND visitID='$visitID' AND date = '$date'";
         $resultCount = mysqli_query($conn, $countQuery);
         $rowCount = mysqli_fetch_assoc($resultCount);
         $count = $rowCount['count'];
 
         if ($count > 0) {
             // If rows exist in appointed_patient table, delete from it
-            $deleteQuery = "DELETE FROM appointed_patient WHERE patientID='$patientID' AND doctorID='$doctorID' AND visitID='$visitID'";
+            $deleteQuery = "DELETE FROM appointed_patient WHERE patientID='$patientID' AND doctorID='$doctorID' AND visitID='$visitID' AND date = '$date'";
             $resultDelete = mysqli_query($conn, $deleteQuery);
 
             if ($resultDelete) {
@@ -71,7 +73,7 @@ if (isset($_POST['submit'])) {
         } else {
             // If no rows exist in appointed_patient table, delete from pendingReport table
 
-            $sqlReportID = "SELECT reportID FROM pendingReport WHERE patientID = '$patientID' AND doctorID ='$doctorID' AND visitID = '$visitID'";
+            $sqlReportID = "SELECT reportID FROM pendingReport WHERE patientID = '$patientID' AND doctorID ='$doctorID' AND visitID = '$visitID' AND date = '$date'";
 
             $resultReport = mysqli_query($conn, $sqlReportID);
 
@@ -134,23 +136,28 @@ if (isset($_POST['submit'])) {
 // $patientID = $_GET['patientID'];
 // $patientage = $_GET['age'];
 // $patientgender = $_GET['gender'];
-$patientName = $_SESSION['patientName'];
-$patientID = $_SESSION['patientID'];
-$patientage = $_SESSION['age'];
-$patientgender = $_SESSION['gender'];
+// $patientName = $_SESSION['patientName'];
+// $patientID = $_SESSION['patientID'];
+// $patientage = $_SESSION['age'];
+// $patientgender = $_SESSION['gender'];
 $email = $_SESSION['doctorEmail'];
-// $visitID = $_SESSION['visitID'];
+$visitID = $_SESSION['visitID'];
 // echo $visitID;
+echo $visitID;
 
-
-
-
-$sqlVisitID = "SELECT visitID FROM patientVisitDetails WHERE date = '$date'";
-$resultVisitID = mysqli_query($conn, $sqlVisitID);
-
-if ($resultVisitID) {
-    $rowVisitID = mysqli_fetch_assoc($resultVisitID);
+$date = $_SESSION['date'];
+echo $date;
+$sqlPatientInfo = "SELECT * FROM patientVisitDetails WHERE visitID = '$visitID' AND date = '$date'";
+$resultPatientInfo = mysqli_query($conn,$sqlPatientInfo);
+if($resultPatientInfo){
+    $rowPatientInfo = mysqli_fetch_assoc($resultPatientInfo);
 }
+// $sqlVisitID = "SELECT visitID FROM patientVisitDetails WHERE date = '$date'";
+// $resultVisitID = mysqli_query($conn, $sqlVisitID);
+
+// if ($resultVisitID) {
+//     $rowVisitID = mysqli_fetch_assoc($resultVisitID);
+// }
 
 
 $sql = "SELECT * FROM hospital WHERE email = '{$email}' AND userType ='Doctor'";
@@ -164,9 +171,9 @@ if ($result) {
 }
 
 
-$sqlPrescription = "SELECT prescriptions FROM prescription WHERE patientID = '$patientID'
+$sqlPrescription = "SELECT prescriptions FROM prescription WHERE patientID = '{$rowPatientInfo['patientID']}'
 AND doctorID = {$row['doctorID']}
-AND visitID = {$rowVisitID['visitID']}";
+AND visitID = '$visitID'";
 
 $resultPrescription = mysqli_query($conn, $sqlPrescription);
 
@@ -215,16 +222,16 @@ if ($resultPrescription) {
         <div id="reportTemplatesContainer">
             <h3>Patient Info</h3>
             <div class="reportTemplatesAside">Name:
-                <?php echo $patientName; ?>
+                <?php echo $rowPatientInfo['patientName']; ?>
             </div>
             <div class="reportTemplatesAside">Patient ID:
-                <?php echo $patientID; ?>
+                <?php echo $rowPatientInfo['patientID']; ?>
             </div>
             <div class="reportTemplatesAside">Age:
-                <?php echo $patientage; ?>
+                <?php echo $rowPatientInfo['age']; ?>
             </div>
             <div class="reportTemplatesAside">Gender:
-                <?php echo $patientgender; ?>
+                <?php echo $rowPatientInfo['gender']; ?>
             </div>
         </div>
     </aside>
@@ -235,9 +242,10 @@ if ($resultPrescription) {
                 <h2>Add Prescription</h2>
             </div>
             <form action="addPrescription.php" method="POST">
-                <input type="hidden" name="patientID" value="<?php echo $patientID; ?>" />
+                <input type="hidden" name="patientID" value="<?php echo $rowPatientInfo['patientID']; ?>" />
                 <input type="hidden" name="doctorID" value="<?php echo $row['doctorID']; ?>" />
-                <input type="hidden" name="visitID" value="<?php echo $rowVisitID['visitID']; ?>" />
+                <input type="hidden" name="visitID" value="<?php echo $visitID; ?>" />
+                <input type="hidden" name="date" value="<?php echo $date; ?>" />
                 <textarea name="newPrescription" id=""><?php if (isset($rowPrescription) && !empty($rowPrescription['prescriptions'])) {
                     $prescription = str_replace('<br />', '', $rowPrescription['prescriptions']);
                     echo $prescription;

@@ -1,6 +1,6 @@
 <?php
 session_start();
-
+include 'connection.php';
 if (!isset($_SESSION['doctorEmail'])) {
   header('Location:index.php');
 
@@ -9,7 +9,7 @@ if (!isset($_SESSION['doctorEmail'])) {
 if (isset($_SESSION['doctorEmail'])) {
   $doctorEmail = $_SESSION['doctorEmail'];
   // if (isset($doctorEmail) && !is_null($doctorEmail)) {
-  include 'connection.php';
+  
 
   // $email = $_SESSION['email'];
 
@@ -37,7 +37,7 @@ if (isset($_SESSION['doctorEmail'])) {
   }
 
 
-  $sqlVisits = "SELECT distinct p.patientID, p.date, p.reportID,p.doctorID  FROM pendingReport p JOIN report r on p.doctorID = r.doctorID   WHERE r.resultValue = '' AND r.flag = '' ORDER BY p.date DESC";
+  $sqlVisits = "SELECT  distinct p.patientID, p.date, p.reportID,p.doctorID , p.visitID FROM pendingReport p JOIN report r on r.doctorID = p.doctorID   WHERE r.resultValue = '' AND r.flag = '' ORDER BY p.date DESC";
   $resultVisits = mysqli_query($conn, $sqlVisits);
   $hasVisitByYear = false;
   if ($resultVisits && mysqli_num_rows($resultVisits) > 0) {
@@ -54,8 +54,18 @@ if (isset($_SESSION['doctorEmail'])) {
     function createVisitElements($visits)
     {
       foreach ($visits as $visit) {
+        // $patientName = "SELECT patientName FROM patientVisitDetails WHERE `visitID = '{$visit['visitID']}' AND date = '{$visit['date']}'";
+        // $resultPatientName = mysqli_query($conn, $patientName);
+        // if($resultPatientName){
+        //   $rowPatientName = mysqli_fetch_array($resultPatientName);
+
+        // }
+        
         echo '<div class="box">';
-        echo '<a href="doctorPatientVisit.php?date=' . $visit['date'] . '">';
+        echo '<a href="doctorPatientVisit.php?date=' . $visit['date'] . '&visitID=' . $visit['visitID'] . '">';
+        // echo 'Patient Name: ' . $rowPatientName['patientName']. '<br>';
+        echo 'Patient ID: ' . $visit['patientID'] . '<br>';
+        // echo 'Visit ID: ' . $visit['visitID'] . '<br>';
         echo 'Date: ' . date('Y-m-d', strtotime($visit['date'])) . '<br>';
         echo '</a>';
         echo '</div>';
@@ -70,7 +80,44 @@ if (isset($_SESSION['doctorEmail'])) {
           }
         </style>";
     }
-  }
+//   } else {
+//     $visitsByYear = array();
+//     while ($rowVisits = mysqli_fetch_assoc($resultVisits)) {
+//       $year = date('Y', strtotime($rowVisits['date']));
+//       $month = date('m', strtotime($rowVisits['date']));
+//       $halfYear = ($month >= 1 && $month <= 6) ? 'Jan-Jun' : 'Jul-Dec';
+//       $visitsByYear[$year][$halfYear][] = $rowVisits;
+//       $hasVisitByYear = true;
+//     }
+
+//     function createVisitElements($visits)
+//     {
+      
+//       foreach ($visits as $visit) {
+//         $patientName = "SELECT patientName FROM patientVisitDetails WHERE `visitID = '{$visit['visitID']}' AND date = '{$visit['date']}'";
+//         $resultPatientName = mysqli_query($conn, $patientName);
+
+// ;
+//         echo '<div class="box">';
+//         echo '<a href="doctorPatientVisit.php?date=' . $visit['date'] . '&visitID=' . $visit['visitID'] . '">';
+//         // echo 'Patient Name: ' . $visit['patientName'] . '<br>';
+//         echo 'Patient ID: ' . $visit['patientID'] . '<br>';
+//         // echo 'Visit ID: ' . $visit['visitID'] . '<br>';
+//         echo 'Date: ' . date('Y-m-d', strtotime($visit['date'])) . '<br>';
+//         echo '</a>';
+//         echo '</div>';
+//       }
+//       echo "<style>
+//           a{
+//            text-decoration:none;
+//            color:white;
+//           }
+//           .box:hover a {
+//            color: black;
+//           }
+//         </style>";
+//     }
+//   }
 
 
 
@@ -79,7 +126,7 @@ if (isset($_SESSION['doctorEmail'])) {
   //   if($result2){
 //   $rowDoctorID = mysqli_fetch_assoc($result2);
 // }
-}
+  }}
 // session_start();
 ?>
 

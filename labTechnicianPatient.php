@@ -150,6 +150,8 @@ if (isset($_SESSION['technicianEmail'])) {
     $patientID = $_GET['patientID'];
     $doctorID = $_GET['doctorID'];
     $reportID = $_GET['reportID'];
+    $visitID = $_GET['visitID'];
+    echo $visitID;
     // echo $reportID;
 
 
@@ -179,8 +181,8 @@ if (isset($_SESSION['technicianEmail'])) {
     }
 
 
-    $sql2 = "SELECT distinct patientName FROM  test_data WHERE patientID = '$patientID'";
-    $result2 = mysqli_query($conn, $sql2);
+    // $sql2 = "SELECT distinct patientName FROM  test_data WHERE patientID = '$patientID'";
+    // $result2 = mysqli_query($conn, $sql2);
     // $sql2 = "SELECT Distinct h.name FROM hospital h JOIN test_data t ON h.doctorID = t.doctorID";
     $sql3 = "SELECT distinct t.patientName, t.patientID, h.name, t.doctorID
         FROM test_data t
@@ -206,7 +208,11 @@ if (isset($_SESSION['technicianEmail'])) {
 
     // if ($result7) {
 
-
+        $sqlPatientInfo = "SELECT * FROM patientVisitDetails WHERE patientID = '$patientID' AND referredToDoctorID = '$doctorID' AND visitID = '$visitID'";
+        $resultPatientInfo = mysqli_query($conn,$sqlPatientInfo);
+        if($resultPatientInfo){
+            $rowPatientInfo = mysqli_fetch_assoc($resultPatientInfo);
+        }
     // while ($row7 = mysqli_fetch_assoc($result7)) {
 // $testType = $row7['category'];
     $tests = array();
@@ -307,23 +313,23 @@ if (isset($_SESSION['technicianEmail'])) {
         <div id="reportTemplatesContainer">
             <h3>Patient Info</h3>
             <div class="reportTemplatesAside">Name:
-                <?php echo $patientName; ?>
+                <?php echo $rowPatientInfo['patientName']; ?>
             </div>
             <div class="reportTemplatesAside">Patient ID:
-                <?php echo $_GET['patientID']; ?>
+                <?php echo $patientID; ?>
             </div>
-            <!-- <div class="reportTemplatesAside">Age: -->
-                <!-- <?php echo $row6['age']; ?> -->
-            <!-- </div> -->
-            <!-- <div class="reportTemplatesAside">Gender: -->
-                <!-- <?php echo $row6['gender']; ?> -->
-            <!-- </div> -->
+            <div class="reportTemplatesAside">Age:
+                <?php echo $rowPatientInfo['age']; ?>
+            </div>
+            <div class="reportTemplatesAside">Gender:
+                <?php echo $rowPatientInfo['gender'] ?>
+            </div>
         </div>
     </aside>
 
     <main>
     <form id = "testForm"
-      action="labTechnicianPatient.php?patientName=<?php echo $patientName; ?>&patientID=<?php echo $_GET['patientID'] ?>&doctorID=<?php echo $doctorID; ?>&reportID=<?php echo $reportID; ?>"
+      action="labTechnicianPatient.php?patientName=<?php echo $patientName; ?>&patientID=<?php echo $_GET['patientID'] ?>&doctorID=<?php echo $doctorID; ?>&reportID=<?php echo $reportID; ?>&visitID=<?php echo $visitID; ?>"
       method="POST">
       <!-- <label for="recordID">Record ID</label>
       <input type="text" name="recordID">
