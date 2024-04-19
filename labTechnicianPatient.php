@@ -1,17 +1,37 @@
 <?php
 
+
+
+// session_name('lab_technician_session');
 session_start();
 include 'connection.php';
 
-if (isset($_POST['submit'])) {
+
+
+if (!isset($_SESSION['technicianEmail'])) {
+    header('Location:index.php');
+}
+
+
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    // echo $patientName;
+
     $reportIDs = $_POST['reportID'];
+    $patientID = $_POST['patientID'];
+    $doctorID = $_POST['patientID'];
     $resultValues = $_POST['result'];
     $technicianID = $_POST['technicianID'];
     // $flags = $_POST['flag'];
     $testNames = $_POST['testName'];
+    // $queries = [];
+    $success = true; // Assuming success by default
     foreach ($testNames as $index => $testName) {
         // Get the corresponding values for the current test
         $reportID = $reportIDs[$index];
+        // echo $reportID;
+        // echo $testName;
         $resultValue = $resultValues[$index];
         // $flag = $flags[$index];
         // echo $testName;
@@ -24,10 +44,11 @@ if (isset($_POST['submit'])) {
                         WHERE TestName = '$testName' AND ReportID = '$reportID'";
 
         $resultQuery = mysqli_query($conn, $updateQuery);
+        // $queries[] = $resultQuery;
 
         if ($resultQuery) {
 
-            $deleteQuery = "DELETE FROM test_data WHERE patientID = '{$_GET['patientID']}' AND reportID = '{$_GET['reportID']}' AND doctorID = '{$_GET['doctorID']}'";
+            $deleteQuery = "DELETE FROM test_data WHERE patientID = '{$_GET['patientID']}' AND reportID = '$reportID ' AND doctorID = '{$_GET['doctorID']}'";
             $resultDelete = mysqli_query($conn, $deleteQuery);
 
             if ($resultDelete) {
@@ -39,10 +60,11 @@ if (isset($_POST['submit'])) {
                     <meta charset="UTF-8">
                     <meta name="viewport" content="width=device-width, initial-scale=1.0">
                     <title>Success</title>
-                    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
                 </head>
 
                 <body>
+
                     <script>
 
                         document.addEventListener('DOMContentLoaded', function () {
@@ -63,12 +85,15 @@ if (isset($_POST['submit'])) {
 
                     </script>
                 </body>
+                <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 
                 </html>
                 <?php
             }
         }
+
     }
+
 }
 
 function getReferenceRange($conn, $testName)
@@ -132,18 +157,82 @@ function determineFlag($resultValue, $referenceRange)
     }
 }
 
+function logout()
+{
+    // Clear session data
+    unset($_SESSION['technicianEmail']);
+    // Redirect to the index page
+    header('Location: index.php');
+    exit;
+}
+
+// Check if logout request is received
+if (isset($_POST['logout'])) {
+    logout();
+}
+
+
+
 // if (!isset()) {
 //   header('Location: index.php');
 // }
 
-if (!isset($_SESSION['technicianEmail'], $_GET['patientName'], $_GET['patientID'], $_GET['doctorID'], $_GET['reportID'])) {
-    // Redirect to index.php if any of the parameters are missing
-    header('Location: index.php');
-    exit();
-}
+// if (!isset($_SESSION['technicianEmail'], $_GET['patientName'], $_GET['patientID'], $_GET['doctorID'], $_GET['reportID'])) {
+//     // Redirect to index.php if any of the parameters are missing
+//     header('Location: index.php');
+//     exit();
+// }
+
 
 
 if (isset($_SESSION['technicianEmail'])) {
+
+//     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+//         $data = json_decode(file_get_contents('php://input'), true);
+
+//         // Store visit data in session if provided in the JSON data or if already set in session
+//         if (isset($data['patientName']) || isset($_SESSION['patientName'])) {
+//             $_SESSION['patientName'] = $data['patientName'] ?? $_SESSION['patientName'];
+//         }
+//         if (isset($data['patientID']) || isset($_SESSION['patientID'])) {
+//             $_SESSION['patientID'] = $data['patientID'] ?? $_SESSION['patientID'];
+//         }
+//         if (isset($data['doctorID']) || isset($_SESSION['doctorID'])) {
+//             $_SESSION['doctorID'] = $data['doctorID'] ?? $_SESSION['doctorID'];
+//         }
+//         if (isset($data['reportID']) || isset($_SESSION['reportID'])) {
+//             $_SESSION['reportID'] = $data['reportID'] ?? $_SESSION['reportID'];
+//         }
+//         if (isset($data['visitID']) || isset($_SESSION['visitID'])) {
+//             $_SESSION['visitID'] = $data['visitID'] ?? $_SESSION['visitID'];
+//         }
+
+//         // Send success response
+//         http_response_code(200);
+//         exit;
+//     }
+
+    // $patientName = $_SESSION['patientName'] ?? '';
+    // $_SESSION['patientName'] = $patientName;
+    // $patientID = $_SESSION['patientID'] ?? '';
+    // $_SESSION['patientID'] =$patientID;
+    // $doctorID = $_SESSION['doctorID'] ?? '';
+    // $_SESSION['doctorID'] =$doctorID;
+    // $reportID = $_SESSION['reportID'] ?? '';
+    // $_SESSION['reportID'] = $reportID;
+
+    // $visitID = $_SESSION['visitID'] ?? '';
+    // $_SESSION['visitID'] = $visitID;
+    // echo "Patient Name: " . $patientName . "<br />";
+    // echo "Patient ID: ". $patientID. "<br />";
+    // echo "Patient Age: ". $patientAge. "<br />";
+    // echo "Patient Gender: ". $patientGender. "<br />";
+    // echo "VisitID: " . $visitID . "<br/>";
+
+
+    // $patientAge = $_SESSION['patientAge'];
+    // $patientGender = $_SESSION['patientGender'];
+    // $visitID = $_SESSION['visitID'];
 
     $email = $_SESSION['technicianEmail'];
     $patientName = $_GET['patientName'];
@@ -151,14 +240,14 @@ if (isset($_SESSION['technicianEmail'])) {
     $doctorID = $_GET['doctorID'];
     $reportID = $_GET['reportID'];
     $visitID = $_GET['visitID'];
-    echo $visitID;
+    // echo $visitID;
     // echo $reportID;
 
 
     $sqlTechnicianID = "SELECT labTechnicianID FROM lab_technician WHERE technicianEmail = '$email'";
-    $resultTechnicianID = mysqli_query($conn,$sqlTechnicianID);
+    $resultTechnicianID = mysqli_query($conn, $sqlTechnicianID);
 
-    if ($resultTechnicianID){
+    if ($resultTechnicianID) {
         $rowTechnicianID = mysqli_fetch_assoc($resultTechnicianID);
     }
 
@@ -172,13 +261,13 @@ if (isset($_SESSION['technicianEmail'])) {
 
     $sql = "SELECT * FROM hospital WHERE email = '{$email}' AND userType ='Lab Technician'";
     // session_write_close();
-    $sql4 = "SELECT patientID from hospital WHERE userType = 'Patient'";
-    $result4 = mysqli_query($conn, $sql4);
+    // $sql4 = "SELECT patientID from hospital WHERE userType = 'Patient'";
+    // $result4 = mysqli_query($conn, $sql4);
 
-    if ($result4) {
-        $row5 = mysqli_fetch_assoc($result4);
-        $patientID = $row5['patientID'];
-    }
+    // if ($result4) {
+    //     $row5 = mysqli_fetch_assoc($result4);
+    //     $patientID = $row5['patientID'];
+    // }
 
 
     // $sql2 = "SELECT distinct patientName FROM  test_data WHERE patientID = '$patientID'";
@@ -208,15 +297,15 @@ if (isset($_SESSION['technicianEmail'])) {
 
     // if ($result7) {
 
-        $sqlPatientInfo = "SELECT * FROM patientVisitDetails WHERE patientID = '$patientID' AND referredToDoctorID = '$doctorID' AND visitID = '$visitID'";
-        $resultPatientInfo = mysqli_query($conn,$sqlPatientInfo);
-        if($resultPatientInfo){
-            $rowPatientInfo = mysqli_fetch_assoc($resultPatientInfo);
-        }
+    $sqlPatientInfo = "SELECT * FROM patientvisitdetails WHERE patientID = '$patientID' AND referredToDoctorID = '$doctorID' AND visitID = '$visitID'";
+    $resultPatientInfo = mysqli_query($conn, $sqlPatientInfo);
+    if ($resultPatientInfo) {
+        $rowPatientInfo = mysqli_fetch_assoc($resultPatientInfo);
+    }
     // while ($row7 = mysqli_fetch_assoc($result7)) {
 // $testType = $row7['category'];
     $tests = array();
-    $testTypes = array("Biochemistry", "Haematology");
+    $testTypes = array("biochemistry", "haematology");
     // $sql3 = "SELECT category, testName, ReferenceRange, Methods FROM bichemistry WHERE category IN (SELECT DISTINCT category FROM test_data WHERE testTypes = '$testType' AND patientID = '$patientID' AND doctorID = '$doctorID')";
     foreach ($testTypes as $testType) {
         $query = "SELECT $testType.TestName, $testType.subCategory, $testType.Units, $testType.Methods, $testType.ReferenceRange
@@ -296,6 +385,10 @@ if (isset($_SESSION['technicianEmail'])) {
 <body>
     <header>
         <img src="MediDocX Logo.JPG" alt="" />
+        <form method="post" id="logoutForm">
+            <input type="hidden" name="logout" value="1"> <!-- Hidden input to identify logout action -->
+            <button type="submit" id="logoutButton">Log out</button>
+        </form>
         <input type="text" placeholder="Search Patient..." />
     </header>
 
@@ -328,94 +421,165 @@ if (isset($_SESSION['technicianEmail'])) {
     </aside>
 
     <main>
-    <form id = "testForm"
-      action="labTechnicianPatient.php?patientName=<?php echo $patientName; ?>&patientID=<?php echo $_GET['patientID'] ?>&doctorID=<?php echo $doctorID; ?>&reportID=<?php echo $reportID; ?>&visitID=<?php echo $visitID; ?>"
-      method="POST">
-      <!-- <label for="recordID">Record ID</label>
+        <form id="testForm" method="POST" action= "labTechnicianPatient.php?patientName=<?php echo $_GET['patientName']; ?> &patientID=<?php echo $_GET['patientID']; ?> &doctorID=<?php echo $_GET['doctorID']; ?> &reportID=<?php echo  $_GET['reportID']; ?> &visitID=<?php echo $_GET['visitID']; ?> ">
+            <!-- <label for="recordID">Record ID</label>
       <input type="text" name="recordID">
       <label for="date">Date</label>
       <input type="date" name="date"> -->
-      <?php foreach ($tests as $testType => $categories) { ?>
+            <?php foreach ($tests as $testType => $categories) { ?>
 
 
-        <section>
+                <section>
 
-          <div class="sectionTitle">
-            <h2>
-              <?php echo $testType; ?>
-            </h2>
-          </div>
-            <div class="tableContainer">
-              <table>
-                <tr>
-                  <th scope="col">Test Name</th>
-                  <th scope="col">Result</th>
-                  <th scope="col">Unit</th>
-                  <!-- <th scope="col">Flag</th> -->
-                  <th scope="col">Reference Range</th>
-                  <th scope="col">Method</th>
-                </tr>
-                <?php foreach ($categories as $category => $testsData) { ?>
-                  <tr class="testCategoryTitle">
-                    <td colspan="5">
-                      <?php echo $category; ?>
-                    </td>
-                    <?php foreach ($testsData as $testData => $Data) { ?>
-                    <tr>
-                      <td scope="row">
-                        <?php echo $Data['testName']; ?>
-                        <input type="hidden" name="reportID[]" value="<?php echo $reportID; ?>" />
-                        <input type="hidden" name="technicianID" value="<?php echo $rowTechnicianID['labTechnicianID']; ?>" />
-                        <input type="hidden" name="testName[]" value="<?php echo $Data['testName']; ?>" />
+                    <div class="sectionTitle">
+                        <h2>
+                            <?php echo $testType; ?>
+                        </h2>
+                    </div>
+                    <div class="tableContainer">
+                        <table>
+                            <tr>
+                                <th scope="col">Test Name</th>
+                                <th scope="col">Result</th>
+                                <th scope="col">Unit</th>
+                                <!-- <th scope="col">Flag</th> -->
+                                <th scope="col">Reference Range</th>
+                                <th scope="col">Method</th>
+                            </tr>
+                            <?php foreach ($categories as $category => $testsData) { ?>
+                                <tr class="testCategoryTitle">
+                                    <td colspan="5">
+                                        <?php echo $category; ?>
+                                    </td>
+                                    <?php foreach ($testsData as $testData => $Data) { ?>
+                                    <tr>
+                                        <td scope="row">
+                                            <?php echo $Data['testName']; ?>
+                                            <input type="hidden" name="reportID[]" value="<?php echo $reportID; ?>" />
+                                            <input type="hidden" name="patientID" value="<?php echo $patientID; ?>" />
+                                            <input type="hidden" name="doctorID" value="<?php echo $doctorID; ?>" />
+                                            <input type="hidden" name="technicianID"
+                                                value="<?php echo $rowTechnicianID['labTechnicianID']; ?>" />
+                                            <input type="hidden" name="testName[]" value="<?php echo $Data['testName']; ?>" />
 
-                      </td>
-                      <td><input type="text" name="result[]" class="result" /></td>
-                      <td>
-                        <?php echo $Data['unit']; ?>
-                      </td>
-                      <!-- <td><input type="text" name="flag[]" class="flag" /></td> -->
-                      <td>
-                        <?php
-                        $referenceRanges = $Data['referenceRange'];
-                        if (count($referenceRanges) > 1) {
-                          echo '<ul>';
-                          foreach ($referenceRanges as $range) {
-                            if (strpos($range, ';') !== false) {
-                              $nestedRanges = explode(';', $range);
-                              echo '<ul>';
-                              foreach ($nestedRanges as $nestedRange) {
-                                echo "<li>{$nestedRange}</li>";
-                              }
-                              echo '</ul>';
-                            } else {
-                              echo "<li>{$range}</li>";
-                            }
-                          }
-                          echo '</ul>';
-                        } else {
-                          echo $referenceRanges[0];
-                        }
-                        ?>
-                      </td>
-                      <td>
-                        <?php echo $Data['methods']; ?>
-                      </td>
-                    </tr>
-                  <?php } ?>
-                  </tr>
-                <?php } ?>
-              </table>
-            </div>
-        </section>
+                                        </td>
+                                        <td><input type="text" name="result[]" class="result" /></td>
+                                        <td>
+                                            <?php echo $Data['unit']; ?>
+                                        </td>
+                                        <!-- <td><input type="text" name="flag[]" class="flag" /></td> -->
+                                        <td>
+                                            <?php
+                                            $referenceRanges = $Data['referenceRange'];
+                                            if (count($referenceRanges) > 1) {
+                                                echo '<ul>';
+                                                foreach ($referenceRanges as $range) {
+                                                    if (strpos($range, ';') !== false) {
+                                                        $nestedRanges = explode(';', $range);
+                                                        echo '<ul>';
+                                                        foreach ($nestedRanges as $nestedRange) {
+                                                            echo "<li>{$nestedRange}</li>";
+                                                        }
+                                                        echo '</ul>';
+                                                    } else {
+                                                        echo "<li>{$range}</li>";
+                                                    }
+                                                }
+                                                echo '</ul>';
+                                            } else {
+                                                echo $referenceRanges[0];
+                                            }
+                                            ?>
+                                        </td>
+                                        <td>
+                                            <?php echo $Data['methods']; ?>
+                                        </td>
+                                    </tr>
+                                <?php } ?>
+                                </tr>
+                            <?php } ?>
+                        </table>
+                    </div>
+                </section>
 
-      <?php } ?>
-      <button type="submit" name="submit">Submit</button>
-    </form>
+            <?php } ?>
+            <button type="submit" name="submit">Submit</button>
+        </form>
 
-  </main>
+    </main>
 
-    
+
+    <!-- <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script> -->
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+<!-- 
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Event listener for form submission
+            document.getElementById('submitFormButton').addEventListener('click', function () {
+                // Prevent the default form submission
+                event.preventDefault();
+
+                // Collect form data
+                var formData = new FormData(document.getElementById('testForm'));
+
+                // Send AJAX request
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', 'labTechnician.php', true);
+                xhr.onload = function () {
+                    if (xhr.status === 200) {
+                        var response = JSON.parse(xhr.responseText);
+                        if (response.success) {
+                            // Success callback
+                            swal({
+                                title: "Success",
+                                text: "Form submitted successfully!",
+                                icon: "success",
+                                button: "Ok",
+                            }).then(function () {
+                                // Optionally, redirect to another page
+                                window.location.href = 'labTechnician.php';
+                            });
+                        } else {
+                            // Error callback
+                            swal("Error", response.message || "Error occurred while submitting the form!", "error");
+                        }
+                    } else {
+                        // Error callback
+                        swal("Error", "Error occurred while submitting the form!", "error");
+                    }
+                };
+                xhr.onerror = function () {
+                    // Error callback
+                    swal("Error", "Error occurred while submitting the form!", "error");
+                };
+                xhr.send(formData);
+            });
+        });
+    </script> -->
+
+
+    <script>
+        // Show SweetAlert confirmation dialog when the logout button is clicked
+        document.getElementById('logoutButton').addEventListener('click', function (event) {
+            event.preventDefault(); // Prevent the default form submission
+
+            swal({
+                title: "Are you sure?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                buttons: ["Cancel", "Yes"], // Customize the buttons
+                dangerMode: true, // Highlight the "Yes" button in red
+            }).then((willLogout) => {
+                if (willLogout) {
+                    document.getElementById('logoutForm').submit(); // Submit the form to perform logout
+                } else {
+                    swal("You can continue browsing!", {
+                        icon: "success",
+                    });
+                }
+            });
+        });
+    </script>
 </body>
 
 </html>

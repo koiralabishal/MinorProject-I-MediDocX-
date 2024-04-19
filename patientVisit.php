@@ -1,15 +1,41 @@
 <?php
+// session_name('patient_session');
 session_start();
+include 'connection.php';
 
 if (!isset($_SESSION['patientEmail'])) {
   header('Location:index.php');
 
 }
 
+
+function logout()
+{
+  // Clear session data
+  
+  unset($_SESSION['patientEmail']);
+  // session_destroy();
+  // Redirect to the login page
+  header('Location: index.php');
+  exit;
+}
+
+
+// Check if logout request is received
+if (isset($_POST['logout'])) {
+  // Check if session ID matches
+    logout();
+}
+
+
+
+
+
+
 if (isset($_SESSION['patientEmail'])) {
   $patientEmail = $_SESSION['patientEmail'];
   // if (isset($doctorEmail) && !is_null($doctorEmail)) {
-  include 'connection.php';
+
 
 
   // $email = $_SESSION['email'];
@@ -43,7 +69,7 @@ if (isset($_SESSION['patientEmail'])) {
   }
 
 
-  $sqlVisitID = "SELECT visitID FROM patientVisitDetails WHERE date = '$date' AND patientID = '{$row['patientID']} '";
+  $sqlVisitID = "SELECT visitID FROM patientvisitdetails WHERE date = '$date' AND patientID = '{$row['patientID']} '";
   $resultVisitID = mysqli_query($conn, $sqlVisitID);
 
   if ($resultVisitID) {
@@ -61,7 +87,7 @@ if (isset($_SESSION['patientEmail'])) {
 
 
   $tests = array();
-  $testTypes = array("Biochemistry", "Haematology");
+  $testTypes = array("biochemistry", "haematology");
   // $sql3 = "SELECT category, testName, ReferenceRange, Methods FROM bichemistry WHERE category IN (SELECT DISTINCT category FROM test_data WHERE testTypes = '$testType' AND patientID = '$patientID' AND doctorID = '$doctorID')";
   foreach ($testTypes as $testType) {
     $query = "SELECT $testType.TestName, $testType.subCategory, $testType.Units, $testType.Methods, $testType.ReferenceRange,report.flag, report.resultValue
@@ -150,6 +176,10 @@ if (isset($_SESSION['patientEmail'])) {
 <body>
   <header>
     <img src="MediDocX Logo.JPG" alt="" />
+    <form method="post" id="logoutForm" >
+      <input type="hidden" name="logout" value="1"> <!-- Hidden input to identify logout action -->
+      <button type="submit" id="logoutButton">Log out</button>
+    </form>
   </header>
 
   <aside>
@@ -323,5 +353,28 @@ if (isset($_SESSION['patientEmail'])) {
 
   </main>
 </body>
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+<script>
+  // Show SweetAlert confirmation dialog when the logout button is clicked
+  document.getElementById('logoutButton').addEventListener('click', function (event) {
+    event.preventDefault(); // Prevent the default form submission
+
+    swal({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      buttons: ["Cancel", "Yes"], // Customize the buttons
+      dangerMode: true, // Highlight the "Yes" button in red
+    }).then((willLogout) => {
+      if (willLogout) {
+        document.getElementById('logoutForm').submit(); // Submit the form to perform logout
+      } else {
+        swal("You can continue browsing!", {
+          icon: "success",
+        });
+      }
+    });
+  });
+</script>
 
 </html>

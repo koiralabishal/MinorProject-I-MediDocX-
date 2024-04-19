@@ -2,7 +2,7 @@
     $server = "localhost";
     $user = "root";
     $pass = "";
-    $database = "medidocx";
+    $database = "password";
 
     $conn = mysqli_connect($server, $user, $pass, $database);
 
@@ -10,5 +10,5 @@
         echo "Connection Failure";
     }
 
-    $sql = "SET NAMES 'utf8mb4' COLLATE 'utf8mb4_unicode_ci'";
-    $result = mysqli_query($conn, $sql);
+    // $sql = "SET NAMES 'utf8mb4' COLLATE 'utf8mb4_unicode_ci'";
+    // $result = mysqli_query($conn, $sql);

@@ -1,15 +1,47 @@
 <?php
+// session_name('patient_session');
 session_start();
+include 'connection.php';
 
 if (!isset($_SESSION['patientEmail'])) {
   header('Location:index.php');
 
 }
+// $_SESSION['patient_session'] = bin2hex(random_bytes(16));
+// echo $_SESSION['patient_session'];
+
+
+// Logout function
+// Function to handle logout
+function logout()
+{
+  // Clear session data
+  
+  unset($_SESSION['patientEmail']);
+  // session_destroy();
+  // Redirect to the login page
+  header('Location: index.php');
+  exit;
+}
+
+// Check if logout request is received
+if (isset($_POST['logout1'])) {
+  // Check if session ID matches
+    logout();
+}
+
+
+
+
+
+
+// Generate and store a unique session identifier for this interface
+
 
 if (isset($_SESSION['patientEmail'])) {
   $patientEmail = $_SESSION['patientEmail'];
   // if (isset($doctorEmail) && !is_null($doctorEmail)) {
-  include 'connection.php';
+  
 
 
   // $email = $_SESSION['email'];
@@ -38,7 +70,7 @@ if (isset($_SESSION['patientEmail'])) {
   }
 
 
-  $sqlVisits = "SELECT * FROM patientVisitDetails WHERE patientID = {$row['patientID']} ORDER BY date DESC";
+  $sqlVisits = "SELECT * FROM patientvisitdetails WHERE patientID = {$row['patientID']} ORDER BY date DESC";
   $resultVisits = mysqli_query($conn, $sqlVisits);
 
   $hasVisitByYear = false;
@@ -57,9 +89,9 @@ if (isset($_SESSION['patientEmail'])) {
     {
       foreach ($visits as $visit) {
         echo '<div class="box">';
-        echo '<a href="patientVisit.php?date=' . $visit['date']. '&visitID='. $visit['visitID'].'">';
+        echo '<a href="patientVisit.php?date=' . $visit['date'] . '&visitID=' . $visit['visitID'] . '">';
         echo 'Date: ' . date('Y-m-d', strtotime($visit['date'])) . '<br>';
-        echo 'Visit ID: ' . $visit['visitID']. '<br>';
+        echo 'Visit ID: ' . $visit['visitID'] . '<br>';
         echo '</a>';
         echo '</div>';
       }
@@ -102,7 +134,13 @@ if (isset($_SESSION['patientEmail'])) {
 <body>
   <header>
     <img src="MediDocX Logo.JPG" alt="" />
-    <a href="logout.php"><button>Log out</button></a>
+    <!-- <a href="logout.php"><button>Log out</button></a> -->
+    <form method="post" id="logoutForm">
+      <input type="hidden" name="logout1" value="1"> <!-- Hidden input to identify logout action -->
+      <!-- <input type="hidden" name="session_id1" value="<?php echo $_SESSION['patient_session']; ?>"> -->
+      <button type="submit" id="logoutButton">Log out</button>
+    </form>
+
   </header>
 
   <aside>
@@ -147,5 +185,28 @@ if (isset($_SESSION['patientEmail'])) {
 
   </script>
 </body>
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+<script>
+  // Show SweetAlert confirmation dialog when the logout button is clicked
+  document.getElementById('logoutButton').addEventListener('click', function (event) {
+    event.preventDefault(); // Prevent the default form submission
+
+    swal({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      buttons: ["Cancel", "Yes"], // Customize the buttons
+      dangerMode: true, // Highlight the "Yes" button in red
+    }).then((willLogout) => {
+      if (willLogout) {
+        document.getElementById('logoutForm').submit(); // Submit the form to perform logout
+      } else {
+        swal("You can continue browsing!", {
+          icon: "success",
+        });
+      }
+    });
+  });
+</script>
 
 </html>

@@ -1,10 +1,27 @@
 <?php
+// session_name('lab_technician_session');
 session_start();
 include 'connection.php';
+
 
 if (!isset($_SESSION['technicianEmail'])) {
     header('Location:index.php');
 }
+
+function logout()
+{
+    // Clear session data
+    unset($_SESSION['technicianEmail']);
+    // Redirect to the login page
+    header('Location: index.php');
+    exit;
+}
+
+// Check if logout request is received
+if (isset($_POST['logout'])) {
+    logout();
+}
+
 
 if (isset($_SESSION['technicianEmail']) && !is_null($_SESSION['technicianEmail'])) {
     $labTechnicianEmail = $_SESSION['technicianEmail'];
@@ -45,7 +62,7 @@ if (isset($_SESSION['technicianEmail']) && !is_null($_SESSION['technicianEmail']
     }
 }
 
-$sqlPendingTests = "SELECT distinct  r.patientID, h.name, r.doctorID, r.ReportID, r.visitID, v.patientName FROM report r JOIN hospital h ON r.doctorID = h.doctorID JOIN patientVisitDetails v ON h.doctorID = v.referredToDoctorID WHERE r.flag = 'P' ORDER BY r.id DESC";
+$sqlPendingTests = "SELECT distinct  r.patientID, h.name, r.doctorID, r.ReportID, r.visitID, v.patientName FROM report r JOIN hospital h ON r.patientID = h.patientID JOIN patientvisitdetails v ON h.patientID = v.patientID WHERE r.flag = 'P' ORDER BY r.id DESC ";
 $resultPendingTests = mysqli_query($conn, $sqlPendingTests);
 
 // $patientName = "SELECT name FROM hospital WHERE patientID = '{$patientID}'";
@@ -78,8 +95,16 @@ $resultPendingTests = mysqli_query($conn, $sqlPendingTests);
 <body>
     <header>
         <img src="MediDocX Logo.JPG" alt="" />
-        <a href="logout.php"><button>Log out</button></a>
+        <!-- <a href="logout.php"><button>Log out</button></a> -->
+        <form method="post" id="logoutForm">
+            <input type="hidden" name="logout" value="1"> <!-- Hidden input to identify logout action -->
+            <button type="submit" id="logoutButton">Log out</button>
+        </form>
         <input type="text" placeholder="Search Patient..." />
+
+
+
+
     </header>
 
     <aside>
@@ -102,20 +127,21 @@ $resultPendingTests = mysqli_query($conn, $sqlPendingTests);
                 <h2>New Tests</h2>
             </div>
             <!-- <div class="container"> -->
-                <div class="boxContainer">
-                    <?php
-                    if ($result3) {
-                        while ($row3 = mysqli_fetch_array($result3)) {
-                            echo '<div class="box">';
-                            echo '<a href="labTechnicianPatient.php?patientName=' . $row3['patientName'] . '&patientID=' . $row3['patientID'] . '&doctorID=' . $row3['doctorID'] . '&reportID=' . $row3['reportID'] . '&visitID='.$row3['visitID'].' ">';
-                            echo "Name: " . $row3['patientName'] . "<br />";
-                            echo "Patient ID: " . $row3['patientID'] . "<br />";
-                            echo "Referred by: Dr." . $row3['name'];
-                            echo '</a>';
-                            echo '</div>';
-                        }
+            <div class="boxContainer">
+                <?php
+                if ($result3) {
+                    while ($row3 = mysqli_fetch_array($result3)) {
+                        // echo '<div class="box" id = "patient" data-patient-name="' . htmlspecialchars($row3['patientName']) . '" data-patient-id="' . htmlspecialchars($row3['patientID']) . '" data-doctor-id="' . htmlspecialchars($row3['doctorID']) . '" data-report-id="' . htmlspecialchars($row3['reportID']) . '" data-visit-id="' . htmlspecialchars($row3['visitID']) . '">';
+                        echo '<div class="box">';
+                        echo '<a href="labTechnicianPatient.php?patientName=' . $row3['patientName'] . '&patientID=' . $row3['patientID'] . '&doctorID=' . $row3['doctorID'] . '&reportID=' . $row3['reportID'] . '&visitID=' . $row3['visitID'] . ' ">';
+                        echo "Name: " . $row3['patientName'] . "<br />";
+                        echo "Patient ID: " . $row3['patientID'] . "<br />";
+                        echo "Referred by: Dr." . $row3['name'];
+                        echo '</a>';
+                        echo '</div>';
                     }
-                    echo "<style>
+                }
+                echo "<style>
                a{
                 text-decoration:none;
                 color:white;
@@ -126,8 +152,8 @@ $resultPendingTests = mysqli_query($conn, $sqlPendingTests);
                }
 
              </style>";
-                    ?>
-                </div>
+                ?>
+            </div>
             <!-- </div> -->
         </section>
 
@@ -136,21 +162,22 @@ $resultPendingTests = mysqli_query($conn, $sqlPendingTests);
                 <h2>Pending Tests</h2>
             </div>
             <!-- <div class="container"> -->
-                <div class="boxContainer">
-                    <?php
-                    if ($resultPendingTests) {
-                        while ($rowPendingTests = mysqli_fetch_array($resultPendingTests)) {
-                            echo '<div class="box">';
-                            echo '<a href="pendingTests.php?patientID=' . $rowPendingTests['patientID'] . '&doctorID=' . $rowPendingTests['doctorID'] . '&reportID=' . $rowPendingTests['ReportID'] . '&visitID='.$rowPendingTests['visitID'].' ">';
-                            echo "Name: " . $rowPendingTests['patientName'] . "<br />";
-                            // echo "Patient Name: " . $rowPendingTests['patientName']. "<br />";
-                            echo "Patient ID: " . $rowPendingTests['patientID'] . "<br />";
-                            echo "Referred by: Dr." . $rowPendingTests['name'];
-                            echo '</a>';
-                            echo '</div>';
-                        }
+            <div class="boxContainer">
+                <?php
+                if ($resultPendingTests) {
+                    while ($rowPendingTests = mysqli_fetch_array($resultPendingTests)) {
+                        // echo '<div class="box" id = "pendingTest" data-patient-id="' . htmlspecialchars($rowPendingTests['patientID']) . '" data-doctor-id="' . htmlspecialchars($rowPendingTests['doctorID']) . '" data-report-id="' . htmlspecialchars($rowPendingTests['ReportID']) . '" data-visit-id="' . htmlspecialchars($rowPendingTests['visitID']) . '">';
+                        echo '<div class="box">';
+                        echo '<a href="pendingTests.php?patientID=' . $rowPendingTests['patientID'] . '&doctorID=' . $rowPendingTests['doctorID'] . '&reportID=' . $rowPendingTests['ReportID'] . '&visitID=' . $rowPendingTests['visitID'] . ' ">';
+                        echo "Name: " . $rowPendingTests['patientName'] . "<br />";
+                        // echo "Patient Name: " . $rowPendingTests['patientName']. "<br />";
+                        echo "Patient ID: " . $rowPendingTests['patientID'] . "<br />";
+                        echo "Referred by: Dr." . $rowPendingTests['name'];
+                        echo '</a>';
+                        echo '</div>';
                     }
-                    echo "<style>
+                }
+                echo "<style>
                a{
                 text-decoration:none;
                 color:white;
@@ -161,12 +188,101 @@ $resultPendingTests = mysqli_query($conn, $sqlPendingTests);
                }
 
              </style>";
-                    ?>
-                </div>
+                ?>
+            </div>
             <!-- </div> -->
         </section>
     </main>
+    <!-- <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var pendingTests = document.querySelectorAll('#pendingTest');
+            var patients = document.querySelectorAll('#patient');
+
+            patients.forEach(function (patient) {
+                patient.addEventListener('click', function () {
+                    var patientName = this.getAttribute('data-patient-name');
+                    var patientID = this.getAttribute('data-patient-id');
+                    var doctorID = this.getAttribute('data-doctor-id');
+                    var visitID = this.getAttribute('data-visit-id');
+                    var reportID = this.getAttribute('data-report-id');
+
+                    var xhr = new XMLHttpRequest();
+                    xhr.open('POST', 'labTechnicianPatient.php');
+                    xhr.setRequestHeader('Content-Type', 'application/json');
+                    xhr.onload = function () {
+                        if (xhr.status === 200) {
+                            // Handle the response if needed
+                            window.location.href = 'labTechnicianPatient.php';
+                        }
+                    };
+
+                    var data = {
+                        patientName: patientName,
+                        patientID: patientID,
+                        doctorID: doctorID,
+                        visitID: visitID,
+                        reportID: reportID
+
+                    };
+
+                    xhr.send(JSON.stringify(data));
+                });
+            });
+
+            pendingTests.forEach(function (pendingTest) {
+                pendingTest.addEventListener('click', function () {
+                    // var patientName = this.getAttribute('data-patient-name');
+                    var patientID = this.getAttribute('data-patient-id');
+                    var doctorID = this.getAttribute('data-doctor-id');
+                    var visitID = this.getAttribute('data-visit-id');
+                    var reportID = this.getAttribute('data-report-id');
+
+                    var xhr = new XMLHttpRequest();
+                    xhr.open('POST', 'pendingTests.php');
+                    xhr.setRequestHeader('Content-Type', 'application/json');
+                    xhr.onload = function () {
+                        if (xhr.status === 200) {
+                            // Handle the response if needed
+                            window.location.href = 'pendingTests.php'; // Redirect to page 3
+                        }
+                    };
+
+                    var data = {
+                        patientID: patientID,
+                        doctorID: doctorID,
+                        visitID: visitID,
+                        reportID: reportID
+
+                    };
+
+                    xhr.send(JSON.stringify(data));
+                });
+            });
+        });
+    </script> -->
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script>
+        // Show SweetAlert confirmation dialog when the logout button is clicked
+        document.getElementById('logoutButton').addEventListener('click', function (event) {
+            event.preventDefault(); // Prevent the default form submission
+
+            swal({
+                title: "Are you sure?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                buttons: ["Cancel", "Yes"], // Customize the buttons
+                dangerMode: true, // Highlight the "Yes" button in red
+            }).then((willLogout) => {
+                if (willLogout) {
+                    document.getElementById('logoutForm').submit(); // Submit the form to perform logout
+                } else {
+                    swal("You can continue browsing!", {
+                        icon: "success",
+                    });
+                }
+            });
+        });
+    </script>
 </body>
 
 </html>

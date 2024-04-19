@@ -1,32 +1,72 @@
 <?php
+// session_name('doctor_session');
 session_start();
 include 'connection.php';
 
-// if(!isset($_SESSION['doctorEmail'])){
-//   header('Location:index.php');
-// }
+if (!isset($_SESSION['doctorEmail'])) {
+    header('Location:index.php');
+}
 
-// if (!isset($_SESSION['doctorEmail'], $_SESSION['patientID'], $_SESSION['age'], $_SESSION['gender'],$_SESSION['visitID'],$_SESSION['date'])) {
+// if (!isset($_GET['visitID'],$_GET['date']  )) {
+//     header('Location:index.php');
+// }
+function logout()
+{
+    // Clear session data
+    unset($_SESSION['doctorEmail']);
+    // Redirect to the login page
+    header('Location: index.php');
+    exit;
+}
+
+// Check if logout request is received
+if (isset($_POST['logout'])) {
+    logout();
+}
+
+
+
+if (isset($_SESSION['doctorEmail'])) {
+    //   header('Location:index.php');
+// }
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $data = json_decode(file_get_contents('php://input'), true);
+
+        // Store visit data in session
+        $_SESSION['visitID'] = $data['visitID'];
+        $_SESSION['date'] = $data['date'];
+
+        // Send success response
+        http_response_code(200);
+        exit;
+    }
+    $visitID = $_SESSION['visitID'];
+    $_SESSION['visitID'] = $visitID;
+    $date = $_SESSION['date'];
+    $_SESSION['date'] = $date;
+    // if (!isset($_SESSION['doctorEmail'], $_SESSION['patientID'], $_SESSION['age'], $_SESSION['gender'],$_SESSION['visitID'],$_SESSION['date'])) {
 //     header('Location:index.php');
 // }
 
-// $patientName = $_GET['patientName'];
+    // $patientName = $_GET['patientName'];
 // $patientID = $_GET['patientID'];
 // $patientage = $_GET['age'];
 // $patientgender = $_GET['gender'];
 
-$email = $_SESSION['doctorEmail'];
-// $patientName = $_SESSION['patientName'];
+    $email = $_SESSION['doctorEmail'];
+    // $patientName = $_SESSION['patientName'];
 // $patientID = $_SESSION['patientID'];
 // $patientage = $_SESSION['age'];
 // $patientgender = $_SESSION['gender'];
 // $visitID = $_SESSION['visitID'];
-$visitID = $_GET['visitID'];
-$_SESSION['visitID'] = $visitID;
-$date = $_GET['date'];
-$_SESSION['date'] = $date;
+    // $visitID = $_GET['visitID']??'';
+    // $_SESSION['visitID'] = $visitID;
+    // $date = $_GET['date']?? '';
+    // $_SESSION['date'] = $date;
 
-// $reportID  = $_GET['reportID'] ;
+    // unset($_SESSION['visitID']);
+    // unset($_SESSION['date']);
+    // $reportID  = $_GET['reportID'] ;
 // $_SESSION['reportID'] = $reportID;
 // echo $visitID;
 // $_SESSION['patientName'] = $patientName;
@@ -34,58 +74,58 @@ $_SESSION['date'] = $date;
 // $_SESSION['age'] = $patientage;
 // $_SESSION['gender'] = $patientgender;
 
-// $sqlVisitID = "SELECT visitID FROM patientVisitDetails WHERE date = '$date'";
+    // $sqlVisitID = "SELECT visitID FROM patientVisitDetails WHERE date = '$date'";
 // $resultVisitID = mysqli_query($conn, $sqlVisitID);
 
-// if ($resultVisitID) {
+    // if ($resultVisitID) {
 //     $rowVisitID = mysqli_fetch_assoc($resultVisitID);
 // }
 
 
 
 
-//for profile section
-$sql = "SELECT * FROM hospital WHERE email = '{$email}' AND userType ='Doctor'";
-// $sql2 = "SELECT a.* FROM appointed_patient a JOIN hospital h on a.DoctorID = h.doctorID WHERE h.email = '{$email}' ORDER BY a.ID DESC ";
+    //for profile section
+    $sql = "SELECT * FROM hospital WHERE email = '{$email}' AND userType ='Doctor'";
+    // $sql2 = "SELECT a.* FROM appointed_patient a JOIN hospital h on a.DoctorID = h.doctorID WHERE h.email = '{$email}' ORDER BY a.ID DESC ";
 
-$result = mysqli_query($conn, $sql);
-// $result2 = mysqli_query($conn, $sql2);
+    $result = mysqli_query($conn, $sql);
+    // $result2 = mysqli_query($conn, $sql2);
 
-if ($result) {
-    $row = mysqli_fetch_assoc($result);
-}
+    if ($result) {
+        $row = mysqli_fetch_assoc($result);
+    }
 
-// if ($result2) {
+    // if ($result2) {
 //   $row2 = mysqli_fetch_assoc($result2);
 // }
 
-$sqlPatientInfo = "SELECT * FROM patientVisitDetails WHERE visitID = '$visitID' AND date = '$date'";
-$resultPatientInfo = mysqli_query($conn,$sqlPatientInfo);
-if($resultPatientInfo){
-    $rowPatientInfo = mysqli_fetch_assoc($resultPatientInfo);
-}
+    $sqlPatientInfo = "SELECT * FROM patientvisitdetails WHERE visitID = '$visitID' AND date = '$date'";
+    $resultPatientInfo = mysqli_query($conn, $sqlPatientInfo);
+    if ($resultPatientInfo) {
+        $rowPatientInfo = mysqli_fetch_assoc($resultPatientInfo);
+    }
 
 
-//for prescription section
+    //for prescription section
 
-$sqlPrescription = "SELECT prescriptions FROM prescription WHERE patientID = '{$rowPatientInfo['patientID']}'
+    $sqlPrescription = "SELECT prescriptions FROM prescription WHERE patientID = '{$rowPatientInfo['patientID']}'
 AND doctorID = {$row['doctorID']}
 AND visitID = '$visitID'
 -- AND date = '$date'";
 
-$resultPrescription = mysqli_query($conn, $sqlPrescription);
+    $resultPrescription = mysqli_query($conn, $sqlPrescription);
 
-if($resultPrescription){
-    $rowPrescription = mysqli_fetch_assoc($resultPrescription);
-}
+    if ($resultPrescription) {
+        $rowPrescription = mysqli_fetch_assoc($resultPrescription);
+    }
 
 
 
-$tests = array();
-$testTypes = array("Biochemistry", "Haematology");
-// $sql3 = "SELECT category, testName, ReferenceRange, Methods FROM bichemistry WHERE category IN (SELECT DISTINCT category FROM test_data WHERE testTypes = '$testType' AND patientID = '$patientID' AND doctorID = '$doctorID')";
-foreach ($testTypes as $testType) {
-    $query = "SELECT $testType.TestName, $testType.subCategory, $testType.Units, $testType.Methods, $testType.ReferenceRange,report.flag, report.resultValue
+    $tests = array();
+    $testTypes = array("biochemistry", "haematology");
+    // $sql3 = "SELECT category, testName, ReferenceRange, Methods FROM bichemistry WHERE category IN (SELECT DISTINCT category FROM test_data WHERE testTypes = '$testType' AND patientID = '$patientID' AND doctorID = '$doctorID')";
+    foreach ($testTypes as $testType) {
+        $query = "SELECT $testType.TestName, $testType.subCategory, $testType.Units, $testType.Methods, $testType.ReferenceRange,report.flag, report.resultValue
         FROM $testType 
         JOIN report ON $testType.TestName = report.TestName
         WHERE report.patientID = '{$rowPatientInfo['patientID']}'
@@ -94,62 +134,62 @@ foreach ($testTypes as $testType) {
         AND report.visitID = '$visitID'
         AND report.date = '$date'";
 
-    $result8 = mysqli_query($conn, $query);
+        $result8 = mysqli_query($conn, $query);
 
-    if ($result8) {
-        while ($row9 = mysqli_fetch_assoc($result8)) {
-            $category = $row9['subCategory'];
+        if ($result8) {
+            while ($row9 = mysqli_fetch_assoc($result8)) {
+                $category = $row9['subCategory'];
 
 
-            $referenceRanges = explode(',', $row9['ReferenceRange']);
+                $referenceRanges = explode(',', $row9['ReferenceRange']);
 
-            // Initialize an empty array to store reference range list
-            $referenceRangeList = array();
+                // Initialize an empty array to store reference range list
+                $referenceRangeList = array();
 
-            // Process each part of the reference range
-            foreach ($referenceRanges as $range) {
-                // Check if the range contains a semicolon
-                if (strpos($range, ',;') !== false) {
-                    // Split range by semicolon to create nested lists
-                    $nestedRanges = explode(';', $range);
-                    $nestedList .= '<ul>';
-                    // for ($i = 1; $i < count($nestedRanges); $i++) {
-                    //   $nestedList .= "<li>{$nestedRange[$i]}</li>";
-                    // }
-                    // foreach ($nestedRanges as $nestedRange) {
-                    //   // Add nested list items
+                // Process each part of the reference range
+                foreach ($referenceRanges as $range) {
+                    // Check if the range contains a semicolon
+                    if (strpos($range, ',;') !== false) {
+                        // Split range by semicolon to create nested lists
+                        $nestedRanges = explode(';', $range);
+                        $nestedList .= '<ul>';
+                        // for ($i = 1; $i < count($nestedRanges); $i++) {
+                        //   $nestedList .= "<li>{$nestedRange[$i]}</li>";
+                        // }
+                        // foreach ($nestedRanges as $nestedRange) {
+                        //   // Add nested list items
 
-                    //   $nestedList .= "<li>{$nestedRange}</li>";
+                        //   $nestedList .= "<li>{$nestedRange}</li>";
 
-                    // }
-                    $nestedList .= '</ul>';
+                        // }
+                        $nestedList .= '</ul>';
 
-                    // Add the nested list to the main reference range list
-                    $referenceRangeList[] = $nestedList;
-                } else {
-                    // Add individual range to the main reference range list
-                    $referenceRangeList[] = $range;
+                        // Add the nested list to the main reference range list
+                        $referenceRangeList[] = $nestedList;
+                    } else {
+                        // Add individual range to the main reference range list
+                        $referenceRangeList[] = $range;
+                    }
                 }
+
+
+                if (!isset($tests[$testType][$category])) {
+                    $tests[$testType][$category] = array();
+                }
+
+                $tests[$testType][$category][] = array(
+                    'testName' => $row9['TestName'],
+                    'referenceRange' => $referenceRangeList,
+                    // 'referenceRange' => $ran,
+                    'resultValue' => $row9['resultValue'],
+                    'flag' => $row9['flag'],
+                    'unit' => $row9['Units'],
+                    'methods' => $row9['Methods']
+                );
             }
-
-
-            if (!isset($tests[$testType][$category])) {
-                $tests[$testType][$category] = array();
-            }
-
-            $tests[$testType][$category][] = array(
-                'testName' => $row9['TestName'],
-                'referenceRange' => $referenceRangeList,
-                // 'referenceRange' => $ran,
-                'resultValue' => $row9['resultValue'],
-                'flag' => $row9['flag'],
-                'unit' => $row9['Units'],
-                'methods' => $row9['Methods']
-            );
         }
     }
 }
-
 
 
 ?>
@@ -171,6 +211,12 @@ foreach ($testTypes as $testType) {
 <body>
     <header>
         <img src="MediDocX Logo.JPG" alt="" />
+        <form method="post" id="logoutForm">
+            <input type="hidden" name="logout" value="1"> <!-- Hidden input to identify logout action -->
+            <button type="submit" id="logoutButton">Log out</button>
+        </form>
+
+
         <input type="text" placeholder="Search Patient..." />
     </header>
 
@@ -213,14 +259,14 @@ foreach ($testTypes as $testType) {
                 <button onclick="addPrescription()">Add Prescription</button>
                 <button onclick="requestationLetter()">Request Letter</button>
             </div>
-            <?php if(isset($rowPrescription) && !empty($rowPrescription['prescriptions'])): ?>
-            <div class="container">
-                <div class="boxContainer">
-                    <div class="box">
-                       <?php echo nl2br($rowPrescription['prescriptions']); ?>
+            <?php if (isset($rowPrescription) && !empty($rowPrescription['prescriptions'])): ?>
+                <div class="container">
+                    <div class="boxContainer">
+                        <div class="box">
+                            <?php echo nl2br($rowPrescription['prescriptions']); ?>
+                        </div>
                     </div>
                 </div>
-            </div>
             <?php endif; ?>
         </section>
 
@@ -383,6 +429,28 @@ foreach ($testTypes as $testType) {
 
     </script>
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script>
+        // Show SweetAlert confirmation dialog when the logout button is clicked
+        document.getElementById('logoutButton').addEventListener('click', function (event) {
+            event.preventDefault(); // Prevent the default form submission
+
+            swal({
+                title: "Are you sure?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                buttons: ["Cancel", "Yes"], // Customize the buttons
+                dangerMode: true, // Highlight the "Yes" button in red
+            }).then((willLogout) => {
+                if (willLogout) {
+                    document.getElementById('logoutForm').submit(); // Submit the form to perform logout
+                } else {
+                    swal("You can continue browsing!", {
+                        icon: "success",
+                    });
+                }
+            });
+        });
+    </script>
 </body>
 
 </html>

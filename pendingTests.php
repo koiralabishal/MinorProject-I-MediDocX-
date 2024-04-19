@@ -1,10 +1,55 @@
 <?php
-
+// session_name('lab_technician_session');
 session_start();
 include 'connection.php';
 
 
 
+if (!isset($_SESSION['technicianEmail'])) {
+    header('Location: index.php');
+}
+
+
+
+function logout()
+{
+    // Clear session data
+    unset($_SESSION['technicianEmail']);
+    // Redirect to the index page
+    header('Location: index.php');
+    exit;
+}
+
+// Check if logout request is received
+if (isset($_POST['logout'])) {
+    logout();
+}
+
+// if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+//     $data = json_decode(file_get_contents('php://input'), true);
+
+// Store visit data in session
+// $_SESSION['patientName'] = $data['patientName'];
+// $_SESSION['patientID'] = $data['patientID'];
+// $_SESSION['doctorID'] = $data['doctorID'];
+// $_SESSION['reportID'] = $data['reportID'];
+// $_SESSION['visitID'] = $data['visitID'];
+// $_SESSION['date'] = $data['date'];
+
+// Send success response
+//     http_response_code(200);
+//     exit;
+// }
+// $patientName = $_SESSION['patientName'];
+// $patientID = $_SESSION['patientID'];
+// $doctorID = $_SESSION['doctorID'];
+// $reportID = $_SESSION['reportID'];
+// $visitID = $_SESSION['visitID'];
+// echo "Patient Name: ". $patientName. "<br />";
+// echo "Patient ID: ". $_SESSION['patientID']. "<br />";
+// echo "Patient Age: ". $patientAge. "<br />";
+// echo "Patient Gender: ". $patientGender. "<br />";
+// echo "VisitID: " .$_SESSION['visitID']. "<br/>";
 
 
 if (isset($_POST['submit'])) {
@@ -32,49 +77,49 @@ if (isset($_POST['submit'])) {
 
         if ($resultQuery) {
 
-            //   $deleteQuery = "DELETE FROM test_data WHERE patientID = '{$_GET['patientID']}' AND reportID = '{$_GET['reportID']}' AND doctorID = '{$_GET['doctorID']}'";
-            //   $resultDelete = mysqli_query($conn, $deleteQuery);
+            $deleteQuery = "DELETE FROM test_data WHERE patientID = '{$_GET['patientID']}' AND reportID = '{$_GET['reportID']}' AND doctorID = '{$_GET['doctorID']}'";
+            $resultDelete = mysqli_query($conn, $deleteQuery);
 
-            //   if ($resultDelete) {
-            ?>
-            <!DOCTYPE html>
-            <html lang="en">
+            if ($resultDelete) {
+                ?>
+                <!DOCTYPE html>
+                <html lang="en">
 
-            <head>
-                <meta charset="UTF-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>Success</title>
-                <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
-            </head>
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Success</title>
+                    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+                </head>
 
-            <body>
+                <body>
+                    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+                    <script>
 
-                <script>
+                        document.addEventListener('DOMContentLoaded', function () {
+                                        Hide the form
+                            document.getElementById('testForm').style.display = 'display';
 
-                    document.addEventListener('DOMContentLoaded', function () {
-                        // Hide the form
-                        document.getElementById('testForm').style.display = 'none';
-
-                        // Show success message
-                        swal({
-                            title: "Success",
-                            text: "Sent Successfully",
-                            icon: "success",
-                            button: "Ok",
-                        }).then(function () {
-                            // Redirect to labTechnician.php
-                            window.location = "labTechnician.php";
+                            // Show success message
+                            swal({
+                                title: "Success",
+                                text: "Sent Successfully",
+                                icon: "success",
+                                button: "Ok",
+                            }).then(function () {
+                                // Redirect to labTechnician.php
+                                window.location = "labTechnician.php";
+                            });
                         });
-                    });
 
 
-                </script>
-            </body>
+                    </script>
+                </body>
 
-            </html>
-            <?php
+                </html>
+                <?php
+            }
         }
-        // }
 
     }
 
@@ -152,11 +197,11 @@ function determineFlag($resultValue, $referenceRange)
 
 
 
-if (!isset($_SESSION['technicianEmail'], $_GET['patientID'], $_GET['doctorID'], $_GET['reportID'])) {
-    // Redirect to index.php if any of the parameters are missing
-    header('Location: index.php');
-    exit();
-}
+// if (!isset($_SESSION['technicianEmail'], $_GET['patientID'], $_GET['doctorID'], $_GET['reportID'])) {
+//     // Redirect to index.php if any of the parameters are missing
+//     header('Location: index.php');
+//     exit();
+// }
 
 
 
@@ -170,8 +215,9 @@ if (!isset($_SESSION['technicianEmail'], $_GET['patientID'], $_GET['doctorID'], 
 
 if (isset($_SESSION['technicianEmail'])) {
 
+
     $email = $_SESSION['technicianEmail'];
-    //   $patientName = $_GET['patientName'];
+    // $patientName = $_GET['patientName'];
     $patientID = $_GET['patientID'];
     $doctorID = $_GET['doctorID'];
     $reportID = $_GET['reportID'];
@@ -195,11 +241,11 @@ if (isset($_SESSION['technicianEmail'])) {
     // if ($resultPatientName) {
     //     $rowPatientName = mysqli_fetch_assoc($resultPatientName);
     // }
-    $sqlPatientInfo = "SELECT * FROM patientVisitDetails WHERE patientID = '$patientID' AND referredToDoctorID = '$doctorID' AND visitID = '$visitID'";
-        $resultPatientInfo = mysqli_query($conn,$sqlPatientInfo);
-        if($resultPatientInfo){
-            $rowPatientInfo = mysqli_fetch_assoc($resultPatientInfo);
-        }
+    $sqlPatientInfo = "SELECT * FROM patientvisitdetails WHERE patientID = '$patientID' AND referredToDoctorID = '$doctorID' AND visitID = '$visitID'";
+    $resultPatientInfo = mysqli_query($conn, $sqlPatientInfo);
+    if ($resultPatientInfo) {
+        $rowPatientInfo = mysqli_fetch_assoc($resultPatientInfo);
+    }
 
     // $sql5 = "SELECT age, gender FROM appointed_patient WHERE patientID = '$patientID'";
 
@@ -255,7 +301,7 @@ if (isset($_SESSION['technicianEmail'])) {
     // while ($row7 = mysqli_fetch_assoc($result7)) {
 // $testType = $row7['category'];
     $tests = array();
-    $testTypes = array("Biochemistry", "Haematology");
+    $testTypes = array("biochemistry", "haematology");
     // $sql3 = "SELECT category, testName, ReferenceRange, Methods FROM bichemistry WHERE category IN (SELECT DISTINCT category FROM test_data WHERE testTypes = '$testType' AND patientID = '$patientID' AND doctorID = '$doctorID')";
     foreach ($testTypes as $testType) {
         $query = "SELECT $testType.TestName, $testType.subCategory, $testType.Units, $testType.Methods, $testType.ReferenceRange
@@ -343,6 +389,10 @@ if (isset($_SESSION['technicianEmail'])) {
 <body>
     <header>
         <img src="MediDocX Logo.JPG" alt="" />
+        <form method="post" id="logoutForm">
+            <input type="hidden" name="logout" value="1"> <!-- Hidden input to identify logout action -->
+            <button type="submit" id="logoutButton">Log out</button>
+        </form>
         <input type="text" placeholder="Search Patient..." />
     </header>
     <aside>
@@ -374,7 +424,7 @@ if (isset($_SESSION['technicianEmail'])) {
     </aside>
     <main>
         <form id="testForm"
-            action="pendingTests.php?patientID=<?php echo $_GET['patientID'] ?>&doctorID=<?php echo $doctorID; ?>&reportID=<?php echo $reportID; ?>&visitID=<?php echo $visitID; ?>"
+            action="pendingTests.php?patientID=<?php echo $_GET['patientID']; ?> &doctorID=<?php echo $_GET['doctorID']; ?> &reportID=<?php echo $_GET['reportID']; ?> &visitID=<?php echo $_GET['visitID']; ?>"
             method="POST">
             <!-- <label for="recordID">Record ID</label>
       <input type="text" name="recordID">
@@ -465,6 +515,28 @@ if (isset($_SESSION['technicianEmail'])) {
 
     </main>
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script>
+        // Show SweetAlert confirmation dialog when the logout button is clicked
+        document.getElementById('logoutButton').addEventListener('click', function (event) {
+            event.preventDefault(); // Prevent the default form submission
+
+            swal({
+                title: "Are you sure?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                buttons: ["Cancel", "Yes"], // Customize the buttons
+                dangerMode: true, // Highlight the "Yes" button in red
+            }).then((willLogout) => {
+                if (willLogout) {
+                    document.getElementById('logoutForm').submit(); // Submit the form to perform logout
+                } else {
+                    swal("You can continue browsing!", {
+                        icon: "success",
+                    });
+                }
+            });
+        });
+    </script>
 </body>
 
 

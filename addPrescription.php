@@ -1,8 +1,43 @@
 <?php
+// session_name('doctor_session');
 session_start();
 include 'connection.php';
+if (!isset($_SESSION['doctorEmail'])){
+    header('Location: index.php');
+}
+function logout()
+{
+    // Clear session data
+    unset($_SESSION['doctorEmail']);
+    // Redirect to the login page
+    header('Location: index.php');
+    exit;
+}
+
+// Check if logout request is received
+if (isset($_POST['logout'])) {
+    logout();
+}
 
 
+
+
+$email = $_SESSION['doctorEmail'];
+$visitID = $_SESSION['visitID'];
+
+$date = $_SESSION['date'];
+
+$sqlPatientInfo = "SELECT * FROM patientvisitdetails WHERE visitID = '$visitID' AND date = '$date'";
+$resultPatientInfo = mysqli_query($conn, $sqlPatientInfo);
+if ($resultPatientInfo) {
+    $rowPatientInfo = mysqli_fetch_assoc($resultPatientInfo);
+}
+
+// $sql2 = "SELECT a.* FROM patientvisitdetails a JOIN hospital h on a.referredToDoctorID = h.doctorID WHERE h.email = '{$email}' ORDER BY a.ID DESC";
+// $result2 = mysqli_query($conn, $sql2);
+// if ($result2) {
+//     $row2 = mysqli_fetch_assoc($result2);
+// }
 
 if (isset($_POST['submit'])) {
     $patientID = $_POST['patientID'];
@@ -69,24 +104,60 @@ if (isset($_POST['submit'])) {
 
                 </html>
                 <?php
-            } 
-        } else {
-            // If no rows exist in appointed_patient table, delete from pendingReport table
-
-            $sqlReportID = "SELECT reportID FROM pendingReport WHERE patientID = '$patientID' AND doctorID ='$doctorID' AND visitID = '$visitID' AND date = '$date'";
-
-            $resultReport = mysqli_query($conn, $sqlReportID);
-
-            if($resultReport){
-                $rowReportID = mysqli_fetch_assoc($resultReport);
             }
+        } else {
+            // Check if there are any rows in appointed_patient table for the given conditions
+            $countQuery = "SELECT COUNT(*) AS count FROM pendingreport WHERE patientID='$patientID' AND doctorID='$doctorID' AND visitID='$visitID' AND date = '$date'";
+            $resultCount = mysqli_query($conn, $countQuery);
+            $rowCount = mysqli_fetch_assoc($resultCount);
+            $count = $rowCount['count'];
 
-            $deleteReportQuery = "DELETE FROM pendingReport WHERE patientID='$patientID' AND doctorID='$doctorID' AND date = '$date' AND reportID = '{$rowReportID['reportID']}'";
-            $resultDeleteReport = mysqli_query($conn, $deleteReportQuery);
+            if ($count > 0) {
+                $deleteReportQuery = "DELETE FROM pendingreport WHERE patientID='$patientID' AND doctorID='$doctorID' AND date = '$date' AND visitID = '$visitID' AND date= '$date'";
+                $resultDeleteReport = mysqli_query($conn, $deleteReportQuery);
 
-            if ($resultDeleteReport) {
+                if ($resultDeleteReport) {
+                    ?>
+                    <!DOCTYPE html>
+                    <html lang="en">
+
+                    <head>
+                        <meta charset="UTF-8">
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                        <title>Success</title>
+                        <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+                    </head>
+
+                    <body>
+
+                        <script>
+
+                            document.addEventListener('DOMContentLoaded', function () {
+                                // Hide the form
+                                document.getElementById('prescriptionSection').style.display = 'none';
+
+                                // Show success message
+                                swal({
+                                    title: "Success",
+                                    text: "Added Successfully",
+                                    icon: "success",
+                                    button: "Ok",
+                                }).then(function () {
+
+                                    window.location = "doctor.php";
+                                });
+                            });
+
+
+                        </script>
+                    </body>
+
+                    </html>
+                    <?php
+                }
+            } else {
                 ?>
-                <!DOCTYPE html>
+                <!-- <!DOCTYPE html>
                 <html lang="en">
 
                 <head>
@@ -96,13 +167,13 @@ if (isset($_POST['submit'])) {
                     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
                 </head>
 
-                <body>
-
+                <body> -->
+                    <!-- <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script> -->
                     <script>
 
                         document.addEventListener('DOMContentLoaded', function () {
                             // Hide the form
-                            document.getElementById('prescriptionSection').style.display = 'none';
+                            document.getElementById('prescriptionSection').style.display = 'display';
 
                             // Show success message
                             swal({
@@ -110,20 +181,29 @@ if (isset($_POST['submit'])) {
                                 text: "Added Successfully",
                                 icon: "success",
                                 button: "Ok",
-                            }).then(function () {
-                               
-                                window.location = "doctor.php";
                             });
                         });
 
 
                     </script>
-                </body>
+                 <!-- </body>
 
-                </html>
+                 </html> -->
                 <?php
-            } 
+            }
+
+
         }
+        // If no rows exist in appointed_patient table, delete from pendingReport table
+
+        // $sqlReportID = "SELECT reportID FROM pendingReport WHERE patientID = '$patientID' AND doctorID ='$doctorID' AND visitID = '$visitID' AND date = '$date'";
+
+        // $resultReport = mysqli_query($conn, $sqlReportID);
+
+        // if ($resultReport) {
+        //     $rowReportID = mysqli_fetch_assoc($resultReport);
+        // }
+
 
     }
 }
@@ -140,18 +220,14 @@ if (isset($_POST['submit'])) {
 // $patientID = $_SESSION['patientID'];
 // $patientage = $_SESSION['age'];
 // $patientgender = $_SESSION['gender'];
-$email = $_SESSION['doctorEmail'];
-$visitID = $_SESSION['visitID'];
-// echo $visitID;
-echo $visitID;
 
-$date = $_SESSION['date'];
-echo $date;
-$sqlPatientInfo = "SELECT * FROM patientVisitDetails WHERE visitID = '$visitID' AND date = '$date'";
-$resultPatientInfo = mysqli_query($conn,$sqlPatientInfo);
-if($resultPatientInfo){
-    $rowPatientInfo = mysqli_fetch_assoc($resultPatientInfo);
-}
+// $visitID = $_SESSION['visitID'];
+// echo $visitID;
+// echo $visitID;
+
+// $date = $_SESSION['date'];
+// echo $date;
+
 // $sqlVisitID = "SELECT visitID FROM patientVisitDetails WHERE date = '$date'";
 // $resultVisitID = mysqli_query($conn, $sqlVisitID);
 
@@ -181,9 +257,7 @@ if ($resultPrescription) {
     $rowPrescription = mysqli_fetch_assoc($resultPrescription);
 }
 
-// if ($result2) {
-//   $row2 = mysqli_fetch_assoc($result2);
-// }
+
 
 
 ?>
@@ -201,6 +275,11 @@ if ($resultPrescription) {
 <body>
     <header>
         <img src="MediDocX Logo.JPG" alt="" />
+        <form method="post" id="logoutForm">
+            <input type="hidden" name="logout" value="1"> <!-- Hidden input to identify logout action -->
+            <button type="submit" id="logoutButton">Log out</button>
+        </form>
+
         <input type="text" placeholder="Search Patient..." />
     </header>
 
@@ -241,7 +320,7 @@ if ($resultPrescription) {
             <div class="sectionTitle">
                 <h2>Add Prescription</h2>
             </div>
-            <form action="addPrescription.php" method="POST">
+            <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="POST">
                 <input type="hidden" name="patientID" value="<?php echo $rowPatientInfo['patientID']; ?>" />
                 <input type="hidden" name="doctorID" value="<?php echo $row['doctorID']; ?>" />
                 <input type="hidden" name="visitID" value="<?php echo $visitID; ?>" />
@@ -256,5 +335,28 @@ if ($resultPrescription) {
         <!-- <button type="submit">Save</button> -->
     </main>
 </body>
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+<script>
+    // Show SweetAlert confirmation dialog when the logout button is clicked
+    document.getElementById('logoutButton').addEventListener('click', function (event) {
+        event.preventDefault(); // Prevent the default form submission
+
+        swal({
+            title: "Are you sure?",
+            text: "You won't be able to revert this!",
+            icon: "warning",
+            buttons: ["Cancel", "Yes"], // Customize the buttons
+            dangerMode: true, // Highlight the "Yes" button in red
+        }).then((willLogout) => {
+            if (willLogout) {
+                document.getElementById('logoutForm').submit(); // Submit the form to perform logout
+            } else {
+                swal("You can continue browsing!", {
+                    icon: "success",
+                });
+            }
+        });
+    });
+</script>
 
 </html>

@@ -59,8 +59,8 @@ if (isset($_POST['login'])) {
     if (mysqli_num_rows($result) > 0) {
         $row = mysqli_fetch_assoc($result);
         $password = $row['password'];
-        $dbemail = $row['patientEmail'];
-        $_SESSION['patientEmail'] = $dbemail;
+        $patientEmail = $row['patientEmail'];
+        $_SESSION['patientEmail'] = $patientEmail;
         if ($row['isVerified'] == 1) {
             if ($password === $passwordHash) {
                 $_SESSION['name'] = $row['name'];
@@ -110,8 +110,8 @@ if (isset($_POST['login'])) {
     } else if (mysqli_num_rows($result1) > 0) {
         $row = mysqli_fetch_assoc($result1);
         $password = $row['password'];
-        $dbemail = $row['doctorEmail'];
-        $_SESSION['doctorEmail'] = $dbemail;
+        $doctorEmail = $row['doctorEmail'];
+        $_SESSION['doctorEmail'] = $doctorEmail;
         if ($row['isVerified'] == 1) {
             if ($password === $passwordHash) {
                 $_SESSION['name'] = $row['name'];
@@ -160,8 +160,8 @@ if (isset($_POST['login'])) {
     else if (mysqli_num_rows($result2) > 0) {
         $row = mysqli_fetch_assoc($result2);
         $password = $row['password'];
-        $dbemail = $row['technicianEmail'];
-        $_SESSION['technicianEmail'] = $dbemail;
+        $technicianEmail = $row['technicianEmail'];
+        $_SESSION['technicianEmail'] = $technicianEmail;
         if ($row['isVerified'] == 1) {
             if ($password === $passwordHash) {
                 $_SESSION['name'] = $row['name'];

@@ -1,23 +1,43 @@
 <?php
+// session_name('doctor_session');
 session_start();
 include 'connection.php';
+
+
+
 
 if (!isset($_SESSION['doctorEmail'])) {
   header('Location:index.php');
 }
 
-
-if (!isset($_SESSION['patientID'], $_SESSION['age'], $_SESSION['gender'])) {
-  header('Location:labTechnician.php');
+function logout()
+{
+  // Clear session data
+  unset($_SESSION['doctorEmail']);
+  // Redirect to the login page
+  header('Location: index.php');
+  exit;
 }
+
+// Check if logout request is received
+if (isset($_POST['logout'])) {
+    logout();
+}
+
+
+// if (!isset($_SESSION['patientID'], $_SESSION['age'], $_SESSION['gender'])) {
+//   header('Location:labTechnician.php');
+// }
+
+
 
 
 
 $email = $_SESSION['doctorEmail'];
-$patientName = $_SESSION['patientName'];
-$patientID = $_SESSION['patientID'];
-$patientage = $_SESSION['age'];
-$patientgender = $_SESSION['gender'];
+// $patientName = $_SESSION['patientName'];
+// $patientID = $_SESSION['patientID'];
+// $patientage = $_SESSION['age'];
+// $patientgender = $_SESSION['gender'];
 // $visitID = $_SESSION['visitID'];
 // $patientName = $_GET['patientName'];
 // $patientID = $_GET['patientID'];
@@ -31,7 +51,11 @@ $visitID = $_SESSION['visitID'];
 // if ($resultVisitID) {
 //     $rowVisitID = mysqli_fetch_assoc($resultVisitID);
 // }
-
+$sqlPatientInfo = "SELECT * FROM patientvisitdetails WHERE visitID = '$visitID' AND date = '$date'";
+$resultPatientInfo = mysqli_query($conn, $sqlPatientInfo);
+if ($resultPatientInfo) {
+  $rowPatientInfo = mysqli_fetch_assoc($resultPatientInfo);
+}
 
 
 $sql = "SELECT * FROM hospital WHERE email = '{$email}' AND userType ='Doctor'";
@@ -272,6 +296,11 @@ if ($result) {
 <body>
   <header>
     <img src="MediDocX Logo.JPG" alt="" />
+    <form method="post" id="logoutForm" >
+      <input type="hidden" name="logout" value="1"> <!-- Hidden input to identify logout action -->
+      <button type="submit" id="logoutButton">Log out</button>
+    </form>
+
     <input type="text" placeholder="Search Patient..." />
   </header>
 
@@ -293,16 +322,16 @@ if ($result) {
     <div id="reportTemplatesContainer">
       <h3>Patient Info</h3>
       <div class="reportTemplatesAside">Name:
-        <?php echo $patientName; ?>
+        <?php echo $rowPatientInfo['patientName']; ?>
       </div>
       <div class="reportTemplatesAside">Patient ID:
-        <?php echo $patientID; ?>
+        <?php echo $rowPatientInfo['patientID']; ?>
       </div>
       <div class="reportTemplatesAside">Age:
-        <?php echo $patientage; ?>
+        <?php echo $rowPatientInfo['age']; ?>
       </div>
       <div class="reportTemplatesAside">Gender:
-        <?php echo $patientgender; ?>
+        <?php echo $rowPatientInfo['gender']; ?>
       </div>
     </div>
     <!-- <div id="reportTemplatesContainer">
@@ -322,20 +351,18 @@ if ($result) {
         <div class="container">
           <ul>
             <li>
-              <input type="checkbox" id="rbs" name="BioChemistry[]" value="RBS" /><label
-                for="rbs">RBS</label>
+              <input type="checkbox" id="rbs" name="BioChemistry[]" value="RBS" /><label for="rbs">RBS</label>
             </li>
             <li>
-              <input type="checkbox" id="Fbs" name="BioChemistry[]" value="FBS" /><label
-                for="fbs">FBS</label>
+              <input type="checkbox" id="Fbs" name="BioChemistry[]" value="FBS" /><label for="fbs">FBS</label>
             </li>
             <li>
-              <input type="checkbox" id="ppbs" name="BioChemistry[]" value="PPBS" /><label
-                for="ppbs">
+              <input type="checkbox" id="ppbs" name="BioChemistry[]" value="PPBS" /><label for="ppbs">
                 PPBS</label>
             </li>
             <li>
-              <input type="checkbox" id="totalBilirubin" name="BioChemistry[]" value="Total Bilirubin" /><label for="totalBilirubin">Total Bilirubin</label>
+              <input type="checkbox" id="totalBilirubin" name="BioChemistry[]" value="Total Bilirubin" /><label
+                for="totalBilirubin">Total Bilirubin</label>
             </li>
             <li>
               <input type="checkbox" id="alt" name="BioChemistry[]" value="ALT" /><label for="alt">ALT</label>
@@ -347,7 +374,8 @@ if ($result) {
               <input type="checkbox" id="urea" name="BioChemistry[]" value="Urea" /><label for="urea">Urea</label>
             </li>
             <li>
-              <input type="checkbox" id="serumCreatinine" name="BioChemistry[]" value="Serum Creatinine" /><label for="serumCreatinine">Serum Creatinine</label>
+              <input type="checkbox" id="serumCreatinine" name="BioChemistry[]" value="Serum Creatinine" /><label
+                for="serumCreatinine">Serum Creatinine</label>
             </li>
             <li>
               <input type="checkbox" id="eGFR" name="BioChemistry[]" value="eGFR" /><label for="eGFR">eGFR</label>
@@ -396,8 +424,7 @@ if ($result) {
                 for="serumIron">Serum Iron</label>
             </li>
             <li>
-              <input type="checkbox" id="tibc" name="BioChemistry[]" value="TIBC" /><label
-                for="tibc">TIBC</label>
+              <input type="checkbox" id="tibc" name="BioChemistry[]" value="TIBC" /><label for="tibc">TIBC</label>
             </li>
           </ul>
         </div>
@@ -417,7 +444,8 @@ if ($result) {
               <input type="checkbox" id="tlc" name="Haematology[]" value="TLC" /><label for="tlc">TLC</label>
             </li>
             <li>
-              <input type="checkbox" id="plateletCount" name="Haematology[]" value="Platelet Count" /><label for="plateletCount">Platelet Count</label>
+              <input type="checkbox" id="plateletCount" name="Haematology[]" value="Platelet Count" /><label
+                for="plateletCount">Platelet Count</label>
             </li>
             <li>
               <input type="checkbox" id="esr" name="Haematology[]" value="ESR" /><label for="esr">ESR</label>
@@ -459,7 +487,8 @@ if ($result) {
               <input type="checkbox" id="anc" name="Haematology[]" value="ANC" /><label for="anc">ANC</label>
             </li>
             <li>
-              <input type="checkbox" id="d-dimer" name="Haematology[]" value="D-Dimer" /><label for="d-dimer">D-Dimer</label>
+              <input type="checkbox" id="d-dimer" name="Haematology[]" value="D-Dimer" /><label
+                for="d-dimer">D-Dimer</label>
             </li>
           </ul>
         </div>
@@ -721,6 +750,28 @@ if ($result) {
 </body>
 
 <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+<script>
+  // Show SweetAlert confirmation dialog when the logout button is clicked
+  document.getElementById('logoutButton').addEventListener('click', function (event) {
+    event.preventDefault(); // Prevent the default form submission
+
+    swal({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      buttons: ["Cancel", "Yes"], // Customize the buttons
+      dangerMode: true, // Highlight the "Yes" button in red
+    }).then((willLogout) => {
+      if (willLogout) {
+        document.getElementById('logoutForm').submit(); // Submit the form to perform logout
+      } else {
+        swal("You can continue browsing!", {
+          icon: "success",
+        });
+      }
+    });
+  });
+</script>
 
 </html>
 
@@ -750,7 +801,7 @@ if (isset($_POST['submit'])) {
       if (isset($_POST[$category])) {
         $testNames = implode(", ", $_POST[$category]); // Concatenate test names
         $query = "INSERT INTO test_data (`category`, `testNames`,  `patientID`, `patientName`, `doctorID`,`date`, `reportID`, `visitID`) 
-                  VALUES ('$category', '$testNames', '$patientID', '$patientName', '{$row['doctorID']}','$date','$reportID','$visitID')";
+                  VALUES ('$category', '$testNames', '{$rowPatientInfo['patientID']}', '{$rowPatientInfo['patientName']}', '{$row['doctorID']}','$date','$reportID','$visitID')";
         $queries[] = $query;
       }
     }
@@ -765,8 +816,8 @@ if (isset($_POST['submit'])) {
             text: "Test data not sent successfully",
             icon: "error",
             button: "Ok",
-          }).then(function(){
-             window.location = "doctor.php";
+          }).then(function () {
+            window.location = "doctor.php";
           });
         </script>
         <?php
@@ -775,10 +826,10 @@ if (isset($_POST['submit'])) {
 
     // Check if any queries were executed successfully
     if (count($queries) > 0) {
-      $deleteQuery = "DELETE FROM appointed_patient WHERE patientID='$patientID' AND doctorID='{$row['doctorID']}' AND visitID='$visitID'";
+      $deleteQuery = "DELETE FROM appointed_patient WHERE patientID='{$rowPatientInfo['patientID']}' AND doctorID='{$row['doctorID']}' AND visitID='$visitID'";
       $resultDelete = mysqli_query($conn, $deleteQuery);
 
-      if($resultDelete){
+      if ($resultDelete) {
         ?>
         <script>
           swal({
@@ -786,14 +837,14 @@ if (isset($_POST['submit'])) {
             text: "Test data sent successfully",
             icon: "success",
             button: "Ok",
-          }).then(function(){
+          }).then(function () {
             window.location = "doctor.php";
           });
         </script>
         <?php
 
       }
-     
+
     }
   }
 }
