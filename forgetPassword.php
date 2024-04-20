@@ -14,6 +14,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Get email from POST data
         $email = $_POST['email'];
 
+
         // SQL query to check if email exists in the database
         $sqlEmailQuery = "SELECT email FROM user WHERE email = '$email'";
 
@@ -25,6 +26,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             echo json_encode(['success' => false, 'message' => 'Query execution error: ' . mysqli_error($conn)]);
             exit;
         }
+
 
         // Check if email is valid
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -77,6 +79,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             echo json_encode(['success' => false, 'message' => 'Email does not exist']);
             exit;
         }
+
     } elseif (isset($_POST['verify_otp'])) {
         // Verify OTP
         $otp = $_POST['otp'];
@@ -90,17 +93,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Update password
         $newPassword = $_POST['new_password'];
 
+
+
         // SQL query to update password
         $sqlUpdateQuery = "UPDATE user SET password = '$newPassword' WHERE email = '{$_SESSION['userEmail']}'";
         $resultUpdate = mysqli_query($conn, $sqlUpdateQuery);
 
         if ($resultUpdate) {
-            echo json_encode(['success' => true, 'message' => 'Password updated successfully. New Password: ' . $newPassword]);
+            echo json_encode(['success' => true, 'message' => 'Password updated successfully']);
             exit;
         } else {
             echo json_encode(['success' => false, 'message' => 'Failed to update password']);
             exit;
         }
+
     }
 }
 ?>
@@ -114,18 +120,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <title>Forget Password</title>
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 </head>
-    <script>
-        function sendOTP() {
-            swal("Enter your email:", {
-                content: "input",
-                buttons: {
-                    cancel: true,
-                    confirm: {
-                        text: "Send OTP",
-                        closeModal: false,
-                    },
+<script>
+    function sendOTP() {
+        swal("Enter your email:", {
+            content: "input",
+            buttons: {
+                cancel: true,
+                confirm: {
+                    text: "Send OTP",
+                    closeModal: false,
                 },
-            }).then((value) => {
+            },
+        }).then((value) => {
+            if (value !== null) {
                 if (value) {
                     fetch(window.location.href, {
                         method: 'POST',
@@ -148,21 +155,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     });
                             }
                         });
+                } else {
+                    // Display error message if email is empty
+                    swal("Error", "Please enter an email", "error")
+                        .then(() => {
+                            sendOTP();
+                        });
                 }
-            });
-        }
+            }
+        });
+    }
 
-        function enterOTP() {
-            swal("Enter OTP:", {
-                content: "input",
-                buttons: {
-                    cancel: true,
-                    confirm: {
-                        text: "Verify OTP",
-                        closeModal: false,
-                    },
+    function enterOTP() {
+        swal("Enter OTP:", {
+            content: "input",
+            buttons: {
+                cancel: true,
+                confirm: {
+                    text: "Verify OTP",
+                    closeModal: false,
                 },
-            }).then((value) => {
+            },
+        }).then((value) => {
+            if (value !== null) {
                 if (value) {
                     fetch(window.location.href, {
                         method: 'POST',
@@ -187,78 +202,106 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                             }
                         });
+                } else {
+                    // Display error message if email is empty
+                    swal("Error", "Please enter an OTP", "error")
+                        .then(() => {
+                            enterOTP();
+                        });
                 }
-            });
-        }
-        function changePassword() {
-            swal({
-                title: 'Enter New Password:',
-                content: {
-                    element: "input",
-                    attributes: {
-                        type: "password",
-                        id: "new_password",
-                        placeholder: "New Password"
-                    }
-                },
-                buttons: {
-                    cancel: true,
-                    confirm: {
-                        text: "Next",
-                        closeModal: false,
-                    }
-                },
-            }).then((newPassword) => {
+            }
+        });
+    }
+    function changePassword() {
+        swal({
+            title: 'Enter New Password:',
+            content: {
+                element: "input",
+                attributes: {
+                    type: "password",
+                    id: "new_password",
+                    placeholder: "New Password"
+                }
+            },
+            buttons: {
+                cancel: true,
+                confirm: {
+                    text: "Next",
+                    closeModal: false,
+                }
+            },
+        }).then((newPassword) => {
+            if (newPassword !== null) {
                 if (newPassword) {
-                    swal({
-                        title: 'Confirm New Password:',
-                        content: {
-                            element: "input",
-                            attributes: {
-                                type: "password",
-                                id: "confirm_password",
-                                placeholder: "Confirm Password"
+                    if (newPassword.length >= 8) {
+                        swal({
+                            title: 'Confirm New Password:',
+                            content: {
+                                element: "input",
+                                attributes: {
+                                    type: "password",
+                                    id: "confirm_password",
+                                    placeholder: "Confirm Password"
+                                }
+                            },
+                            buttons: {
+                                cancel: true,
+                                confirm: {
+                                    text: "Change Password",
+                                    closeModal: false,
+                                }
+                            },
+                        }).then((confirmPassword) => {
+                            if (confirmPassword !== null) {
+                                if (confirmPassword) {
+                                    if (newPassword === confirmPassword) {
+                                        fetch(window.location.href, {
+                                            method: 'POST',
+                                            headers: {
+                                                'Content-Type': 'application/x-www-form-urlencoded',
+                                            },
+                                            body: 'new_password=' + encodeURIComponent(newPassword) + '&change_password=1',
+                                        })
+                                            .then(response => response.json())
+                                            .then(data => {
+                                                if (data.success) {
+                                                    swal("Password Changed", data.message, "success");
+                                                } else {
+                                                    swal("Error", data.message || "Failed to change password", "error");
+                                                }
+                                            });
+                                    } else {
+                                        swal("Error", "Passwords do not match", "error")
+                                            .then(() => {
+                                                changePassword();
+                                            });
+                                    }
+                                } else {
+                                    swal("Error", "Please confirm password", "error")
+                                        .then(() => {
+                                            changePassword();
+                                        });
+                                }
                             }
-                        },
-                        buttons: {
-                            cancel: true,
-                            confirm: {
-                                text: "Change Password",
-                                closeModal: false,
-                            }
-                        },
-                    }).then((confirmPassword) => {
-                        if (confirmPassword) {
-                            if (newPassword === confirmPassword) {
-                                fetch(window.location.href, {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/x-www-form-urlencoded',
-                                    },
-                                    body: 'new_password=' + encodeURIComponent(newPassword) + '&change_password=1',
-                                })
-                                    .then(response => response.json())
-                                    .then(data => {
-                                        if (data.success) {
-                                            swal("Password Changed", data.message, "success");
-                                        } else {
-                                            swal("Error", data.message || "Failed to change password", "error");
-                                        }
-                                    });
-                            } else {
-                                swal("Error", "Passwords do not match", "error")
-                                    .then(() => {
-                                        changePassword(confirmPassword);
-                                    })
-                            }
-                        }
-                    });
+                        });
+                    }else {
+                        swal("Error", "Passwords must be 8 character long", "error")
+                            .then(() => {
+                                changePassword();
+                            });
+                    }
+                } else {
+                    swal("Error", "Please enter new password", "error")
+                        .then(() => {
+                            changePassword();
+                        });
                 }
-            });
-        }
-    </script>
 
-    <button onclick="sendOTP()">Forget Password</button>
-</>
+            }
+        });
+
+    }
+</script>
+<button onclick="sendOTP()">Forget Password</button>
 
 </html>
