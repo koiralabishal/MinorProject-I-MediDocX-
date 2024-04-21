@@ -16,7 +16,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 
         // SQL query to check if email exists in the database
-        $sqlEmailQuery = "SELECT email FROM user WHERE email = '$email'";
+        $sqlEmailQuery = "SELECT 'user' AS tableName, 'email' AS emailAttr FROM user WHERE email = '$email'";
 
         // Execute the query
         $resultEmail = mysqli_query($conn, $sqlEmailQuery);
@@ -36,6 +36,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         // Check if email exists in the database
         if (mysqli_num_rows($resultEmail) > 0) {
+            $row = mysqli_fetch_assoc($resultEmail);
+            $tableName = $row['tableName'];
+            // echo $tableName;
+            $emailAttr = $row['emailAttr'];
+            $_SESSION['tableName'] = $tableName;
+            $_SESSION['emailAttr'] = $emailAttr;
             // Email exists, proceed with sending OTP
             $otp = rand(100000, 999999);
             $subject = 'Your OTP for password reset';
@@ -96,7 +102,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 
         // SQL query to update password
-        $sqlUpdateQuery = "UPDATE user SET password = '$newPassword' WHERE email = '{$_SESSION['userEmail']}'";
+        $sqlUpdateQuery = "UPDATE {$_SESSION['tableName']} SET password = '$newPassword' WHERE {$_SESSION['emailAttr']} = '{$_SESSION['userEmail']}'";
         $resultUpdate = mysqli_query($conn, $sqlUpdateQuery);
 
         if ($resultUpdate) {
@@ -284,7 +290,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                 }
                             }
                         });
-                    }else {
+                    } else {
                         swal("Error", "Passwords must be 8 character long", "error")
                             .then(() => {
                                 changePassword();
