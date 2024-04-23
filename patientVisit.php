@@ -50,7 +50,7 @@ if (isset($_SESSION['patientEmail'])) {
   //     $rowPatientVisitID = mysqli_fetch_assoc($resultPatientVisitID);
   // }
 
-  $sql = "SELECT * FROM hospital WHERE email = '{$patientEmail}' AND userType ='Patient'";
+  $sql = "SELECT * FROM new_patient WHERE email = '{$patientEmail}'";
 
   // var_dump($doctorEmail);
   // $sql2 = "SELECT a.* FROM appointed_patient a JOIN hospital h on a.patientID = h.patientID WHERE h.email = '{$patientEmail}' ORDER BY a.ID DESC";
@@ -186,9 +186,11 @@ if (isset($_SESSION['patientEmail'])) {
     <div id="profileInfo">
       <div id="profilePic"></div>
       <div id="details">
+        <b>
         <?php echo $row['name']; ?>
         </b><br />
-        <?php echo $row['userType']; ?> <br />
+        Patient
+        <!-- <?php echo $row['userType']; ?> <br /> -->
         ID:
         <?php echo $row['patientID']; ?> <br />
       </div>

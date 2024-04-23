@@ -1,4 +1,3 @@
-
 <html>
 
 
@@ -15,7 +14,7 @@
                 <h3>Password</h3>
                 <input type="password" name="password" />
             </label>
-            <div id="forgetPwd" onclick = "sendOTP()">Forgot password?</div>
+            <div id="forgetPwd" onclick="sendOTP()">Forgot password?</div>
             <button type="submit" name="login">Log In</button>
             <div id="signUp">Don't have an account? <a href="#" id="signupNow">Sign Up</a></div>
             <img id="closeLogin" src="./closeButton.png" alt="" />
@@ -208,11 +207,78 @@
     }
 </script>
 
+<script>
+
+    function enterotp() {
+        document.querySelector("#loginForm").style.transform = "scale(1)";
+        swal("Enter OTP:", {
+            content: "input",
+            buttons: {
+                cancel: true,
+                confirm: {
+                    text: "Verify OTP",
+                    closeModal: false,
+                },
+            },
+        }).then((value) => {
+            if (value !== null) {
+                if (value) {
+                    fetch(window.location.href, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: 'emailotp=' + encodeURIComponent(value) + '&verifyotp=1',
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                swal("OTP Verified", "You have successfully verified your OTP.", "success")
+                                    .then(() => {
+                                        window.location = "receptionist.php";
+                                    });
+                            } else {
+                                swal("Error", data.message || "Invalid OTP", "error")
+                                    .then(() => {
+                                        enterotp(); // Prompt again if OTP verification fails
+                                    });
+                            }
+                        });
+                } else {
+                    // Display error message if OTP is empty
+                    swal("Error", "Please enter an OTP", "error")
+                        .then(() => {
+                            enterotp(); // Prompt again if OTP is empty
+                        });
+                }
+            }
+        });
+    }
+
+</script>
+
 </html>
 
 
 <?php
 
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
+use PHPMailer\PHPMailer\Exception;
+
+
+// if ($_SERVER["REQUEST_METHOD"] == "POST") {
+//     if (isset($_POST['verifyotp'])) {
+//         // Verify OTP
+//         $otp = $_POST['emailotp'];
+//         if ($_SESSION['otp'] == $otp) {
+//             echo json_encode(['success' => true]);
+//         } else {
+//             echo json_encode(['success' => false, 'message' => 'Invalid OTP']);
+//         }
+//         exit;
+//     }
+// }
 
 if (isset($_POST['login'])) {
     //    session_start();
@@ -229,14 +295,16 @@ if (isset($_POST['login'])) {
     $sql = "SELECT * FROM patient WHERE patientEmail = '{$email}'";
     $sql1 = "SELECT * FROM doctor WHERE doctorEmail = '{$email}'";
     $sql2 = "SELECT * FROM lab_technician WHERE technicianEmail = '{$email}'";
-
-    
+    $sql3 = "SELECT * FROM receptionist WHERE receptionistEmail = '{$email}'";
+    $sql4 = "SELECT * FROM admins WHERE adminEmail = '{$email}'";
 
 
 
     $result = mysqli_query($conn, $sql);
     $result1 = mysqli_query($conn, $sql1);
     $result2 = mysqli_query($conn, $sql2);
+    $result3 = mysqli_query($conn, $sql3);
+    $result4 = mysqli_query($conn, $sql4);
 
     if (mysqli_num_rows($result) > 0) {
         $row = mysqli_fetch_assoc($result);
@@ -383,36 +451,153 @@ if (isset($_POST['login'])) {
                             icon: "error",
                             button: "Ok",
                         });
-
                     </script>
+            <?php
+        }
+    } else if (mysqli_num_rows($result3) > 0) {
+        $row = mysqli_fetch_assoc($result3);
+        $password = $row['password'];
+        $receptionistEmail = $row['receptionistEmail'];
+        $_SESSION['receptionistEmail'] = $receptionistEmail;
+        if ($password === $passwordHash) {
+            if ($row['isVerified'] == 1) {
+                $_SESSION['name'] = $row['name'];
+                // $_SESSION['email'] = $row['email'];
+                // $_SESSION['name'] = $row['email'];
+                // $_SESSION['role'] = 'patient';
+                // $_SESSION['email'] = '$email'
+                // header('Location:receptionist.php');
+
+                ?>
+                            <script>
+                                // Redirect to patient.php on successful login
+                                window.location = "receptionist.php";
+                            </script>
+                <?php
+
+            } else {
+
+                // require ("./PHPMailer/PHPMailer.php");
+                // require ("./PHPMailer/SMTP.php");
+                // require ("./PHPMailer/Exception.php");
+
+                $otp = rand(100000, 999999);
+                $subject = 'OTP Verification';
+                $message = '<div style="font-size: 25px;">Your OTP is: <strong>' . $otp . '</strong></div>';
+
+                // Initialize PHPMailer
+                $mail = new PHPMailer(true);
+                try {
+                    //Server settings
+                    $mail->isSMTP();
+                    $mail->Host = 'smtp.gmail.com';
+                    $mail->SMTPAuth = true;
+                    $mail->Username = 'koiralabishal3@gmail.com';
+                    $mail->Password = 'rtvxlvouimebormx';
+                    $mail->SMTPSecure = 'tls';
+                    $mail->Port = 587;
+
+                    $mail->setFrom('koiralabishal3@gmail.com', 'MediDocX');
+                    $mail->addAddress($email);
+
+                    // Content
+                    $mail->isHTML(true);
+                    $mail->Subject = $subject;
+                    $mail->Body = $message;
+
+                    // Send email
+                    $mail->send();
+
+                    // Store OTP and user email in session
+                    $_SESSION['otp'] = $otp;
+                    $_SESSION['userEmail'] = $email;
+                } catch (Exception $e) {
+                    return false;
+                }
+
+                echo '<script>
+                  document.querySelector("#loginForm").style.transform = "scale(1)";
+                    swal("OTP Sent", "An OTP has been sent to your email.\n Please check your inbox.", "success")
+                        .then(() => {
+                            // Prompt user to enter OTP
+                            enterotp();
+                        });
+                </script>';
+
+            }
+        } else {
+            $errors['password'] = 'Invalid password';
+            ?>
+
+                        <script>
+                            swal({
+                                title: "Error",
+                                text: "<?php echo $errors['password']; ?>",
+                                icon: "error",
+                                button: "Ok",
+                            });
+
+                        </script>
+            <?php
+        }
+
+    } else if (mysqli_num_rows($result4) > 0) {
+        $row = mysqli_fetch_assoc($result4);
+        $password = $row['password'];
+        $adminEmail = $row['adminEmail'];
+        $_SESSION['adminEmail'] = $adminEmail;
+        // if ($row['isVerified'] == 1) {
+        if ($password === $passwordHash) {
+            $_SESSION['name'] = $row['name'];
+            // $_SESSION['email'] = $email;
+            // $_SESSION['role'] = 'doctor';
+
+            ?>
+                            <script>
+                                // Redirect to doctor.php on successful login
+                                window.location.href = "admin.php";
+                            </script>
+            <?php
+
+        } else {
+            $errors['password'] = 'Invalid password';
+            ?>
+
+                            <script>
+                                swal({
+                                    title: "Error",
+                                    text: "<?php echo $errors['password']; ?>",
+                                    icon: "error",
+                                    button: "Ok",
+                                });
+
+                            </script>
             <?php
         }
     } else {
         $errors['account'] = 'User not registered yet';
-
         ?>
-                <script>
-                    swal({
-                        title: "Error",
-                        text: "<?php echo $errors['account']; ?>",
+                        <script>
+                            swal({
+                                title: "Error",
+                                text: "<?php echo $errors['account']; ?>",
+                                icon: "error",
+                                button: "Ok",
 
-
-                        icon: "error",
-                        button: "Ok",
-
-                    });
-                </script>
+                            });
+                        </script>
 
         <?php
     }
-
-
-
-
-
-
-
 }
+
+
+
+
+
+
+
+
 
 
 

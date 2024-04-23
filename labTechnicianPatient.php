@@ -396,11 +396,14 @@ if (isset($_SESSION['technicianEmail'])) {
         <div id="profileInfo">
             <div id="profilePic"></div>
             <div id="details">
+                <b>
                 <?php echo $row['name']; ?>
                 </b><br>
                 <?php echo $row['userType']; ?> <br>
                 ID:
                 <?php echo $row['labTechnicianID']; ?> <br>
+                <?php echo $row['doctorQualification']; ?> <br>
+                <?php echo $row['universityCollageCountry']; ?> <br>
             </div>
         </div>
         <div id="reportTemplatesContainer">

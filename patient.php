@@ -51,7 +51,7 @@ if (isset($_SESSION['patientEmail'])) {
 
 
 
-  $sql = "SELECT * FROM hospital WHERE email = '{$patientEmail}' AND userType ='Patient'";
+  $sql = "SELECT * FROM new_patient WHERE email = '{$patientEmail}'";
 
   // var_dump($doctorEmail);
   // $sql2 = "SELECT a.* FROM appointed_patient a JOIN hospital h on a.patientID = h.patientID WHERE h.email = '{$patientEmail}' ORDER BY a.ID DESC";
@@ -70,7 +70,8 @@ if (isset($_SESSION['patientEmail'])) {
   }
 
 
-  $sqlVisits = "SELECT * FROM patientvisitdetails WHERE patientID = {$row['patientID']} ORDER BY date DESC";
+  // $sqlVisits = "SELECT * FROM patientvisitdetails WHERE patientID = {$row['patientID']} ORDER BY date DESC";
+   $sqlVisits = "SELECT v.*, h.* FROM patientvisitdetails v JOIN hospital h on v.referredToDoctorID = h.doctorID WHERE v.patientID = {$row['patientID']} ORDER BY v.date DESC, v.visitID DESC";
   $resultVisits = mysqli_query($conn, $sqlVisits);
 
   $hasVisitByYear = false;
@@ -90,6 +91,7 @@ if (isset($_SESSION['patientEmail'])) {
       foreach ($visits as $visit) {
         echo '<div class="box">';
         echo '<a href="patientVisit.php?date=' . $visit['date'] . '&visitID=' . $visit['visitID'] . '">';
+        echo 'Referred To: ' . $visit['name'] . '<br>';
         echo 'Date: ' . date('Y-m-d', strtotime($visit['date'])) . '<br>';
         echo 'Visit ID: ' . $visit['visitID'] . '<br>';
         echo '</a>';
@@ -150,7 +152,8 @@ if (isset($_SESSION['patientEmail'])) {
         <b>
           <?php echo $row['name']; ?>
         </b><br />
-        <?php echo $row['userType']; ?> <br />
+        Patient
+        <!-- <?php echo $row['userType']; ?> <br /> -->
         ID:
         <?php echo $row['patientID']; ?> <br />
 

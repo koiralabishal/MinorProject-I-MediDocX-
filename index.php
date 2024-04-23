@@ -11,6 +11,23 @@ require ("./PHPMailer/SMTP.php");
 require ("./PHPMailer/Exception.php");
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+  if (isset($_POST['verifyotp'])) {
+      // Verify OTP
+      $otp = $_POST['emailotp'];
+      if (isset($_SESSION['otp']) && $_SESSION['otp'] == $otp) {
+        $hashedOTP = md5($_SESSION['otp']);
+        $sqlReceptionistUpdateQuery = "UPDATE receptionist SET isVerified = 1, verificationCode = '$hashedOTP' WHERE receptionistEmail = '{$_SESSION['userEmail']}'";
+        if(mysqli_query($conn,$sqlReceptionistUpdateQuery)){
+          echo json_encode(['success' => true]);
+        }
+      }else {
+          echo json_encode(['success' => false, 'message' => 'Invalid OTP']);
+      }
+      exit;
+  }
+}
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
   if (isset($_POST['send_otp'])) {
     // Get email from POST data
     $email = $_POST['email'];
@@ -201,7 +218,7 @@ if (isset($_GET['email']) && isset($_GET['v_code'])) {
       </html>
       <?php
     }
-  } else if (mysqli_num_rows($result1) > 0) {
+  }else if (mysqli_num_rows($result1) > 0) {
     $row = mysqli_fetch_assoc($result1);
     if ($row['isVerified'] == 0) {
       // $update = "UPDATE patient SET isVerified = 1 WHERE email = '$row[email]'";
@@ -372,7 +389,6 @@ if (isset($_GET['email']) && isset($_GET['v_code'])) {
   }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 

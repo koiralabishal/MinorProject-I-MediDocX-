@@ -1,5 +1,24 @@
 <?php
+session_start();
 include 'connection.php';
+
+if(!isset($_SESSION['receptionistEmail'])){
+  header('Location:index.php');
+}
+
+function logout()
+{
+  // Clear session data
+  unset($_SESSION['receptionistEmail']);
+  // Redirect to the login page
+  header('Location: index.php');
+  exit;
+}
+
+// Check if logout request is received
+if (isset($_POST['logout'])) {
+  logout();
+}
 // Handle AJAX requests
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['action'])) {
   // Include your database connection file
@@ -29,6 +48,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['action'])) {
     exit(); // Exit the script after echoing the doctor's name
   }
 
+}
+
+if(isset($_SESSION['receptionistEmail'])){
+  $receptionistEmail  = $_SESSION['receptionistEmail'];
+
+  $sqlReceptionistInfo = "SELECT * FROM receptionist WHERE receptionistEmail = '$receptionistEmail'";
+  $resultReceptionistInfo = mysqli_query($conn,  $sqlReceptionistInfo);
+
+  if($resultReceptionistInfo){
+    $rowReceptionistInfo = mysqli_fetch_assoc($resultReceptionistInfo);
+  }
 }
 ?>
 
@@ -61,6 +91,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['action'])) {
 <body>
   <header>
     <img src="MediDocX Logo.JPG" alt="" />
+    <form method="post" id="logoutForm">
+      <input type="hidden" name="logout" value="1"> <!-- Hidden input to identify logout action -->
+      <button type="submit" id="logoutButton">Log out</button>
+    </form>
+
     <input type="text" placeholder="Search Patient..." />
   </header>
 
@@ -68,10 +103,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['action'])) {
     <div id="profileInfo">
       <div id="profilePic"></div>
       <div id="details">
-        <b> Mayukh Baral </b><br />
+        <b> <?php echo $rowReceptionistInfo['name']; ?> </b><br />
         Receptionist <br />
-        ID: 54 <br />
-        M.D. Cardiology
+        ID: <?php echo $rowReceptionistInfo['receptionistID']; ?> <br />
+        <!-- M.D. Cardiology -->
       </div>
     </div>
   </aside>
@@ -111,6 +146,28 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['action'])) {
     </section>
   </main>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script>
+    // Show SweetAlert confirmation dialog when the logout button is clicked
+    document.getElementById('logoutButton').addEventListener('click', function (event) {
+      event.preventDefault(); // Prevent the default form submission
+
+      swal({
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        icon: "warning",
+        buttons: ["Cancel", "Yes"], // Customize the buttons
+        dangerMode: true, // Highlight the "Yes" button in red
+      }).then((willLogout) => {
+        if (willLogout) {
+          document.getElementById('logoutForm').submit(); // Submit the form to perform logout
+        } else {
+          swal("You can continue browsing!", {
+            icon: "success",
+          });
+        }
+      });
+    });
+  </script>
   <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 
   <script>

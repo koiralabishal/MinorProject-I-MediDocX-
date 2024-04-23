@@ -266,7 +266,7 @@ if (isset($_POST["register"])) {
         $enteredPatientEmail = $_POST["email"];
 
 
-        $hospitalQuery1 = "SELECT patientID FROM hospital WHERE email = '{$enteredPatientEmail}' AND userType = 'Patient'";
+        $hospitalQuery1 = "SELECT patientID FROM new_patient WHERE email = '{$enteredPatientEmail}'";
 
 
 
@@ -549,9 +549,9 @@ if (isset($_POST["register"])) {
 
 
         }
-        require("./PHPMailer/PHPMailer.php");
-        require("./PHPMailer/SMTP.php");
-        require("./PHPMailer/Exception.php");
+        // require("./PHPMailer/PHPMailer.php");
+        // require("./PHPMailer/SMTP.php");
+        // require("./PHPMailer/Exception.php");
 
         $mail = new PHPMailer(true);
 

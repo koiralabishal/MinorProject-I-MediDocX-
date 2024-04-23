@@ -34,13 +34,13 @@ if (isset($_SESSION['technicianEmail']) && !is_null($_SESSION['technicianEmail']
 
     $sql = "SELECT * FROM hospital WHERE email = '{$labTechnicianEmail}' AND userType ='Lab Technician'";
 
-    $sql4 = "SELECT patientID from hospital WHERE userType = 'Patient'";
-    $result4 = mysqli_query($conn, $sql4);
+    // $sql4 = "SELECT patientID from hospital WHERE userType = 'Patient'";
+    // $result4 = mysqli_query($conn, $sql4);
 
-    if ($result4) {
-        $row5 = mysqli_fetch_assoc($result4);
-        $patientID = $row5['patientID'];
-    }
+    // if ($result4) {
+    //     $row5 = mysqli_fetch_assoc($result4);
+    //     $patientID = $row5['patientID'];
+    // }
 
     // $sql2 = "SELECT distinct patientName FROM  test_data WHERE patientID = '$patientID'";
     // $result2 = mysqli_query($conn, $sql2);
@@ -62,7 +62,7 @@ if (isset($_SESSION['technicianEmail']) && !is_null($_SESSION['technicianEmail']
     }
 }
 
-$sqlPendingTests = "SELECT distinct  r.patientID, h.name, r.doctorID, r.ReportID, r.visitID, v.patientName FROM report r JOIN hospital h ON r.patientID = h.patientID JOIN patientvisitdetails v ON h.patientID = v.patientID WHERE r.flag = 'P' ORDER BY r.id DESC ";
+$sqlPendingTests = "SELECT distinct  r.patientID, h.name, r.doctorID, r.ReportID, r.visitID, n.patientName FROM report r JOIN hospital h ON r.doctorID = h.doctorID JOIN patientvisitdetails n ON r.patientID = n.patientID  WHERE r.flag = 'P'  ORDER BY r.id DESC ";
 $resultPendingTests = mysqli_query($conn, $sqlPendingTests);
 
 // $patientName = "SELECT name FROM hospital WHERE patientID = '{$patientID}'";
@@ -100,7 +100,7 @@ $resultPendingTests = mysqli_query($conn, $sqlPendingTests);
             <input type="hidden" name="logout" value="1"> <!-- Hidden input to identify logout action -->
             <button type="submit" id="logoutButton">Log out</button>
         </form>
-        <input type="text" placeholder="Search Patient..." />
+        <input type="text" id="searchInput" placeholder="Search Patient..." />
 
 
 
@@ -111,11 +111,15 @@ $resultPendingTests = mysqli_query($conn, $sqlPendingTests);
         <div id="profileInfo">
             <div id="profilePic"></div>
             <div id="details">
-                <?php echo $row['name']; ?>
+                <b>
+                    <?php echo $row['name']; ?>
                 </b><br>
                 <?php echo $row['userType']; ?> <br>
                 ID:
                 <?php echo $row['labTechnicianID']; ?> <br>
+                <?php echo $row['doctorQualification']; ?> <br>
+                <?php echo $row['universityCollageCountry']; ?> <br>
+
                 <!-- B. Radiology -->
             </div>
         </div>
@@ -134,9 +138,9 @@ $resultPendingTests = mysqli_query($conn, $sqlPendingTests);
                         // echo '<div class="box" id = "patient" data-patient-name="' . htmlspecialchars($row3['patientName']) . '" data-patient-id="' . htmlspecialchars($row3['patientID']) . '" data-doctor-id="' . htmlspecialchars($row3['doctorID']) . '" data-report-id="' . htmlspecialchars($row3['reportID']) . '" data-visit-id="' . htmlspecialchars($row3['visitID']) . '">';
                         echo '<div class="box">';
                         echo '<a href="labTechnicianPatient.php?patientName=' . $row3['patientName'] . '&patientID=' . $row3['patientID'] . '&doctorID=' . $row3['doctorID'] . '&reportID=' . $row3['reportID'] . '&visitID=' . $row3['visitID'] . ' ">';
-                        echo "Name: " . $row3['patientName'] . "<br />";
-                        echo "Patient ID: " . $row3['patientID'] . "<br />";
-                        echo "Referred by: Dr." . $row3['name'];
+                        echo 'Name: <span class="patientName"' . $row3['patientName'] . '</span><br />';
+                        echo 'Patient ID: <span class="patientID" ' . $row3['patientID'] . '</span><br />';
+                        echo "Referred by: " . $row3['name'];
                         echo '</a>';
                         echo '</div>';
                     }
@@ -169,10 +173,9 @@ $resultPendingTests = mysqli_query($conn, $sqlPendingTests);
                         // echo '<div class="box" id = "pendingTest" data-patient-id="' . htmlspecialchars($rowPendingTests['patientID']) . '" data-doctor-id="' . htmlspecialchars($rowPendingTests['doctorID']) . '" data-report-id="' . htmlspecialchars($rowPendingTests['ReportID']) . '" data-visit-id="' . htmlspecialchars($rowPendingTests['visitID']) . '">';
                         echo '<div class="box">';
                         echo '<a href="pendingTests.php?patientID=' . $rowPendingTests['patientID'] . '&doctorID=' . $rowPendingTests['doctorID'] . '&reportID=' . $rowPendingTests['ReportID'] . '&visitID=' . $rowPendingTests['visitID'] . ' ">';
-                        echo "Name: " . $rowPendingTests['patientName'] . "<br />";
-                        // echo "Patient Name: " . $rowPendingTests['patientName']. "<br />";
-                        echo "Patient ID: " . $rowPendingTests['patientID'] . "<br />";
-                        echo "Referred by: Dr." . $rowPendingTests['name'];
+                        echo 'Name: <span class="patientName">' . $rowPendingTests['patientName'] . '</span><br />';
+                        echo 'Patient ID: <span class="patientID">' . $rowPendingTests['patientID'] . '</span><br />';
+                        echo 'Ref. By: '.$rowPendingTests['name'];
                         echo '</a>';
                         echo '</div>';
                     }
@@ -260,6 +263,30 @@ $resultPendingTests = mysqli_query($conn, $sqlPendingTests);
             });
         });
     </script> -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var searchInput = document.getElementById('searchInput');
+
+            // Add event listener to the search input field
+            searchInput.addEventListener('input', function () {
+                var searchValue = searchInput.value.toLowerCase().trim(); // Get the search input value and convert to lowercase
+
+                // Loop through all box elements and show/hide based on search input
+                var boxes = document.querySelectorAll('.box');
+                boxes.forEach(function (box) {
+                    var patientName = box.querySelector('.patientName').textContent.toLowerCase(); // Get the patient name
+                    var patientID = box.querySelector('.patientID').textContent.toLowerCase(); // Get the patient ID
+
+                    // Check if search value matches either patient name or patient ID
+                    if (patientName.includes(searchValue) || patientID.includes(searchValue)) {
+                        box.style.display = 'block'; // Show the box
+                    } else {
+                        box.style.display = 'none'; // Hide the box
+                    }
+                });
+            });
+        });
+    </script>
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     <script>
         // Show SweetAlert confirmation dialog when the logout button is clicked

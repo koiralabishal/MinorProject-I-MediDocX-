@@ -21,7 +21,7 @@ function logout()
 
 // Check if logout request is received
 if (isset($_POST['logout'])) {
-    logout();
+  logout();
 }
 
 
@@ -296,12 +296,12 @@ if ($result) {
 <body>
   <header>
     <img src="MediDocX Logo.JPG" alt="" />
-    <form method="post" id="logoutForm" >
+    <form method="post" id="logoutForm">
       <input type="hidden" name="logout" value="1"> <!-- Hidden input to identify logout action -->
       <button type="submit" id="logoutButton">Log out</button>
     </form>
 
-    <input type="text" placeholder="Search Patient..." />
+    <!-- <input type="text" id="searchInput" placeholder="Search Tests..." /> -->
   </header>
 
   <aside>
@@ -343,10 +343,10 @@ if ($result) {
   </aside>
   <main>
     <form action="requestationLetter.php" method="POST">
-      <section>
+      <section name>
         <div class="header">
           <h2>BioChemistry</h2>
-          <input type="text" placeholder="Search tests..." />
+          <input type="text" id="biochemistrySearchInput" placeholder="Search tests..." />
         </div>
         <div class="container">
           <ul>
@@ -433,7 +433,7 @@ if ($result) {
       <section>
         <div class="header">
           <h2>Haematology</h2>
-          <input type="text" placeholder="Search tests..." />
+          <input type="text" id="haematologySearchInput" placeholder="Search tests..." />
         </div>
         <div class="container">
           <ul>
@@ -497,7 +497,7 @@ if ($result) {
       <section>
         <div class="header">
           <h2>Bacteriology</h2>
-          <input type="text" placeholder="Search tests..." />
+          <input type="text" id="bacteriologySearchInput" placeholder="Search tests..." />
         </div>
         <div class="container">
           <ul>
@@ -528,12 +528,13 @@ if ($result) {
       <section>
         <div class="header">
           <h2>Mycology</h2>
-          <input type="text" placeholder="Search tests..." />
+          <input type="text" id="mycologySearchInput" placeholder="Search tests..." />
         </div>
         <div class="container">
           <ul>
             <li>
-              <input type="checkbox" id="kohMount" name="Mycology[]" value="KOH Mount" /><label for="kohMount">KOH
+              <input type="checkbox" id="kohMount" name="Mycology[]" value="KOH Mount" /><label id="mt"
+                for="kohMount">KOH
                 Mount</label>
             </li>
           </ul>
@@ -543,7 +544,7 @@ if ($result) {
       <section>
         <div class="header">
           <h2>Virology</h2>
-          <input type="text" placeholder="Search tests..." />
+          <input type="text" id="virologySearchInput" placeholder="Search tests..." />
         </div>
         <div class="container">
           <ul>
@@ -563,7 +564,7 @@ if ($result) {
       <section>
         <div class="header">
           <h2>Tumar Markers</h2>
-          <input type="text" placeholder="Search tests..." />
+          <input type="text" id="tumarMarkersSearchInput" placeholder="Search tests..." />
         </div>
         <div class="container">
           <ul>
@@ -595,7 +596,7 @@ if ($result) {
       <section>
         <div class="header">
           <h2>Parasitology</h2>
-          <input type="text" placeholder="Search tests..." />
+          <input type="text" id="parasitologySearchEngine" placeholder="Search tests..." />
         </div>
         <div class="container">
           <ul>
@@ -628,7 +629,7 @@ if ($result) {
       <section>
         <div class="header">
           <h2>Cytology</h2>
-          <input type="text" placeholder="Search tests..." />
+          <input type="text" id="cytologySearchInput" placeholder="Search tests..." />
         </div>
         <div class="container">
           <ul>
@@ -650,7 +651,7 @@ if ($result) {
       <section>
         <div class="header">
           <h2>Hormone Assays</h2>
-          <input type="text" placeholder="Search tests..." />
+          <input type="text" id="hormoneAssaysSearchInput" placeholder="Search tests..." />
         </div>
         <div class="container">
           <ul>
@@ -702,7 +703,7 @@ if ($result) {
       <section>
         <div class="header">
           <h2>Immunology</h2>
-          <input type="text" placeholder="Search tests..." />
+          <input type="text" id="immunologySearchInput" placeholder="Search tests..." />
         </div>
         <div class="container">
           <ul>
@@ -749,6 +750,94 @@ if ($result) {
 
 </body>
 
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    // Biochemistry section search
+    var biochemistrySearchInput = document.getElementById('biochemistrySearchInput');
+
+    biochemistrySearchInput.addEventListener('input', function () {
+      filterCheckboxes('BioChemistry', biochemistrySearchInput.value.toLowerCase());
+    });
+
+    // Haematology section search
+    var haematologySearchInput = document.getElementById('haematologySearchInput');
+
+    haematologySearchInput.addEventListener('input', function () {
+      filterCheckboxes('Haematology', haematologySearchInput.value.toLowerCase());
+    });
+
+    // Bacteriology section search
+    var bacteriologySearchInput = document.getElementById('bacteriologySearchInput');
+
+    bacteriologySearchInput.addEventListener('input', function () {
+      filterCheckboxes('Bacteriology', bacteriologySearchInput.value.toLowerCase());
+    });
+
+    // Mycology section search
+    var mycologySearchInput = document.getElementById('mycologySearchInput');
+
+    mycologySearchInput.addEventListener('input', function () {
+      filterCheckboxes('Mycology', mycologySearchInput.value.toLowerCase());
+    });
+
+    // Virology section search
+    var virologySearchInput = document.getElementById('virologySearchInput');
+
+    virologySearchInput.addEventListener('input', function () {
+      filterCheckboxes('Virology', virologySearchInput.value.toLowerCase());
+    });
+
+    // Tumar Markers section search
+    var tumarMarkersSearchInput = document.getElementById('tumarMarkersSearchInput');
+
+    tumarMarkersSearchInput.addEventListener('input', function () {
+      filterCheckboxes('TumarMarkers', tumarMarkersSearchInput.value.toLowerCase());
+    });
+
+    // Parasitology section search
+    var parasitologySearchInput = document.getElementById('parasitologySearchEngine');
+
+    parasitologySearchInput.addEventListener('input', function () {
+      filterCheckboxes('Parasitology', parasitologySearchInput.value.toLowerCase());
+    });
+
+    // Cytology section search
+    var cytologySearchInput = document.getElementById('cytologySearchInput');
+
+    cytologySearchInput.addEventListener('input', function () {
+      filterCheckboxes('Cytology', cytologySearchInput.value.toLowerCase());
+    });
+
+    // Hormone Assays section search
+    var hormoneAssaysSearchInput = document.getElementById('hormoneAssaysSearchInput');
+
+    hormoneAssaysSearchInput.addEventListener('input', function () {
+      filterCheckboxes('HormoneAssays', hormoneAssaysSearchInput.value.toLowerCase());
+    });
+
+    // Immunology section search
+    var immunologySearchInput = document.getElementById('immunologySearchInput');
+
+    immunologySearchInput.addEventListener('input', function () {
+      filterCheckboxes('Immunology', immunologySearchInput.value.toLowerCase());
+    });
+
+
+    function filterCheckboxes(section, searchValue) {
+      var checkboxes = document.querySelectorAll('[name="' + section + '[]"]');
+
+      checkboxes.forEach(function (checkbox) {
+        var labelText = checkbox.nextElementSibling.textContent.toLowerCase(); // Get the label text
+
+        if (labelText.includes(searchValue)) {
+          checkbox.parentNode.style.display = 'block'; // Show the parent li element
+        } else {
+          checkbox.parentNode.style.display = 'none'; // Hide the parent li element
+        }
+      });
+    }
+  });
+</script>
 <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 <script>
   // Show SweetAlert confirmation dialog when the logout button is clicked

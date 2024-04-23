@@ -42,7 +42,9 @@ if (isset($_SESSION['doctorEmail'])) {
 
 
 
-  $sql = "SELECT * FROM hospital WHERE email = '{$doctorEmail}' AND userType ='Doctor'";
+  $sql = "SELECT * FROM hospital WHERE email = '{$doctorEmail}' 
+  AND userType ='Doctor'
+  ";
 
   // var_dump($doctorEmail);
   $sql2 = "SELECT a.* FROM appointed_patient a JOIN hospital h on a.DoctorID = h.doctorID WHERE h.email = '{$doctorEmail}' ORDER BY a.ID DESC";
@@ -61,7 +63,9 @@ if (isset($_SESSION['doctorEmail'])) {
   }
 
 
-  $sqlVisits = "SELECT  distinct p.patientID, p.date, p.reportID,p.doctorID , p.visitID FROM pendingreport p JOIN report r on r.doctorID = p.doctorID   WHERE r.resultValue = '' AND r.flag = '' ORDER BY p.date DESC";
+
+
+  $sqlVisits = "SELECT  distinct p.patientID, p.date, p.reportID,p.doctorID , p.visitID, n.name FROM pendingreport p JOIN report r on r.doctorID = p.doctorID JOIN new_patient n ON r.patientID = n.patientID  WHERE r.resultValue = '' AND r.flag = '' AND r.doctorID = '{$row['doctorID']}'  ORDER BY p.date DESC, p.visitID DESC";
   $resultVisits = mysqli_query($conn, $sqlVisits);
   $hasVisitByYear = false;
   if ($resultVisits && mysqli_num_rows($resultVisits) > 0) {
@@ -88,8 +92,8 @@ if (isset($_SESSION['doctorEmail'])) {
         echo '<div class="box" id = "report" data-visit-id="' . htmlspecialchars($visit['visitID']) . '" data-date="' . htmlspecialchars($visit['date']) . '">';
         // echo '<div class="box">';
         // echo '<a href="doctorPatientVisit.php?date=' . $visit['date'] . '&visitID=' . $visit['visitID'] . '">';
-        // echo 'Patient Name: ' . $rowPatientName['patientName']. '<br>';
-        echo 'Patient ID: ' . $visit['patientID'] . '<br>';
+        echo 'Patient Name: <span class="patientName"' . $visit['name']. '</span><br>';
+        echo 'Patient ID: <span class="patientID"' . $visit['patientID'] . '</span><br>';
         // echo 'Visit ID: ' . $visit['visitID'] . '<br>';
         echo 'Date: ' . date('Y-m-d', strtotime($visit['date'])) . '<br>';
         // echo '</a>';
@@ -229,7 +233,7 @@ if (isset($_SESSION['doctorEmail'])) {
       <button type="submit" id="logoutButton">Log out</button>
     </form>
 
-    <input type="text" placeholder="Search Patient..." />
+    <input type="text" id="searchInput" placeholder="Search Patient..." />
 
   </header>
 
@@ -267,8 +271,8 @@ if (isset($_SESSION['doctorEmail'])) {
             echo '<div class="box" id = "patient" data-patient-id="' . htmlspecialchars($row2['patientID']) . '" data-patient-name="' . htmlspecialchars($row2['patientName']) . '" data-patient-age="' . htmlspecialchars($row2['age']) . '" data-patient-gender="' . htmlspecialchars($row2['gender']) . '" data-visit-id="' . htmlspecialchars($row2['visitID']) . '">';
             // echo '<div class="box" >';
             // echo '<a href="doctorPatient.php?patientID=' . $row2['patientID'] . '&patientName=' . $row2['patientName'] . '&gender=' . $row2['gender'] . '&age=' . $row2['age'] . '&visitID=' . $row2['visitID'] . '">';
-            echo "Name: " . $row2['patientName'] . "</br >";
-            echo "Patient ID: " . $row2['patientID'] . "<br />";
+            echo 'Name: <span class="patientName">' . $row2['patientName'] . '</span><br />';
+            echo 'Patient ID: <span class="patientID">' . $row2['patientID'] . '</span><br />';
             // echo "</a>";
             echo " </div>";
           }
@@ -341,6 +345,30 @@ if (isset($_SESSION['doctorEmail'])) {
 
 
 </body>
+<script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var searchInput = document.getElementById('searchInput');
+
+            // Add event listener to the search input field
+            searchInput.addEventListener('input', function () {
+                var searchValue = searchInput.value.toLowerCase().trim(); // Get the search input value and convert to lowercase
+
+                // Loop through all box elements and show/hide based on search input
+                var boxes = document.querySelectorAll('.box');
+                boxes.forEach(function (box) {
+                    var patientName = box.querySelector('.patientName').textContent.toLowerCase(); // Get the patient name
+                    var patientID = box.querySelector('.patientID').textContent.toLowerCase(); // Get the patient ID
+
+                    // Check if search value matches either patient name or patient ID
+                    if (patientName.includes(searchValue) || patientID.includes(searchValue)) {
+                        box.style.display = 'block'; // Show the box
+                    } else {
+                        box.style.display = 'none'; // Hide the box
+                    }
+                });
+            });
+        });
+    </script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         var visits = document.querySelectorAll('#report');

@@ -93,7 +93,7 @@ if (isset($_SESSION['doctorEmail'])) {
     }
 
 
-    $sqlVisits = "SELECT * FROM patientvisitdetails WHERE patientID = $patientID AND referredToDoctorID = {$row['doctorID']} ORDER BY date DESC";
+    $sqlVisits = "SELECT * FROM patientvisitdetails WHERE patientID = $patientID AND referredToDoctorID = {$row['doctorID']} ORDER BY date DESC, visitID DESC";
     $resultVisits = mysqli_query($conn, $sqlVisits);
 
     $hasVisitByYear = false;

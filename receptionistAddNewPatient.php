@@ -1,3 +1,38 @@
+<?php
+session_start();
+include 'connection.php';
+
+if(!isset($_SESSION['receptionistEmail'])){
+  header('Location:index.php');
+}
+
+function logout()
+{
+  // Clear session data
+  unset($_SESSION['receptionistEmail']);
+  // Redirect to the login page
+  header('Location: index.php');
+  exit;
+}
+
+// Check if logout request is received
+if (isset($_POST['logout'])) {
+  logout();
+}
+if(isset($_SESSION['receptionistEmail'])){
+  $receptionistEmail  = $_SESSION['receptionistEmail'];
+
+  $sqlReceptionistInfo = "SELECT * FROM receptionist WHERE receptionistEmail = '$receptionistEmail'";
+  $resultReceptionistInfo = mysqli_query($conn,  $sqlReceptionistInfo);
+
+  if($resultReceptionistInfo){
+    $rowReceptionistInfo = mysqli_fetch_assoc($resultReceptionistInfo);
+  }
+}
+?>
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -27,6 +62,10 @@
 <body>
   <header>
     <img src="MediDocX Logo.JPG" alt="" />
+    <form method="post" id="logoutForm">
+      <input type="hidden" name="logout" value="1"> <!-- Hidden input to identify logout action -->
+      <button type="submit" id="logoutButton">Log out</button>
+    </form>
     <!-- <button onclick="addPatient()">Add Patient <i class="fa fa-search">Hi</i> </button> -->
     <input type="text" placeholder="Search Patient..." />
   </header>
@@ -35,10 +74,10 @@
     <div id="profileInfo">
       <div id="profilePic"></div>
       <div id="details">
-        <b> Mayukh Baral </b><br />
+      <b> <?php echo $rowReceptionistInfo['name']; ?> </b><br />
         Receptionist <br />
-        ID: 54 <br />
-        M.D. Cardiology
+        ID: <?php echo $rowReceptionistInfo['receptionistID']; ?> <br />
+        <!-- M.D. Cardiology -->
       </div>
     </div>
   </aside>
@@ -54,10 +93,10 @@
             <input type="text" id="patientName" name="name" />
           </label>
 
-          <label id="test">
+          <!-- <label id="test">
             <span class="labelText">PatientID:</span>
             <input type="text" id="patientID" name="patientID" />
-          </label>
+          </label> -->
 
           <label>
             <span class="labelText">DOB:</span>
@@ -89,6 +128,28 @@
   </main>
 </body>
 <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+<script>
+    // Show SweetAlert confirmation dialog when the logout button is clicked
+    document.getElementById('logoutButton').addEventListener('click', function (event) {
+      event.preventDefault(); // Prevent the default form submission
+
+      swal({
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        icon: "warning",
+        buttons: ["Cancel", "Yes"], // Customize the buttons
+        dangerMode: true, // Highlight the "Yes" button in red
+      }).then((willLogout) => {
+        if (willLogout) {
+          document.getElementById('logoutForm').submit(); // Submit the form to perform logout
+        } else {
+          swal("You can continue browsing!", {
+            icon: "success",
+          });
+        }
+      });
+    });
+  </script>
 
 </html>
 <?php
@@ -102,7 +163,7 @@ if (isset($_POST['submit'])) {
 
   // Validate name
   $name = $_POST['name'];
-  $ID = $_POST['patientID'];
+  // $ID = $_POST['patientID'];
   $dob = $_POST['dob'];
   $address = $_POST['address'];
   $email = $_POST['email'];
@@ -112,10 +173,10 @@ if (isset($_POST['submit'])) {
   $sqlEmailQuery = "SELECT email from new_patient WHERE email = '$email'";
   $resultEmail = mysqli_query($conn, $sqlEmailQuery);
 
-  $sqlIDQuery = "SELECT patientID from new_patient WHERE patientID = '$ID'";
-  $resultID = mysqli_query($conn, $sqlIDQuery);
+  // $sqlIDQuery = "SELECT patientID from new_patient WHERE patientID = '$ID'";
+  // $resultID = mysqli_query($conn, $sqlIDQuery);
 
-  if (empty($gender) || empty($name) || empty($dob) || empty($address) || empty($ID) || empty($email)) {
+  if (empty($gender) || empty($name) || empty($dob) || empty($address) || empty($email)) {
     $errors['empty'] = "All fields are required";
     ?>
     <script>
@@ -164,10 +225,11 @@ if (isset($_POST['submit'])) {
     </script>
     <?php
 
-  } elseif (mysqli_num_rows($resultID)) {
-    $errors['id'] = "ID already in use";
+  } 
+  // elseif (mysqli_num_rows($resultID)) {
+  //   $errors['id'] = "ID already in use";
     ?>
-    <script>
+    <!-- <script>
 
       swal({
         title: "Error",
@@ -178,12 +240,21 @@ if (isset($_POST['submit'])) {
         window.location = "receptionistAddNewPatient.php";
       });
 
-    </script>
+    </script> -->
     <?php
+  // }
+
+
+  $last_patient_id_query = "SELECT MAX(patientID) AS max_patient_id FROM new_patient";
+  $last_patient_id_result = mysqli_query($conn, $last_patient_id_query);
+  $last_patient_id_row = mysqli_fetch_assoc($last_patient_id_result);
+  $last_patient_id = $last_patient_id_row['max_patient_id'];
+
+  if ($last_patient_id === "") {
+    $ID = 1; // If table is empty, set report ID to 1
+  } else {
+    $ID = $last_patient_id + 1; // Otherwise, increment the last report ID
   }
-
-
-
 
   // If there are no validation errors, insert data into the database
   if (count($errors) == 0) {

@@ -1,3 +1,35 @@
+<?php
+session_start();
+include 'connection.php';
+
+if(!isset($_SESSION['adminEmail'])){
+  header('Location: index.php');
+}
+function logout()
+{
+  // Clear session data
+  unset($_SESSION['adminEmail']);
+  // Redirect to the login page
+  header('Location: index.php');
+  exit;
+}
+
+// Check if logout request is received
+if (isset($_POST['logout'])) {
+  logout();
+}
+
+if(isset($_SESSION['adminEmail'])){
+$adminInfo = "SELECT * from admins WHERE adminEmail = '{$_SESSION['adminEmail']}'";
+  $adminInfoResult = mysqli_query($conn,$adminInfo);
+
+  if($adminInfoResult){
+    $rowAdminInfo = mysqli_fetch_array($adminInfoResult);
+  }
+
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -27,6 +59,10 @@
 <body>
   <header>
     <img src="MediDocX Logo.JPG" alt="" />
+    <form method="post" id="logoutForm">
+      <input type="hidden" name="logout" value="1"> <!-- Hidden input to identify logout action -->
+      <button type="submit" id="logoutButton">Log out</button>
+    </form>
     <input type="text" placeholder="Search Patient..." />
   </header>
 
@@ -34,10 +70,10 @@
     <div id="profileInfo">
       <div id="profilePic"></div>
       <div id="details">
-        <b> Mayukh Baral </b><br />
-        Receptionist <br />
-        ID: 54 <br />
-        M.D. Cardiology
+      <b> <?php echo $rowAdminInfo['name']; ?> </b><br />
+        Admin <br />
+        ID: <?php echo $rowAdminInfo['adminID']; ?> <br />
+        <!-- M.D. Cardiology -->
       </div>
     </div>
   </aside>
@@ -50,13 +86,13 @@
         <form action="adminAddNewDoctor.php" method="POST">
           <label id="test">
             <span class="labelText">Name:</span>
-            <input type="text" id="doctorName" name = "doctorName"/>
+            <input type="text" id="doctorName" name="doctorName" oninput="autoFillDoctorPrefix()" />
           </label>
 
-          <label id="test">
+          <!-- <label id="test">
             <span class="labelText">Doctor ID:</span>
             <input type="text" id="doctorId" name="doctorId"/>
-          </label>
+          </label> -->
 
           <label>
             <span class="labelText">DOB:</span>
@@ -71,7 +107,7 @@
 
           <label>
             <span>Address:</span>
-            <input type="text" name = "address">
+            <input type="text" name="address">
           </label>
 
           <label>
@@ -102,7 +138,42 @@
     </section>
   </main>
 </body>
+<script>
+  function autoFillDoctorPrefix() {
+    var input = document.getElementById('doctorName');
+    var prefix = 'Dr. ';
+    if (input.value === '') {
+      return; // If the input is empty, do nothing
+    }
+    if (input.value.indexOf(prefix) !== 0) {
+      input.value = prefix + input.value;
+    }
+  }
+</script>
 <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+<script>
+  // Show SweetAlert confirmation dialog when the logout button is clicked
+  document.getElementById('logoutButton').addEventListener('click', function (event) {
+    event.preventDefault(); // Prevent the default form submission
+
+    swal({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      buttons: ["Cancel", "Yes"], // Customize the buttons
+      dangerMode: true, // Highlight the "Yes" button in red
+    }).then((willLogout) => {
+      if (willLogout) {
+        document.getElementById('logoutForm').submit(); // Submit the form to perform logout
+      } else {
+        swal("You can continue browsing!", {
+          icon: "success",
+        });
+      }
+    });
+  });
+</script>
+
 </html>
 
 <?php
@@ -114,23 +185,23 @@ if (isset($_POST['submit'])) {
   $errors = [];
 
   $doctorName = $_POST['doctorName'];
-  $doctorId = $_POST['doctorId'];
+  // $doctorId = $_POST['doctorId'];
   $dob = $_POST['dob'];
   $gender = isset($_POST["gender"]) ? $_POST["gender"] : null;
-  $address = $_POST['address']; 
+  $address = $_POST['address'];
   $email = $_POST['email'];
   $specialization = $_POST['specialization'];
-  $qualification = $_POST['qualification']; 
+  $qualification = $_POST['qualification'];
   $universityCollegeCountry = $_POST['universityCollegeCountry'];
 
-  
+
   $sqlEmailQuery = "SELECT email FROM hospital WHERE email = '$email' ";
   $resultEmail = mysqli_query($conn, $sqlEmailQuery);
 
-  $sqlIDQuery = "SELECT doctorID from hospital WHERE doctorID = '$doctorId'";
-  $resultID = mysqli_query($conn, $sqlIDQuery);
+  // $sqlIDQuery = "SELECT doctorID from hospital WHERE doctorID = '$doctorId'";
+  // $resultID = mysqli_query($conn, $sqlIDQuery);
 
-  if (empty($doctorName) || empty($doctorId) || empty($dob) || empty($gender) || empty($address) || empty($email) || empty($specialization) || empty($qualification) || empty($universityCollegeCountry)) {
+  if (empty($doctorName) || empty($dob) || empty($gender) || empty($address) || empty($email) || empty($specialization) || empty($qualification) || empty($universityCollegeCountry)) {
     $errors['empty'] = "All fields are required";
     ?>
     <script>
@@ -144,7 +215,7 @@ if (isset($_POST['submit'])) {
       });
     </script>
     <?php
-  }elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+  } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
     $errors['email'] = "Invalid email format";
     ?>
     <script>
@@ -160,7 +231,7 @@ if (isset($_POST['submit'])) {
 
     </script>
     <?php
-  }elseif (mysqli_num_rows($resultEmail) > 0) {
+  } elseif (mysqli_num_rows($resultEmail) > 0) {
     $errors['email'] = "Email already in use";
     ?>
     <script>
@@ -177,10 +248,11 @@ if (isset($_POST['submit'])) {
     </script>
     <?php
 
-  }elseif (mysqli_num_rows($resultID)) {
-    $errors['id'] = "ID already in use";
-    ?>
-    <script>
+  }
+  // elseif (mysqli_num_rows($resultID)) {
+  //   $errors['id'] = "ID already in use";
+  ?>
+  <!-- <script>
 
       swal({
         title: "Error",
@@ -191,14 +263,33 @@ if (isset($_POST['submit'])) {
         window.location = "adminAddNewDoctor.php";
       });
 
-    </script>
-    <?php
+    </script> -->
+  <?php
+  // }
+
+  $last_id_query = "SELECT MAX(max_id) AS max_id FROM (
+    SELECT MAX(doctorID) AS max_id FROM hospital WHERE userType = 'Doctor'
+    UNION
+    SELECT MAX(labTechnicianID) AS max_id FROM hospital WHERE userType = 'Lab Technician'
+) AS combined_ids;
+";
+
+
+  $last_id_result = mysqli_query($conn, $last_id_query);
+  $last_id_row = mysqli_fetch_assoc($last_id_result);
+  $last_id = $last_id_row['max_id'];
+
+  if ($last_id === "") {
+    $ID = 1; // If table is empty, set ID to 1
+  } else {
+    $ID = $last_id + 1; // Otherwise, increment the last ID
   }
+
 
   if (count($errors) == 0) {
 
     $sql = "INSERT INTO hospital (name,email, doctorID, patientID, labTechnicianID, doctorSpecialization, doctorQualification, universityCollageCountry, userType) 
-    VALUES ('$doctorName', '$email','$doctorId', NULL, NULL, '$specialization', '$qualification', '$universityCollegeCountry', 'Doctor')";
+    VALUES ('$doctorName', '$email','$ID', NULL, NULL, '$specialization', '$qualification', '$universityCollegeCountry', 'Doctor')";
 
     if (mysqli_query($conn, $sql)) {
       ?>
@@ -206,7 +297,7 @@ if (isset($_POST['submit'])) {
 
         swal({
           title: "Success",
-          text: "New Doctor Added Successfully",
+          text: "New Doctor Added Successfully\nDoctor ID: <?php echo $ID ?>",
           icon: "success",
           button: "Ok",
         }).then(() => {
