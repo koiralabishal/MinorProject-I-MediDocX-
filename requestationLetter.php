@@ -301,6 +301,8 @@ if ($result) {
       <button type="submit" id="logoutButton">Log out</button>
     </form>
 
+
+
     <!-- <input type="text" id="searchInput" placeholder="Search Tests..." /> -->
   </header>
 
@@ -503,7 +505,8 @@ if ($result) {
           <ul>
             <li>
               <input type="checkbox" id="gramStain" name="Bacteriology[]" value="Gram Stain" /><label
-                for="gramStain">Gram Stain</label>
+                for="gramStain">Gram
+                Stain</label>
             </li>
             <li>
               <input type="checkbox" id="afbStain" name="Bacteriology[]" value="AFB Stain" /><label for="afbStain">AFB
@@ -677,7 +680,8 @@ if ($result) {
             </li>
             <li>
               <input type="checkbox" id="anti-tpo" name="HormoneAssays[]" value="Anti - TPO" /><label
-                for="anti-tpo">Anti - TPO</label>
+                for="anti-tpo">Anti
+                - TPO</label>
             </li>
             <li>
               <input type="checkbox" id="b-Hcg" name="HormoneAssays[]" value="B -HCG" /><label for="b-Hcg">B -
@@ -745,6 +749,7 @@ if ($result) {
       </section>
       <button type="submit" name="submit">Save</button>
     </form>
+
   </main>
 
 

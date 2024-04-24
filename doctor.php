@@ -65,7 +65,7 @@ if (isset($_SESSION['doctorEmail'])) {
 
 
 
-  $sqlVisits = "SELECT  distinct p.patientID, p.date, p.reportID,p.doctorID , p.visitID, n.name FROM pendingreport p JOIN report r on r.doctorID = p.doctorID JOIN new_patient n ON r.patientID = n.patientID  WHERE r.resultValue = '' AND r.flag = '' AND r.doctorID = '{$row['doctorID']}'  ORDER BY p.date DESC, p.visitID DESC";
+  $sqlVisits = "SELECT  distinct p.patientID, p.date, p.reportID,p.doctorID , p.visitID,n.name  FROM pendingreport p JOIN new_patient n ON p.patientID=n.patientID JOIN report r on r.doctorID = p.doctorID   WHERE r.resultValue = '' AND r.flag = '' AND r.doctorID = '{$row['doctorID']}'  ORDER BY  p.id DESC, p.date DESC";
   $resultVisits = mysqli_query($conn, $sqlVisits);
   $hasVisitByYear = false;
   if ($resultVisits && mysqli_num_rows($resultVisits) > 0) {
@@ -92,8 +92,8 @@ if (isset($_SESSION['doctorEmail'])) {
         echo '<div class="box" id = "report" data-visit-id="' . htmlspecialchars($visit['visitID']) . '" data-date="' . htmlspecialchars($visit['date']) . '">';
         // echo '<div class="box">';
         // echo '<a href="doctorPatientVisit.php?date=' . $visit['date'] . '&visitID=' . $visit['visitID'] . '">';
-        echo 'Patient Name: <span class="patientName"' . $visit['name']. '</span><br>';
-        echo 'Patient ID: <span class="patientID"' . $visit['patientID'] . '</span><br>';
+        echo 'Patient Name: <span class="patientName">' . $visit['name']. '</span><br>';
+        echo 'Patient ID: <span class="patientID">' . $visit['patientID'] . '</span><br>';
         // echo 'Visit ID: ' . $visit['visitID'] . '<br>';
         echo 'Date: ' . date('Y-m-d', strtotime($visit['date'])) . '<br>';
         // echo '</a>';
