@@ -39,7 +39,20 @@ if (isset($_SESSION['doctorEmail'])) {
 
   //for remove div from pending report section
 
+  $sqlgenderquery = "SELECT gender FROM doctor WHERE doctorEmail = '{$doctorEmail}'";
+  $resultgender = mysqli_query($conn, $sqlgenderquery);
+  if ($resultgender) {
+    $rowgender = mysqli_fetch_assoc($resultgender);
+    $gender = strtolower($rowgender['gender']);
+    // Define the image source based on the gender
+    if($gender === 'male'){
+      $imageSrc =  './Images/maleEmptyAvatar.png';
+    }elseif($gender === 'female'){
+      $imageSrc = './Images/femaleEmptyAvatar.jpg';
+    }
+   
 
+  }
 
 
   $sql = "SELECT * FROM hospital WHERE email = '{$doctorEmail}' 
@@ -92,7 +105,7 @@ if (isset($_SESSION['doctorEmail'])) {
         echo '<div class="box" id = "report" data-visit-id="' . htmlspecialchars($visit['visitID']) . '" data-date="' . htmlspecialchars($visit['date']) . '">';
         // echo '<div class="box">';
         // echo '<a href="doctorPatientVisit.php?date=' . $visit['date'] . '&visitID=' . $visit['visitID'] . '">';
-        echo 'Patient Name: <span class="patientName">' . $visit['name']. '</span><br>';
+        echo 'Patient Name: <span class="patientName">' . $visit['name'] . '</span><br>';
         echo 'Patient ID: <span class="patientID">' . $visit['patientID'] . '</span><br>';
         // echo 'Visit ID: ' . $visit['visitID'] . '<br>';
         echo 'Date: ' . date('Y-m-d', strtotime($visit['date'])) . '<br>';
@@ -238,8 +251,36 @@ if (isset($_SESSION['doctorEmail'])) {
   </header>
 
   <aside>
+
     <div id="profileInfo">
-      <div id="profilePic"></div>
+
+      <div id="profilePic">
+        <?php
+        echo '<img src="' . $imageSrc . '" alt="Empty Avatar" />';
+
+        echo
+          '<style>
+            #profilePic img {
+            width: 48%;
+            aspect-ratio: 1/1;
+            margin: auto auto;
+            border-radius: 50%;
+    
+            /* Center the image horizontally and vertically */
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Align to the top */
+           }
+    
+       </style>';
+
+        ?>
+
+
+      </div>
+
+
+
       <div id="details">
         <b>
           <?php echo $row['name']; ?>
@@ -346,88 +387,88 @@ if (isset($_SESSION['doctorEmail'])) {
 
 </body>
 <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            var searchInput = document.getElementById('searchInput');
+  document.addEventListener('DOMContentLoaded', function () {
+    var searchInput = document.getElementById('searchInput');
 
-            // Add event listener to the search input field
-            searchInput.addEventListener('input', function () {
-                var searchValue = searchInput.value.toLowerCase().trim(); // Get the search input value and convert to lowercase
+    // Add event listener to the search input field
+    searchInput.addEventListener('input', function () {
+      var searchValue = searchInput.value.toLowerCase().trim(); // Get the search input value and convert to lowercase
 
-                // Loop through all box elements and show/hide based on search input
-                var boxes = document.querySelectorAll('.box');
-                boxes.forEach(function (box) {
-                    var patientName = box.querySelector('.patientName').textContent.toLowerCase(); // Get the patient name
-                    var patientID = box.querySelector('.patientID').textContent.toLowerCase(); // Get the patient ID
+      // Loop through all box elements and show/hide based on search input
+      var boxes = document.querySelectorAll('.box');
+      boxes.forEach(function (box) {
+        var patientName = box.querySelector('.patientName').textContent.toLowerCase(); // Get the patient name
+        var patientID = box.querySelector('.patientID').textContent.toLowerCase(); // Get the patient ID
 
-                    // Check if search value matches either patient name or patient ID
-                    if (patientName.includes(searchValue) || patientID.includes(searchValue)) {
-                        box.style.display = 'block'; // Show the box
-                    } else {
-                        box.style.display = 'none'; // Hide the box
-                    }
-                });
-            });
-        });
-    </script>
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        var visits = document.querySelectorAll('#report');
-        var patients = document.querySelectorAll('#patient');
-
-        visits.forEach(function (visit) {
-            visit.addEventListener('click', function () {
-                var visitID = this.getAttribute('data-visit-id');
-                var date = this.getAttribute('data-date');
-
-                var xhr = new XMLHttpRequest();
-                xhr.open('POST', 'doctorPatientVisit.php');
-                xhr.setRequestHeader('Content-Type', 'application/json');
-                xhr.onload = function () {
-                    if (xhr.status === 200) {
-                        // Handle the response if needed
-                        window.location.href = 'doctorPatientVisit.php'; // Redirect to page 2
-                    }
-                };
-
-                var data = {
-                    visitID: visitID,
-                    date: date
-                };
-
-                xhr.send(JSON.stringify(data));
-            });
-        });
-
-        patients.forEach(function (patient) {
-            patient.addEventListener('click', function () {
-                var patientID = this.getAttribute('data-patient-id');
-                var patientName = this.getAttribute('data-patient-name');
-                var patientAge = this.getAttribute('data-patient-age');
-                var patientGender = this.getAttribute('data-patient-gender');
-                var visitID = this.getAttribute('data-visit-id');
-
-                var xhr = new XMLHttpRequest();
-                xhr.open('POST', 'doctorPatient.php');
-                xhr.setRequestHeader('Content-Type', 'application/json');
-                xhr.onload = function () {
-                    if (xhr.status === 200) {
-                        // Handle the response if needed
-                        window.location.href = 'doctorPatient.php'; // Redirect to page 3
-                    }
-                };
-
-                var data = {
-                    patientID: patientID,
-                    patientName: patientName,
-                    patientAge: patientAge,
-                    patientGender: patientGender,
-                    visitID: visitID
-                };
-
-                xhr.send(JSON.stringify(data));
-            });
-        });
+        // Check if search value matches either patient name or patient ID
+        if (patientName.includes(searchValue) || patientID.includes(searchValue)) {
+          box.style.display = 'block'; // Show the box
+        } else {
+          box.style.display = 'none'; // Hide the box
+        }
+      });
     });
+  });
+</script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var visits = document.querySelectorAll('#report');
+    var patients = document.querySelectorAll('#patient');
+
+    visits.forEach(function (visit) {
+      visit.addEventListener('click', function () {
+        var visitID = this.getAttribute('data-visit-id');
+        var date = this.getAttribute('data-date');
+
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', 'doctorPatientVisit.php');
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.onload = function () {
+          if (xhr.status === 200) {
+            // Handle the response if needed
+            window.location.href = 'doctorPatientVisit.php'; // Redirect to page 2
+          }
+        };
+
+        var data = {
+          visitID: visitID,
+          date: date
+        };
+
+        xhr.send(JSON.stringify(data));
+      });
+    });
+
+    patients.forEach(function (patient) {
+      patient.addEventListener('click', function () {
+        var patientID = this.getAttribute('data-patient-id');
+        var patientName = this.getAttribute('data-patient-name');
+        var patientAge = this.getAttribute('data-patient-age');
+        var patientGender = this.getAttribute('data-patient-gender');
+        var visitID = this.getAttribute('data-visit-id');
+
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', 'doctorPatient.php');
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.onload = function () {
+          if (xhr.status === 200) {
+            // Handle the response if needed
+            window.location.href = 'doctorPatient.php'; // Redirect to page 3
+          }
+        };
+
+        var data = {
+          patientID: patientID,
+          patientName: patientName,
+          patientAge: patientAge,
+          patientGender: patientGender,
+          visitID: visitID
+        };
+
+        xhr.send(JSON.stringify(data));
+      });
+    });
+  });
 </script>
 <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 <script>

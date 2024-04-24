@@ -56,8 +56,9 @@
     padding-top: 16%;
   }
   
-  aside #profileInfo #profilePic {
+  /* aside #profileInfo img{
     width: 48%;
+   
     aspect-ratio: 1/1;
     margin: auto auto;
     background-image: url(Mayukh\ Baral.jpg);
@@ -65,7 +66,7 @@
     background-position: center top;
     background-size: 100%;
     border-radius: 50%;
-  }
+  } */
   
   aside #profileInfo #details {
     width: fit-content;
