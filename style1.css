@@ -1,189 +1,219 @@
-/* <?php
-   header("Content-type: text/css");
-
-?> */
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
-  
-  header {
-    background-color: rgb(239, 239, 239);
-    padding: 1vw;
-    width: 100vw;
-    height: 15vh;
-    position: fixed;
-    display: flex;
-  }
-  
-  header img {
-    height: 100%;
-  }
-  
-  header input {
-    /* align-self: center; */
-    border: none;
-    margin: auto 4% auto auto;
-    padding: 1%;
-    height: fit-content;
-    background-color: rgb(252, 252, 252);
-    font-size: 16px;
-    border-radius: 12px;
-  }
-  
-  header input:focus {
-    /* background-color: red; */
-    outline: none;
-    /* border-bottom: 1px solid gray; */
-    /* text-decoration: underline; */
-    /* text-decoration-line: underline; */
-  }
-  
-  aside {
-    display: inline-block;
-    background-color: #3e588f;
-    color: #e3e8f8;
-    width: 15vw;
-    height: 85vh;
-    margin-top: 15vh;
-    position: fixed;
-  }
-  
-  aside #profileInfo {
-    /* background-color: red; */
-    width: 100%;
-    padding-top: 16%;
-  }
-  
-  /* aside #profileInfo img{
-    width: 48%;
-   
-    aspect-ratio: 1/1;
-    margin: auto auto;
-    background-image: url(Mayukh\ Baral.jpg);
-    background-repeat: no-repeat;
-    background-position: center top;
-    background-size: 100%;
-    border-radius: 50%;
-  } */
-  
-  aside #profileInfo #details {
-    width: fit-content;
-    /* background-color: gold; */
-    color: #e3e8f8;
-    margin: 8% auto 0;
-    text-align: center;
-  }
-  
-  main {
-    display: inline-block;
-    background-color: #e3e8f8;
-    margin-top: 15vh;
-    margin-left: 15vw;
-    width: 85vw;
-    min-height: 85vh;
-    /* padding-top: 4vh; */
-    /* padding: 2%; */
-  }
-  
-  main section {
-    background-color: whitesmoke;
-    margin: 4% 6%;
-    padding: 1%;
-    border-radius: 8px;
-    box-shadow: 4px 4px 8px 5px darkgrey;
-  }
-  
-  main section .sectionTitle {
-    /* background-color: lightblue; */
-    margin: 1% 1% 2%;
-    border-bottom: 1px solid silver;
-    display: flex;
-  }
-  
-  main section .sectionTitle button {
-    border: 1px solid gray;
-    margin: auto 4% 1% auto;
-    padding: .4rem .8rem;
-    height: min-content;
-    background-color: rgb(252, 252, 252);
-    font-size: 16px;
-    border-radius: 12px;
-  }
-  
-  main section .sectionTitle button:hover {
-    box-shadow: 1px 1px 4px 1px darkgrey;
-    cursor: pointer;
-    background-color: rgb(254, 254, 254);
-  }
-  
-  main section .container {
-    background-color: #e3e8f8;
-    margin: 1%;
-    padding-top: 1%;
-    border-radius: 8px;
-  }
-  
-  main section .container .date {
-    padding: 0 1%;
-    /* border-bottom: 1px solid silver; */
-  }
-  
-  main section .boxContainer {
-    /* background-color: lightgreen; */
-    display: flex;
-    /* flex-wrap:wrap; */
-  }
-  
-  main section .boxContainer .box {
-    background-color: #4e6eb2;
-    color: #e3e8f8;
-    padding: 2%;
-    margin: 1%;
-    display: inline-block;
-    transition: all 0.2s;
-    cursor: pointer;
-    border-radius: 8px;
-    border: 1px solid silver;
-  }
-  main section .boxContainer .box:hover {
-    background-color: whitesmoke;
-    color: #2f426b;
-    box-shadow: 2px 2px 8px 1px grey;
-  }
-  
-  textarea {
-    background-color: #e3e8f8;
-    color: black;
-    padding: 1%;
-    margin: 1%;
-    display: inline-block;
-    transition: all 0.2s;
-    cursor: pointer;
-    border-radius: 8px;
-    border: 1px solid silver;
-    font-family: Arial, Helvetica, sans-serif;
-    width: 100%;
-    max-width: 98%;
-    min-height: 48vh;
-  }
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
-  aside #reportTemplatesContainer {
-    background-color: #2f426b;
-    margin-top: 8%;
-  }
+header {
+  background-color: rgb(239, 239, 239);
+  padding: 1vw;
+  padding-right: 5%;
+  width: 100vw;
+  height: 15vh;
+  position: fixed;
+  display: flex;
+}
 
-  aside #reportTemplatesContainer h3 {
-    /* background-color: red; */
-    padding: 4%;
-    padding-left: 6%;
-    border-bottom: 1px solid rgb(190, 177, 104);
-  }
+header img {
+  height: 100%;
+  margin-right: auto;
+}
 
-  aside #reportTemplatesContainer .reportTemplatesAside {
-    /* background-color: red; */
-    border-bottom: 1px solid #3e588f;
-    padding: 2%;
-    padding-left: 12%;
-  }
+header button {
+  border: 1px solid rgb(202, 202, 202);
+  margin: auto 1% auto 0;
+  display: block;
+  padding: .4rem .8rem;
+  padding:  .4% 1%;
+  height: min-content;
+  background-color: rgb(252, 252, 252);
+  color: rgb(91, 91, 91);
+  font-size: 16px;
+  border-radius: 12px;
+}
+
+header button:hover{
+  box-shadow: 1px 1px 4px 1px darkgrey;
+  cursor: pointer;
+  background-color: rgb(254, 254, 254);
+}
+
+header input[type='text'], main section .sectionTitle input[type='text'] {
+  /* align-self: center; */
+  border: none;
+  border: 1px solid rgb(202, 202, 202);
+  margin: auto 0;
+  padding: 1%;
+  height: fit-content;
+  background-color: rgb(252, 252, 252);
+  font-size: 16px;
+  border-radius: 16px;
+}
+
+header input[type='text'], main section .sectionTitle input[type='text']:focus {
+  /* background-color: red; */
+  outline: none;
+  /* border-bottom: 1px solid gray; */
+  /* text-decoration: underline; */
+  /* text-decoration-line: underline; */
+}
+
+aside {
+  display: inline-block;
+  background-color: #3e588f;
+  color: #e3e8f8;
+  width: 15vw;
+  height: 85vh;
+  margin-top: 15vh;
+  position: fixed;
+}
+
+aside #profileInfo b {
+  font-size: 16px;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+aside #profileInfo {
+  /* background-color: red; */
+  width: 100%;
+  padding-top: 16%;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 14px;
+}
+
+aside #profileInfo #profilePic {
+  width: 48%;
+  aspect-ratio: 1/1;
+  margin: auto auto;
+  background-image: url(Mayukh\ Baral.jpg);
+  background-repeat: no-repeat;
+  background-position: center top;
+  background-size: 100%;
+  border-radius: 50%;
+}
+
+aside #profileInfo #details {
+  width: fit-content;
+  /* background-color: gold; */
+  color: #e3e8f8;
+  margin: 8% auto 0;
+  text-align: center;
+}
+
+aside #reportTemplatesContainer {
+  background-color: #2f426b;
+  margin-top: 8%;
+}
+aside #reportTemplatesContainer h3 {
+  /* background-color: red; */
+  padding: 4%;
+  padding-left: 6%;
+  border-bottom: 1px solid rgb(190, 177, 104);
+  font-weight: normal;
+}
+
+aside #reportTemplatesContainer .reportTemplatesAside {
+  /* background-color: red; */
+  border-bottom: 1px solid #3e588f;
+  padding: 2%;
+  padding-left: 12%;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 14px;
+}
+
+main {
+  display: inline-block;
+  background-color: #e3e8f8;
+  margin-top: 15vh;
+  margin-left: 15vw;
+  width: 85vw;
+  min-height: 85vh;
+  /* padding-top: 4vh; */
+  padding-bottom: 4%;
+}
+
+main> button, main section> button {
+  border: 1px solid gray;
+  margin: -2% auto;
+  display: block;
+  padding: .4rem .8rem;
+  height: min-content;
+  background-color: rgb(252, 252, 252);
+  font-size: 16px;
+  border-radius: 12px;
+}
+
+main button:hover {
+  box-shadow: 1px 1px 4px 1px darkgrey;
+  cursor: pointer;
+  background-color: rgb(254, 254, 254);
+}
+
+main section {
+  background-color: whitesmoke;
+  margin: 4% 6%;
+  padding: 1%;
+  border-radius: 8px;
+  box-shadow: 4px 4px 8px 5px darkgrey;
+}
+
+main section .sectionTitle {
+  /* background-color: lightblue; */
+  margin: 0 1%;
+  padding-bottom: 1%;
+  border-bottom: 1px solid silver;
+  display: flex;
+}
+
+main section .sectionTitle h2 {
+  margin-bottom: .5%;
+  margin-right: auto;
+}
+
+main section .sectionTitle button {
+  border: 1px solid gray;
+  margin-right: 1%;
+  padding: .4rem .8rem;
+  height: min-content;
+  background-color: #3e588f;
+  color: white;
+  font-size: 16px;
+  border-radius: 12px;
+}
+
+main section .container {
+  background-color: #e3e8f8;
+  margin: 1% 1% 0;
+  /* padding-top: 1%; */
+  border-radius: 8px;
+}
+
+main section .container .date {
+  padding: 1% 1% 0;
+}
+
+main section .boxContainer {
+  /* background-color: lightgreen; */
+  display: flex;
+  /* flex-wrap:wrap; */
+}
+
+main section .boxContainer .box {
+  background-color: #4e6eb2;
+  color: #e3e8f8;
+  padding: 2% 1%;
+  margin: 1%;
+  display: inline-block;
+  transition: all 0.2s;
+  cursor: pointer;
+  border-radius: 8px;
+  border: 1px solid silver;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 14px;
+}
+main section .boxContainer .box:hover {
+  background-color: whitesmoke;
+  color: #2f426b;
+  box-shadow: 2px 2px 8px 1px grey;
+}
+

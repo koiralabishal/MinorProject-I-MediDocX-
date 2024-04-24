@@ -70,22 +70,7 @@ if(isset($_SESSION['receptionistEmail'])){
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>receptionist</title>
   <link rel="stylesheet" href="style1.css" />
-  <style>
-    .container form {
-      background-color: lightblue;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .container form label .inputName {
-      display: inline-block;
-      width: 173px;
-      height: 19px;
-      background-color: white;
-      border: 1px solid #767676;
-      border-radius: 3px;
-    }
-  </style>
+    <link rel="stylesheet" href="form.css">
 </head>
 
 <body>
@@ -95,8 +80,6 @@ if(isset($_SESSION['receptionistEmail'])){
       <input type="hidden" name="logout" value="1"> <!-- Hidden input to identify logout action -->
       <button type="submit" id="logoutButton">Log out</button>
     </form>
-
-    <input type="text" placeholder="Search Patient..." />
   </header>
 
   <aside>
@@ -114,7 +97,7 @@ if(isset($_SESSION['receptionistEmail'])){
     <section>
       <div class="sectionTitle">
         <h2>Appoint Patient</h2>
-        <button onclick="addNewPatient()">Add new patient</button>
+        <button onclick="registerNewPatient()">Add new patient</button>
       </div>
       <div class="container">
         <form id="appointForm" action="<?php echo $_SERVER['PHP_SELF']; ?>" method="POST">
@@ -239,8 +222,8 @@ if(isset($_SESSION['receptionistEmail'])){
       });
     });
 
-    function addNewPatient() {
-      window.location.href = "receptionistAddNewPatient.php";
+    function registerNewPatient() {
+      window.location.href = "receptionistRegisterNewPatient.php";
     }
   </script>
 </body>

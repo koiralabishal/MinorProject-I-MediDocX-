@@ -38,22 +38,7 @@ $adminInfo = "SELECT * from admins WHERE adminEmail = '{$_SESSION['adminEmail']}
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>adminAddNewDoctor</title>
   <link rel="stylesheet" href="style1.css" />
-  <style>
-    .container form {
-      background-color: lightblue;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .container form label .inputName {
-      display: inline-block;
-      width: 173px;
-      height: 19px;
-      background-color: white;
-      border: 1px solid #767676;
-      border-radius: 3px;
-    }
-  </style>
+    <link rel="stylesheet" href="form.css" />
 </head>
 
 <body>
@@ -63,7 +48,6 @@ $adminInfo = "SELECT * from admins WHERE adminEmail = '{$_SESSION['adminEmail']}
       <input type="hidden" name="logout" value="1"> <!-- Hidden input to identify logout action -->
       <button type="submit" id="logoutButton">Log out</button>
     </form>
-    <input type="text" placeholder="Search Patient..." />
   </header>
 
   <aside>

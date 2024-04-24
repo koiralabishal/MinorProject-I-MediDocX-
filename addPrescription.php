@@ -2,7 +2,7 @@
 // session_name('doctor_session');
 session_start();
 include 'connection.php';
-if (!isset($_SESSION['doctorEmail'])){
+if (!isset($_SESSION['doctorEmail'])) {
     header('Location: index.php');
 }
 function logout()
@@ -168,25 +168,25 @@ if (isset($_POST['submit'])) {
                 </head>
 
                 <body> -->
-                    <!-- <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script> -->
-                    <script>
+                <!-- <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script> -->
+                <script>
 
-                        document.addEventListener('DOMContentLoaded', function () {
-                            // Hide the form
-                            document.getElementById('prescriptionSection').style.display = 'display';
+                    document.addEventListener('DOMContentLoaded', function () {
+                        // Hide the form
+                        document.getElementById('prescriptionSection').style.display = 'display';
 
-                            // Show success message
-                            swal({
-                                title: "Success",
-                                text: "Added Successfully",
-                                icon: "success",
-                                button: "Ok",
-                            });
+                        // Show success message
+                        swal({
+                            title: "Success",
+                            text: "Added Successfully",
+                            icon: "success",
+                            button: "Ok",
                         });
+                    });
 
 
-                    </script>
-                 <!-- </body>
+                </script>
+                <!-- </body>
 
                  </html> -->
                 <?php
@@ -270,6 +270,42 @@ if ($resultPrescription) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>addVisit</title>
     <link rel="stylesheet" href="style1.css" />
+    <link rel="stylesheet" href="form.css" />
+    <style>
+        textarea {
+            background-color: #e3e8f8;
+            color: black;
+            padding: 1%;
+            margin: 1%;
+            display: block;
+            transition: all 0.2s;
+            cursor: pointer;
+            border-radius: 8px;
+            border: 1px solid silver;
+            font-family: Arial, Helvetica, sans-serif;
+            width: 100%;
+            max-width: 98%;
+            min-height: 48vh;
+        }
+
+        main section form button {
+            display: block;
+            margin: auto;
+            padding: 1% 4%;
+            border-radius: 8px;
+            border: none;
+            background-color: #3e588f;
+            color: rgb(252, 252, 252);
+            font-size: 16px;
+        }
+
+        main section form button:hover {
+            box-shadow: 1px 1px 4px 1px darkgrey;
+            background-color: rgb(252, 252, 252);
+            color: #3e588f;
+        }
+    </style>
+
 </head>
 
 <body>

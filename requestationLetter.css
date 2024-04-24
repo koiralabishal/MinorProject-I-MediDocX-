@@ -1,0 +1,24 @@
+main section .container {
+    padding: 1%;
+  }
+
+  main section .container ul li {
+    list-style: none;
+    /* background-color:lightblue; */
+    /* padding: 1%; */
+    /* margin: 1%; */
+  }
+
+  main section .container ul li label {
+    /* background-color: aqua; */
+    padding: 1%;
+    font-family: Helvetica;
+  }
+
+  main section .container ul li input:hover {
+    box-shadow: 1px 1px 1px 1px silver;
+  }
+
+  main section .container ul li label:hover {
+    text-shadow: 1px 1px 1px gray;
+  }
