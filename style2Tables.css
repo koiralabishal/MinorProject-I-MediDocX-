@@ -54,6 +54,7 @@ main section .tableContainer {
     width: 80%;
     padding: 1%;
     height: 16px;
+    outline : none;
   }
 
   main section .tableContainer table td .flag {
@@ -63,6 +64,7 @@ main section .tableContainer {
     width: 40%;
     padding: 1%;
     height: 16px;
+    outline: none;
   }
 
   main section .tableContainer table td ul {
@@ -72,3 +74,5 @@ main section .tableContainer {
   main section .tableContainer table td ul ul {
     padding-left: 10%;
   }
+
+

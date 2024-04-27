@@ -1,3 +1,8 @@
+/* <?php
+   header("Content-type: text/css");
+
+?> */
+
 main section .container {
     padding: 1%;
   }
@@ -22,3 +27,29 @@ main section .container {
   main section .container ul li label:hover {
     text-shadow: 1px 1px 1px gray;
   }
+
+  main section .header input {
+  border: none;
+  border: 1px solid rgb(202, 202, 202);
+  margin: auto 4% auto auto;
+  padding: 1%;
+  height: fit-content;
+  background-color: rgb(252, 252, 252);
+  font-size: 16px;
+  border-radius: 16px;
+  
+}
+
+main section .header input:focus {
+ 
+  outline: none;
+ 
+}
+
+
+main section .header {
+  display: flex;
+  justify-content: space-between; /* Align items to the start and end of the section */
+  align-items: center;
+  
+}

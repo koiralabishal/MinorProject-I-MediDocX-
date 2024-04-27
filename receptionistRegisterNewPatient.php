@@ -2,7 +2,7 @@
 session_start();
 include 'connection.php';
 
-if(!isset($_SESSION['receptionistEmail'])){
+if (!isset($_SESSION['receptionistEmail'])) {
   header('Location:index.php');
 }
 
@@ -19,13 +19,46 @@ function logout()
 if (isset($_POST['logout'])) {
   logout();
 }
-if(isset($_SESSION['receptionistEmail'])){
-  $receptionistEmail  = $_SESSION['receptionistEmail'];
+if (isset($_SESSION['receptionistEmail'])) {
+  $receptionistEmail = $_SESSION['receptionistEmail'];
+
+  if (isset($_FILES["file"]) && $_FILES["file"]["error"] == 0) {
+    $allowed_extensions = array("jpg", "jpeg", "png", "gif");
+    $file_extension = pathinfo($_FILES["file"]["name"], PATHINFO_EXTENSION);
+
+    // Check if the file extension is allowed
+    if (in_array($file_extension, $allowed_extensions)) {
+      // Establish a database connection (replace with your database credentials)
+      $mysqli = new mysqli("localhost", "root", "", "medidocx");
+
+      // Check connection
+      if ($mysqli->connect_error) {
+        die("Connection failed: " . $mysqli->connect_error);
+      }
+
+      // Get the contents of the uploaded file
+      $image_data = addslashes(file_get_contents($_FILES["file"]["tmp_name"]));
+
+      // Prepare and execute SQL query to insert image data into the database
+      $sql = "UPDATE images SET image_data = '$image_data' WHERE user_email = '$receptionistEmail'";
+      if ($mysqli->query($sql) === TRUE) {
+        echo "Image uploaded and updated into database successfully.";
+        exit;
+      } else {
+        echo "Error: " . $sql . "<br>" . $mysqli->error;
+      }
+
+      // Close the database connection
+      $mysqli->close();
+    } else {
+      echo "Error: Only JPG, JPEG, PNG, and GIF files are allowed.";
+    }
+  }
 
   $sqlReceptionistInfo = "SELECT * FROM receptionist WHERE receptionistEmail = '$receptionistEmail'";
-  $resultReceptionistInfo = mysqli_query($conn,  $sqlReceptionistInfo);
+  $resultReceptionistInfo = mysqli_query($conn, $sqlReceptionistInfo);
 
-  if($resultReceptionistInfo){
+  if ($resultReceptionistInfo) {
     $rowReceptionistInfo = mysqli_fetch_assoc($resultReceptionistInfo);
   }
 }
@@ -41,25 +74,84 @@ if(isset($_SESSION['receptionistEmail'])){
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>receptionistAddNewPatient</title>
   <link rel="stylesheet" href="style1.css" />
-    <link rel="stylesheet" href="form.css">
+  <link rel="stylesheet" href="form.css">
+  <style>
+    .profile-pic-container img {
+      width: 48%;
+      aspect-ratio: 1/1;
+      margin: auto auto;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      transition: opacity 0.3s ease;
+    }
+
+    .profile-pic-container img:hover {
+      opacity: 0.3;
+      cursor: pointer;
+    }
+
+    .profile-pic-container {
+      position: relative;
+    }
+
+    .profile-pic-container .upload-photo-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: white;
+      font-weight: bold;
+      font-size: 14px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      cursor: pointer;
+
+    }
+
+    .profile-pic-container img:hover+.upload-photo-text,
+    .upload-photo-text:hover {
+      opacity: 1;
+    }
+
+    .upload-photo-text:hover {
+      color: black;
+      font-weight: bold;
+    }
+  </style>
 </head>
 
 <body>
   <header>
     <img src="MediDocX Logo.JPG" alt="" />
+    <button onclick = "receptionist()">Home</button>
     <form method="post" id="logoutForm">
       <input type="hidden" name="logout" value="1"> <!-- Hidden input to identify logout action -->
-      <button type="submit" id="logoutButton">Log out</button>
+
     </form>
+    <button type="submit" id="logoutButton">Log out</button>
     <!-- <button onclick="addPatient()">Add Patient <i class="fa fa-search">Hi</i> </button> -->
-    <input type="text" placeholder="Search Patient..." />
+    <!-- <input type="text" placeholder="Search Patient..." /> -->
   </header>
 
   <aside>
     <div id="profileInfo">
-      <div id="profilePic"></div>
+      <div id="profilePic" class="profile-pic-container">
+
+
+
+        <img id="avatar" src="getImageReceptionist.php" onclick="handleImageUpload()">
+        <div class="upload-photo-text">
+          + Upload Photo
+        </div>
+
+
+
+
+      </div>
       <div id="details">
-      <b> <?php echo $rowReceptionistInfo['name']; ?> </b><br />
+        <b> <?php echo $rowReceptionistInfo['name']; ?> </b><br />
         Receptionist <br />
         ID: <?php echo $rowReceptionistInfo['receptionistID']; ?> <br />
         <!-- M.D. Cardiology -->
@@ -72,7 +164,7 @@ if(isset($_SESSION['receptionistEmail'])){
         <h2>Appoint New Patient</h2>
       </div>
       <div class="container">
-        <form id = "patientForm" action="receptionistAddNewPatient.php" method="POST">
+        <form id="patientForm" action="receptionistRegisterNewPatient.php" method="POST">
           <label id="test">
             <span class="labelText">Name:</span>
             <input type="text" id="patientName" name="name" />
@@ -112,29 +204,122 @@ if(isset($_SESSION['receptionistEmail'])){
     </section>
   </main>
 </body>
+<script>
+    function receptionist() {
+        window.location = "receptionist.php";
+    }
+</script>
 <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 <script>
-    // Show SweetAlert confirmation dialog when the logout button is clicked
-    document.getElementById('logoutButton').addEventListener('click', function (event) {
-      event.preventDefault(); // Prevent the default form submission
-
-      swal({
-        title: "Are you sure?",
-        text: "You won't be able to revert this!",
-        icon: "warning",
-        buttons: ["Cancel", "Yes"], // Customize the buttons
-        dangerMode: true, // Highlight the "Yes" button in red
-      }).then((willLogout) => {
-        if (willLogout) {
-          document.getElementById('logoutForm').submit(); // Submit the form to perform logout
-        } else {
-          swal("You can continue browsing!", {
-            icon: "success",
-          });
+  function handleImageUpload() {
+    swal({
+      title: "Upload Image",
+      text: "Choose an image from your device",
+      content: {
+        element: "input",
+        attributes: {
+          type: "file",
+          accept: "image/*"
         }
-      });
+      },
+      buttons: {
+        confirm: {
+          text: "Upload",
+          closeModal: false,
+          value: true,
+          visible: true,
+          className: "",
+          closeModal: true
+        },
+        cancel: {
+          text: "Cancel",
+          value: false,
+          visible: true,
+          className: "",
+          closeModal: true
+        }
+      }
+    }).then((value) => {
+
+      if (value) {
+        const fileInput = document.querySelector('input[type="file"]');
+        const file = fileInput.files[0];
+
+
+        const allowedExtensions = ["jpg", "jpeg", "png"];
+        const fileExtension = file.name.split('.').pop().toLowerCase();
+
+        // Check if the file extension is allowed
+        if (!allowedExtensions.includes(fileExtension)) {
+          swal("Error", "Only JPG, JPEG, and PNG files are allowed.", "error");
+          return;
+        }
+
+
+        const maxSizeInBytes = 2 * 1024 * 1024; // 2MB
+        if (file.size > maxSizeInBytes) {
+          swal("Warning", "Image must be less than 2MB.", "warning");
+          return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        // Send the file to the server using fetch API
+        fetch('receptionistRegisterNewPatient.php', {
+          method: 'POST',
+          body: formData
+        })
+          .then(response => response.text())
+          .then(data => {
+            // Check if the response contains "Error"
+            if (data.startsWith("Error")) {
+              swal("Error", data, "error");
+            } else {
+              document.addEventListener('DOMContentLoaded', function () {
+                document.getElementById('avatar').src = data;
+                // Update the avatar image src with the URL of the uploaded image
+
+              });
+
+              swal("Success", "Image uploaded successfully!", "success").then(() => {
+                window.location = "receptionistRegisterNewPatient.php";
+              });
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error);
+            swal("Error", "An error occurred while uploading the image.", "error");
+          });
+      }
+
     });
-  </script>
+  }
+
+
+</script>
+<script>
+  // Show SweetAlert confirmation dialog when the logout button is clicked
+  document.getElementById('logoutButton').addEventListener('click', function (event) {
+    event.preventDefault(); // Prevent the default form submission
+
+    swal({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      buttons: ["Cancel", "Yes"], // Customize the buttons
+      dangerMode: true, // Highlight the "Yes" button in red
+    }).then((willLogout) => {
+      if (willLogout) {
+        document.getElementById('logoutForm').submit(); // Submit the form to perform logout
+      } else {
+        swal("You can continue browsing!", {
+          icon: "success",
+        });
+      }
+    });
+  });
+</script>
 
 </html>
 <?php
@@ -171,8 +356,8 @@ if (isset($_POST['submit'])) {
         text: "<?php echo $errors['empty']; ?> ",
         icon: "error",
         button: "Ok",
-      }).then(() =>{
-        window.location = "receptionistAddNewPatient.php";
+      }).then(() => {
+        window.location = "receptionistRegisterNewPatient.php";
       });
 
     </script>
@@ -187,8 +372,8 @@ if (isset($_POST['submit'])) {
         text: "<?php echo $errors['email']; ?> ",
         icon: "error",
         button: "Ok",
-      }).then(() =>{
-        window.location = "receptionistAddNewPatient.php";
+      }).then(() => {
+        window.location = "receptionistRegisterNewPatient.php";
       });
 
     </script>
@@ -203,18 +388,18 @@ if (isset($_POST['submit'])) {
         text: "<?php echo $errors['email']; ?> ",
         icon: "error",
         button: "Ok",
-      }).then(() =>{
-        window.location = "receptionistAddNewPatient.php";
+      }).then(() => {
+        window.location = "receptionistRegisterNewPatient.php";
       });
 
     </script>
     <?php
 
-  } 
+  }
   // elseif (mysqli_num_rows($resultID)) {
   //   $errors['id'] = "ID already in use";
-    ?>
-    <!-- <script>
+  ?>
+  <!-- <script>
 
       swal({
         title: "Error",
@@ -226,7 +411,7 @@ if (isset($_POST['submit'])) {
       });
 
     </script> -->
-    <?php
+  <?php
   // }
 
 

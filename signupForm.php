@@ -541,7 +541,7 @@ if (isset($_POST["register"])) {
                     button: "Ok",
                 });
 
-                document.querySelector('#signupForm').style.transform = "scale(0)";
+                // document.querySelector('#signupForm').style.transform = "scale(0)";
             </script>
             <?php
 

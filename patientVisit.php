@@ -12,7 +12,7 @@ if (!isset($_SESSION['patientEmail'])) {
 function logout()
 {
   // Clear session data
-  
+
   unset($_SESSION['patientEmail']);
   // session_destroy();
   // Redirect to the login page
@@ -24,7 +24,7 @@ function logout()
 // Check if logout request is received
 if (isset($_POST['logout'])) {
   // Check if session ID matches
-    logout();
+  logout();
 }
 
 
@@ -37,6 +37,42 @@ if (isset($_SESSION['patientEmail'])) {
   // if (isset($doctorEmail) && !is_null($doctorEmail)) {
 
 
+  if (isset($_FILES["file"]) && $_FILES["file"]["error"] == 0) {
+    $allowed_extensions = array("jpg", "jpeg", "png", "gif");
+    $file_extension = pathinfo($_FILES["file"]["name"], PATHINFO_EXTENSION);
+
+    // Check if the file extension is allowed
+    if (in_array($file_extension, $allowed_extensions)) {
+      // Establish a database connection (replace with your database credentials)
+      $mysqli = new mysqli("localhost", "root", "", "medidocx");
+
+      // Check connection
+      if ($mysqli->connect_error) {
+        die("Connection failed: " . $mysqli->connect_error);
+      }
+
+      // Get the contents of the uploaded file
+      $image_data = addslashes(file_get_contents($_FILES["file"]["tmp_name"]));
+
+      // Prepare and execute SQL query to insert image data into the database
+      $sql = "UPDATE images SET image_data = '$image_data' WHERE user_email = '$patientEmail'";
+      if ($mysqli->query($sql) === TRUE) {
+        echo "Image uploaded and updated into database successfully.";
+        exit;
+      } else {
+        echo "Error: " . $sql . "<br>" . $mysqli->error;
+      }
+
+      // Close the database connection
+      $mysqli->close();
+    } else {
+      echo "Error: Only JPG, JPEG, PNG, and GIF files are allowed.";
+    }
+  }
+  // Check if download request is received
+
+
+  // Code for fetching patient details and test data remains unchanged
 
   // $email = $_SESSION['email'];
 
@@ -152,9 +188,10 @@ if (isset($_SESSION['patientEmail'])) {
       }
     }
   }
+ 
+ 
 
 }
-
 
 ?>
 
@@ -169,25 +206,81 @@ if (isset($_SESSION['patientEmail'])) {
   <link rel="stylesheet" href="style1.css" />
   <link rel="stylesheet" href="style2Tables.css">
   <style>
+    .profile-pic-container img {
+      width: 48%;
+      aspect-ratio: 1/1;
+      margin: auto auto;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      transition: opacity 0.3s ease;
+    }
 
+    .profile-pic-container img:hover {
+      opacity: 0.3;
+      cursor: pointer;
+    }
+
+    .profile-pic-container {
+      position: relative;
+    }
+
+    .profile-pic-container .upload-photo-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: white;
+      font-weight: bold;
+      font-size: 14px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      cursor: pointer;
+
+    }
+
+    .profile-pic-container img:hover+.upload-photo-text,
+    .upload-photo-text:hover {
+      opacity: 1;
+    }
+
+    .upload-photo-text:hover {
+      color: black;
+      font-weight: bold;
+    }
   </style>
 </head>
 
 <body>
   <header>
     <img src="MediDocX Logo.JPG" alt="" />
-    <form method="post" id="logoutForm" >
+    <button onclick="patient()">Home</button>
+    <form method="post" id="logoutForm">
       <input type="hidden" name="logout" value="1"> <!-- Hidden input to identify logout action -->
-      <button type="submit" id="logoutButton">Log out</button>
+
     </form>
+    <button type="submit" id="logoutButton">Log out</button>
   </header>
 
   <aside>
     <div id="profileInfo">
-      <div id="profilePic"></div>
+      <div id="profilePic" class="profile-pic-container">
+
+
+
+        <img id="avatar" src="getImagePatient.php" onclick="handleImageUpload()">
+        <div class="upload-photo-text">
+          + Upload Photo
+        </div>
+
+
+
+
+      </div>
       <div id="details">
         <b>
-        <?php echo $row['name']; ?>
+          <?php echo $row['name']; ?>
         </b><br />
         Patient
         <!-- <?php echo $row['userType']; ?> <br /> -->
@@ -212,85 +305,91 @@ if (isset($_SESSION['patientEmail'])) {
         </div>
       <?php endif; ?>
     </section>
+    <section>
+      <div class="sectionTitle">
+        <h2>Report</h2>
+       
+      </div>
 
-    <?php foreach ($tests as $testType => $categories) { ?>
+      <?php foreach ($tests as $testType => $categories) { ?>
 
-      <section>
+        <section>
 
-        <div class="sectionTitle">
-          <h2>
-            <?php echo $testType; ?>
-          </h2>
-        </div>
-        <!-- <div class="container"> -->
-        <div class="tableContainer">
-          <table>
-            <tr>
-              <th scope="col">Test Name</th>
-              <th scope="col">Result</th>
-              <th scope="col">Unit</th>
-              <th scope="col">Flag</th>
-              <th scope="col">Reference Range</th>
-              <th scope="col">Method</th>
-            </tr>
-            <?php foreach ($categories as $category => $testsData) { ?>
-              <tr class="testCategoryTitle">
-                <td colspan="6">
-                  <?php echo $category; ?>
-                </td>
-                <?php foreach ($testsData as $testData => $Data) { ?>
-                <tr>
-                  <td scope="row">
-                    <?php echo $Data['testName']; ?>
+          <div class="sectionTitle">
+            <h2>
+              <?php echo $testType; ?>
+            </h2>
+          </div>
 
-
+          <!-- <div class="container"> -->
+          <div class="tableContainer">
+            <table>
+              <tr>
+                <th scope="col">Test Name</th>
+                <th scope="col">Result</th>
+                <th scope="col">Unit</th>
+                <th scope="col">Flag</th>
+                <th scope="col">Reference Range</th>
+                <th scope="col">Method</th>
+              </tr>
+              <?php foreach ($categories as $category => $testsData) { ?>
+                <tr class="testCategoryTitle">
+                  <td colspan="6">
+                    <?php echo $category; ?>
                   </td>
-                  <td><span class="result">
-                      <?php echo $Data['resultValue']; ?>
-                    </span></td>
-                  <td>
-                    <?php echo $Data['unit']; ?>
-                  </td>
-                  <td><span class="flag">
-                      <?php echo $Data['flag']; ?>
-                    </span></td>
-                  <td>
-                    <?php
-                    $referenceRanges = $Data['referenceRange'];
-                    if (count($referenceRanges) > 1) {
-                      echo '<ul>';
-                      foreach ($referenceRanges as $range) {
-                        if (strpos($range, ';') !== false) {
-                          $nestedRanges = explode(';', $range);
-                          echo '<ul>';
-                          foreach ($nestedRanges as $nestedRange) {
-                            echo "<li>{$nestedRange}</li>";
+                  <?php foreach ($testsData as $testData => $Data) { ?>
+                  <tr>
+                    <td scope="row">
+                      <?php echo $Data['testName']; ?>
+
+
+                    </td>
+                    <td><span>
+                        <?php echo $Data['resultValue']; ?>
+                      </span></td>
+                    <td>
+                      <?php echo $Data['unit']; ?>
+                    </td>
+                    <td><span>
+                        <?php echo $Data['flag']; ?>
+                      </span></td>
+                    <td>
+                      <?php
+                      $referenceRanges = $Data['referenceRange'];
+                      if (count($referenceRanges) > 1) {
+                        echo '<ul>';
+                        foreach ($referenceRanges as $range) {
+                          if (strpos($range, ';') !== false) {
+                            $nestedRanges = explode(';', $range);
+                            echo '<ul>';
+                            foreach ($nestedRanges as $nestedRange) {
+                              echo "<li>{$nestedRange}</li>";
+                            }
+                            echo '</ul>';
+                          } else {
+                            echo "<li>{$range}</li>";
                           }
-                          echo '</ul>';
-                        } else {
-                          echo "<li>{$range}</li>";
                         }
+                        echo '</ul>';
+                      } else {
+                        echo $referenceRanges[0];
                       }
-                      echo '</ul>';
-                    } else {
-                      echo $referenceRanges[0];
-                    }
-                    ?>
-                  </td>
-                  <td>
-                    <?php echo $Data['methods']; ?>
-                  </td>
+                      ?>
+                    </td>
+                    <td>
+                      <?php echo $Data['methods']; ?>
+                    </td>
+                  </tr>
+                <?php } ?>
                 </tr>
               <?php } ?>
-              </tr>
-            <?php } ?>
-          </table>
-        </div>
-        <!-- </div> -->
-      </section>
+            </table>
+          </div>
+          <!-- </div> -->
+        </section>
 
-    <?php } ?>
-
+      <?php } ?>
+    </section>
     <!-- <section>
         <div class="sectionTitle">
           <h2>Hematology</h2>
@@ -355,6 +454,103 @@ if (isset($_SESSION['patientEmail'])) {
 
   </main>
 </body>
+<script>
+  function patient() {
+    window.location = "patient.php";
+  }
+</script>
+<script>
+  function handleImageUpload() {
+    swal({
+      title: "Upload Image",
+      text: "Choose an image from your device",
+      content: {
+        element: "input",
+        attributes: {
+          type: "file",
+          accept: "image/*"
+        }
+      },
+      buttons: {
+        confirm: {
+          text: "Upload",
+          closeModal: false,
+          value: true,
+          visible: true,
+          className: "",
+          closeModal: true
+        },
+        cancel: {
+          text: "Cancel",
+          value: false,
+          visible: true,
+          className: "",
+          closeModal: true
+        }
+      }
+    }).then((value) => {
+
+      if (value) {
+        const fileInput = document.querySelector('input[type="file"]');
+        const file = fileInput.files[0];
+
+
+        const allowedExtensions = ["jpg", "jpeg", "png"];
+        const fileExtension = file.name.split('.').pop().toLowerCase();
+
+        // Check if the file extension is allowed
+        if (!allowedExtensions.includes(fileExtension)) {
+          swal("Error", "Only JPG, JPEG, and PNG files are allowed.", "error").then(() => {
+            handleImageUpload();
+          });
+          return;
+        }
+
+
+        const maxSizeInBytes = 2 * 1024 * 1024; // 2MB
+        if (file.size > maxSizeInBytes) {
+          swal("Warning", "Image must be less than 2MB.", "warning").then(() => {
+            handleImageUpload();
+          });
+          return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        // Send the file to the server using fetch API
+        fetch('patientVisit.php?date=<?php echo $_GET['date'] ?>&visitID=<?php echo $_GET['visitID'] ?>', {
+          method: 'POST',
+          body: formData
+        })
+          .then(response => response.text())
+          .then(data => {
+            // Check if the response contains "Error"
+            if (data.startsWith("Error")) {
+              swal("Error", data, "error");
+            } else {
+              document.addEventListener('DOMContentLoaded', function () {
+                document.getElementById('avatar').src = data;
+                // Update the avatar image src with the URL of the uploaded image
+
+              });
+
+              swal("Success", "Image uploaded successfully!", "success").then(() => {
+                window.location = "patientVisit.php?date=<?php echo $_GET['date'] ?>&visitID=<?php echo $_GET['visitID'] ?>";
+              });
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error);
+            swal("Error", "An error occurred while uploading the image.", "error");
+          });
+      }
+
+    });
+  }
+
+
+</script>
 <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 <script>
   // Show SweetAlert confirmation dialog when the logout button is clicked

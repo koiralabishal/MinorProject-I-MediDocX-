@@ -187,10 +187,10 @@ if (isset($_POST['logout'])) {
 
 if (isset($_SESSION['technicianEmail'])) {
 
-//     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    //     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 //         $data = json_decode(file_get_contents('php://input'), true);
 
-//         // Store visit data in session if provided in the JSON data or if already set in session
+    //         // Store visit data in session if provided in the JSON data or if already set in session
 //         if (isset($data['patientName']) || isset($_SESSION['patientName'])) {
 //             $_SESSION['patientName'] = $data['patientName'] ?? $_SESSION['patientName'];
 //         }
@@ -207,7 +207,7 @@ if (isset($_SESSION['technicianEmail'])) {
 //             $_SESSION['visitID'] = $data['visitID'] ?? $_SESSION['visitID'];
 //         }
 
-//         // Send success response
+    //         // Send success response
 //         http_response_code(200);
 //         exit;
 //     }
@@ -242,6 +242,38 @@ if (isset($_SESSION['technicianEmail'])) {
     $visitID = $_GET['visitID'];
     // echo $visitID;
     // echo $reportID;
+    if (isset($_FILES["file"]) && $_FILES["file"]["error"] == 0) {
+        $allowed_extensions = array("jpg", "jpeg", "png", "gif");
+        $file_extension = pathinfo($_FILES["file"]["name"], PATHINFO_EXTENSION);
+
+        // Check if the file extension is allowed
+        if (in_array($file_extension, $allowed_extensions)) {
+            // Establish a database connection (replace with your database credentials)
+            $mysqli = new mysqli("localhost", "root", "", "medidocx");
+
+            // Check connection
+            if ($mysqli->connect_error) {
+                die("Connection failed: " . $mysqli->connect_error);
+            }
+
+            // Get the contents of the uploaded file
+            $image_data = addslashes(file_get_contents($_FILES["file"]["tmp_name"]));
+
+            // Prepare and execute SQL query to insert image data into the database
+            $sql = "UPDATE images SET image_data = '$image_data' WHERE user_email = '$email'";
+            if ($mysqli->query($sql) === TRUE) {
+                echo "Image uploaded and updated into database successfully.";
+                exit;
+            } else {
+                echo "Error: " . $sql . "<br>" . $mysqli->error;
+            }
+
+            // Close the database connection
+            $mysqli->close();
+        } else {
+            echo "Error: Only JPG, JPEG, PNG, and GIF files are allowed.";
+        }
+    }
 
 
     $sqlTechnicianID = "SELECT labTechnicianID FROM lab_technician WHERE technicianEmail = '$email'";
@@ -380,24 +412,83 @@ if (isset($_SESSION['technicianEmail'])) {
     <title>labTechnicianPatient</title>
     <link rel="stylesheet" href="style1.css">
     <link rel="stylesheet" href="style2Tables.css">
+    <style>
+        .profile-pic-container img {
+            width: 48%;
+            aspect-ratio: 1/1;
+            margin: auto auto;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            transition: opacity 0.3s ease;
+        }
+
+        .profile-pic-container img:hover {
+            opacity: 0.3;
+            cursor: pointer;
+        }
+
+        .profile-pic-container {
+            position: relative;
+        }
+
+        .profile-pic-container .upload-photo-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            cursor: pointer;
+
+        }
+
+        .profile-pic-container img:hover+.upload-photo-text,
+        .upload-photo-text:hover {
+            opacity: 1;
+        }
+
+        .upload-photo-text:hover {
+            color: black;
+            font-weight: bold;
+        }
+    </style>
 </head>
 
 <body>
     <header>
         <img src="MediDocX Logo.JPG" alt="" />
+        <button onclick = "labTechnician()">Home</button>
         <form method="post" id="logoutForm">
             <input type="hidden" name="logout" value="1"> <!-- Hidden input to identify logout action -->
-            <button type="submit" id="logoutButton">Log out</button>
+
         </form>
-        <input type="text" placeholder="Search Patient..." />
+        <button type="submit" id="logoutButton">Log out</button>
+        <!-- <input type="text" placeholder="Search Patient..." /> -->
     </header>
 
     <aside>
         <div id="profileInfo">
-            <div id="profilePic"></div>
+            <div id="profilePic" class="profile-pic-container">
+
+
+
+                <img id="avatar" src="getImageLabTechnician.php" onclick="handleImageUpload()">
+                <div class="upload-photo-text">
+                    + Upload Photo
+                </div>
+
+
+
+
+            </div>
             <div id="details">
                 <b>
-                <?php echo $row['name']; ?>
+                    <?php echo $row['name']; ?>
                 </b><br>
                 <?php echo $row['userType']; ?> <br>
                 ID:
@@ -424,7 +515,8 @@ if (isset($_SESSION['technicianEmail'])) {
     </aside>
 
     <main>
-        <form id="testForm" method="POST" action= "labTechnicianPatient.php?patientName=<?php echo $_GET['patientName']; ?> &patientID=<?php echo $_GET['patientID']; ?> &doctorID=<?php echo $_GET['doctorID']; ?> &reportID=<?php echo  $_GET['reportID']; ?> &visitID=<?php echo $_GET['visitID']; ?> ">
+        <form id="testForm" method="POST"
+            action="labTechnicianPatient.php?patientName=<?php echo $_GET['patientName']; ?> &patientID=<?php echo $_GET['patientID']; ?> &doctorID=<?php echo $_GET['doctorID']; ?> &reportID=<?php echo $_GET['reportID']; ?> &visitID=<?php echo $_GET['visitID']; ?> ">
             <!-- <label for="recordID">Record ID</label>
       <input type="text" name="recordID">
       <label for="date">Date</label>
@@ -506,15 +598,25 @@ if (isset($_SESSION['technicianEmail'])) {
                 </section>
 
             <?php } ?>
-            <button type="submit" name="submit">Submit</button>
+            <section>
+                <div class="sectionTitle">
+                    <h2></h2>
+                    <button type="submit" name="submit">Send</button>
+                    <h2></h2>
+                </div>
+            </section>
         </form>
 
     </main>
 
-
+<script>
+    function labTechnician() {
+        window.location = "labTechnician.php";
+    }
+</script>
     <!-- <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script> -->
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
-<!-- 
+    <!-- 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             // Event listener for form submission
@@ -559,7 +661,94 @@ if (isset($_SESSION['technicianEmail'])) {
             });
         });
     </script> -->
+    <script>
+        function handleImageUpload() {
+            swal({
+                title: "Upload Image",
+                text: "Choose an image from your device",
+                content: {
+                    element: "input",
+                    attributes: {
+                        type: "file",
+                        accept: "image/*"
+                    }
+                },
+                buttons: {
+                    confirm: {
+                        text: "Upload",
+                        closeModal: false,
+                        value: true,
+                        visible: true,
+                        className: "",
+                        closeModal: true
+                    },
+                    cancel: {
+                        text: "Cancel",
+                        value: false,
+                        visible: true,
+                        className: "",
+                        closeModal: true
+                    }
+                }
+            }).then((value) => {
 
+                if (value) {
+                    const fileInput = document.querySelector('input[type="file"]');
+                    const file = fileInput.files[0];
+
+
+                    const allowedExtensions = ["jpg", "jpeg", "png"];
+                    const fileExtension = file.name.split('.').pop().toLowerCase();
+
+                    // Check if the file extension is allowed
+                    if (!allowedExtensions.includes(fileExtension)) {
+                        swal("Error", "Only JPG, JPEG, and PNG files are allowed.", "error");
+                        return;
+                    }
+
+
+                    const maxSizeInBytes = 2 * 1024 * 1024; // 2MB
+                    if (file.size > maxSizeInBytes) {
+                        swal("Warning", "Image must be less than 2MB.", "warning");
+                        return;
+                    }
+
+                    const formData = new FormData();
+                    formData.append('file', file);
+
+                    // Send the file to the server using fetch API
+                    fetch('labTechnicianPatient.php?patientName=<?php echo $_GET['patientName'] ?>&patientID=<?php echo $_GET['patientID'] ?>&doctorID=<?php echo $_GET['doctorID'] ?>&reportID=<?php echo $_GET['reportID'] ?>&visitID=<?php echo $_GET['visitID'] ?>', {
+                        method: 'POST',
+                        body: formData
+                    })
+                        .then(response => response.text())
+                        .then(data => {
+                            // Check if the response contains "Error"
+                            if (data.startsWith("Error")) {
+                                swal("Error", data, "error");
+                            } else {
+                                document.addEventListener('DOMContentLoaded', function () {
+                                    document.getElementById('avatar').src = data;
+                                    // Update the avatar image src with the URL of the uploaded image
+
+                                });
+
+                                swal("Success", "Image uploaded successfully!", "success").then(() => {
+                                    window.location = "labTechnicianPatient.php?patientName=<?php echo $_GET['patientName']; ?> &patientID=<?php echo $_GET['patientID']; ?> &doctorID=<?php echo $_GET['doctorID']; ?> &reportID=<?php echo $_GET['reportID']; ?> &visitID=<?php echo $_GET['visitID']; ?>";
+                                });
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            swal("Error", "An error occurred while uploading the image.", "error");
+                        });
+                }
+
+            });
+        }
+
+
+    </script>
 
     <script>
         // Show SweetAlert confirmation dialog when the logout button is clicked

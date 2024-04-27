@@ -1,3 +1,8 @@
+/* <?php
+   header("Content-type: text/css");
+
+?> */
+
 * {
   margin: 0;
   padding: 0;
@@ -25,7 +30,7 @@ header button {
   display: block;
   padding: .4rem .8rem;
   padding:  .4% 1%;
-  height: min-content;
+  /* height: min-content; */
   background-color: rgb(252, 252, 252);
   color: rgb(91, 91, 91);
   font-size: 16px;
@@ -81,16 +86,7 @@ aside #profileInfo {
   font-size: 14px;
 }
 
-aside #profileInfo #profilePic {
-  width: 48%;
-  aspect-ratio: 1/1;
-  margin: auto auto;
-  background-image: url(Mayukh\ Baral.jpg);
-  background-repeat: no-repeat;
-  background-position: center top;
-  background-size: 100%;
-  border-radius: 50%;
-}
+
 
 aside #profileInfo #details {
   width: fit-content;
