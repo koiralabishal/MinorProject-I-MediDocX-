@@ -415,10 +415,12 @@ if (isset($_POST['submit'])) {
   // }
 
 
-  $last_patient_id_query = "SELECT MAX(patientID) AS max_patient_id FROM new_patient";
+  // $last_patient_id_query = "SELECT MAX(patientID) AS max_patient_id FROM new_patient";
+  $last_patient_id_query = "SELECT patientID FROM new_patient ORDER BY id DESC LIMIT 1";
   $last_patient_id_result = mysqli_query($conn, $last_patient_id_query);
   $last_patient_id_row = mysqli_fetch_assoc($last_patient_id_result);
-  $last_patient_id = $last_patient_id_row['max_patient_id'];
+  // $last_patient_id = $last_patient_id_row['max_patient_id'];
+  $last_patient_id = $last_patient_id_row['patientID'];
 
   if ($last_patient_id === "") {
     $ID = 1; // If table is empty, set report ID to 1

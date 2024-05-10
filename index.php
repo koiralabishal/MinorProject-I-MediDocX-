@@ -412,6 +412,7 @@ if (isset($_GET['email']) && isset($_GET['v_code'])) {
     <div id="invisibleDiv"></div>
     <div id="titleText">
       <h1>MediDocX</h1>
+      
     </div>
 
     <div id="titleButtons">
