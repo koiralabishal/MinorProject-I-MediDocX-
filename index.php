@@ -344,6 +344,8 @@ if (isset($_GET['email']) && isset($_GET['v_code'])) {
           <body>
             <script>
 
+
+
               swal({
                 title: "Warning",
                 text: "Email is already verified",
