@@ -354,6 +354,9 @@ if (isset($_GET['email']) && isset($_GET['v_code'])) {
               }).then(function () {
                 window.location = "index.php";  // Redirect to index.php after OK button is clicked.
 
+
+
+  
               });
 
 
