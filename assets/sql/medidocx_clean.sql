@@ -49,12 +49,7 @@ INSERT INTO `admins` (`id`, `name`, `adminEmail`, `adminID`, `gender`, `password
 --
 -- Triggers `admins`
 --
-DELIMITER $$
-CREATE TRIGGER `after_insert_admins` AFTER INSERT ON `admins` FOR EACH ROW BEGIN
-    INSERT INTO images (user_email) VALUES (NEW.adminEmail);
-END
-$$
-DELIMITER ;
+
 
 -- --------------------------------------------------------
 
@@ -88,21 +83,8 @@ INSERT INTO `appointed_patient` (`id`, `patientName`, `patientID`, `age`, `gende
 --
 -- Triggers `appointed_patient`
 --
-DELIMITER $$
-CREATE TRIGGER `insert_patient_visit_details` AFTER INSERT ON `appointed_patient` FOR EACH ROW BEGIN
-    INSERT INTO patientvisitdetails (patientName, age, gender, patientID, referredToDoctorID, visitID, date)
-    VALUES (NEW.patientName, NEW.age, NEW.gender, NEW.patientID, NEW.DoctorID, NEW.visitID, NEW.date);
-END
-$$
-DELIMITER ;
-DELIMITER $$
-CREATE TRIGGER `prescription_after_insert` AFTER INSERT ON `appointed_patient` FOR EACH ROW BEGIN
-    
-    INSERT INTO prescription (patientID, doctorID, prescriptions, visitID, Date)
-    VALUES (NEW.patientID, NEW.DoctorID, "", NEW.visitID, NEW.date);
-END
-$$
-DELIMITER ;
+
+
 
 -- --------------------------------------------------------
 
@@ -148,12 +130,7 @@ INSERT INTO `doctor` (`id`, `name`, `doctorEmail`, `birthDate`, `gender`, `addre
 --
 -- Triggers `doctor`
 --
-DELIMITER $$
-CREATE TRIGGER `after_insert_doctor` AFTER INSERT ON `doctor` FOR EACH ROW BEGIN
-    INSERT INTO images (user_email) VALUES (NEW.doctorEmail);
-END
-$$
-DELIMITER ;
+
 
 -- --------------------------------------------------------
 
@@ -254,12 +231,7 @@ INSERT INTO `lab_technician` (`id`, `name`, `technicianEmail`, `birthDate`, `gen
 --
 -- Triggers `lab_technician`
 --
-DELIMITER $$
-CREATE TRIGGER `after_insert_lab_technician` AFTER INSERT ON `lab_technician` FOR EACH ROW BEGIN
-    INSERT INTO images (user_email) VALUES (NEW.technicianEmail);
-END
-$$
-DELIMITER ;
+
 
 -- --------------------------------------------------------
 
@@ -331,12 +303,7 @@ INSERT INTO `patient` (`id`, `name`, `patientEmail`, `birthDate`, `gender`, `add
 --
 -- Triggers `patient`
 --
-DELIMITER $$
-CREATE TRIGGER `after_insert_patient` AFTER INSERT ON `patient` FOR EACH ROW BEGIN
-    INSERT INTO images (user_email) VALUES (NEW.patientEmail);
-END
-$$
-DELIMITER ;
+
 
 -- --------------------------------------------------------
 
@@ -542,12 +509,7 @@ INSERT INTO `receptionist` (`id`, `name`, `receptionistEmail`, `birthDate`, `gen
 --
 -- Triggers `receptionist`
 --
-DELIMITER $$
-CREATE TRIGGER `after_insert_receptionist` AFTER INSERT ON `receptionist` FOR EACH ROW BEGIN
-    INSERT INTO images (user_email) VALUES (NEW.receptionistEmail);
-END
-$$
-DELIMITER ;
+
 
 -- --------------------------------------------------------
 
@@ -858,70 +820,26 @@ INSERT INTO `test_data` (`id`, `category`, `testNames`, `patientID`, `patientNam
 --
 -- Triggers `test_data`
 --
-DELIMITER $$
-CREATE TRIGGER `insert_pendingReport` AFTER INSERT ON `test_data` FOR EACH ROW BEGIN
-    DECLARE count_records INT;
 
-    
-    SELECT COUNT(*) INTO count_records
-    FROM pendingreport
-    WHERE patientID = NEW.patientID 
-        AND doctorID = NEW.doctorID 
-        AND visitID = NEW.visitID 
-        AND reportID = NEW.reportID
-        AND date = NEW.date;
 
-    
-    IF count_records = 0 THEN
-        INSERT INTO pendingreport (patientID, doctorID, visitID, reportID, date)
-        VALUES (NEW.patientID, NEW.doctorID, NEW.visitID, NEW.reportID, NEW.date);
-    END IF;
-END
-$$
-DELIMITER ;
-DELIMITER $$
-CREATE TRIGGER `reportTrigger` AFTER INSERT ON `test_data` FOR EACH ROW BEGIN
-    
-    DECLARE testNameIterator INT DEFAULT 1;
-    DECLARE testNameList VARCHAR(255);
-    DECLARE currentTestName VARCHAR(255);
-
-    
-    SELECT NEW.testNames INTO testNameList;
-
-    
-    WHILE testNameIterator <= LENGTH(testNameList) - LENGTH(REPLACE(testNameList, ',', '')) + 1 DO
-        
-        SET currentTestName = TRIM(SUBSTRING_INDEX(SUBSTRING_INDEX(testNameList, ',', testNameIterator), ',', -1));
-        
-        
-        INSERT INTO report (ReportID, TestName, doctorID, patientID, flag, resultValue, date, technicianID, visitID)
-        VALUES (NEW.reportID, currentTestName, NEW.doctorID, NEW.patientID, '', '', NEW.date, '', NEW.visitID);
-
-        
-        SET testNameIterator = testNameIterator + 1;
-    END WHILE;
-END
-$$
-DELIMITER ;
 
 -- --------------------------------------------------------
 
 --
--- Structure for view `biochemistry`
---
-DROP TABLE IF EXISTS `biochemistry`;
 
-CREATE VIEW `biochemistry`  AS  select `tests`.`subCategory` AS `subCategory`,`tests`.`TestName` AS `TestName`,`tests`.`Units` AS `Units`,`tests`.`ReferenceRange` AS `ReferenceRange`,`tests`.`Methods` AS `Methods` from `tests` where `tests`.`category` = 'Biochemistry' ;
+--
+
+
+
 
 -- --------------------------------------------------------
 
 --
--- Structure for view `haematology`
---
-DROP TABLE IF EXISTS `haematology`;
 
-CREATE VIEW `haematology`  AS  select `tests`.`subCategory` AS `subCategory`,`tests`.`TestName` AS `TestName`,`tests`.`Units` AS `Units`,`tests`.`ReferenceRange` AS `ReferenceRange`,`tests`.`Methods` AS `Methods` from `tests` where `tests`.`category` = 'Haematology' ;
+--
+
+
+
 
 --
 -- Indexes for dumped tables

@@ -877,35 +877,55 @@ if (isset($_POST['submit'])) {
       $reportID = $last_report_id + 1; // Otherwise, increment the last report ID
     }
 
+    $success = true;
+    $anyProcessed = false;
     foreach ($categories as $category) {
       if (isset($_POST[$category])) {
+        $anyProcessed = true;
+        // ... (rest of the logic inside loop)
         $testNames = implode(", ", $_POST[$category]); // Concatenate test names
         $query = "INSERT INTO test_data (`category`, `testNames`,  `patientID`, `patientName`, `doctorID`,`date`, `reportID`, `visitID`) 
                   VALUES ('$category', '$testNames', '{$rowPatientInfo['patientID']}', '{$rowPatientInfo['patientName']}', '{$row['doctorID']}','$date','$reportID','$visitID')";
-        $queries[] = $query;
+        
+        if (mysqli_query($conn, $query)) {
+            // Manual Trigger Replacement: reportTrigger
+            foreach ($_POST[$category] as $individualTestName) {
+                 $individualTestName = trim($individualTestName);
+                 $reportInsertQuery = "INSERT INTO report (ReportID, TestName, doctorID, patientID, flag, resultValue, date, technicianID, visitID)
+                                       VALUES ('$reportID', '$individualTestName', '{$row['doctorID']}', '{$rowPatientInfo['patientID']}', '', '', '$date', '', '$visitID')";
+                 mysqli_query($conn, $reportInsertQuery);
+            }
+        } else {
+            $success = false;
+             ?>
+            <script>
+              swal({
+                title: "Error",
+                text: "Test data not sent successfully",
+                icon: "error",
+                button: "Ok",
+              }).then(function () {
+                window.location = "doctor.php";
+              });
+            </script>
+            <?php
+            break; // Stop on error
+        }
       }
     }
-
-    // Execute all queries
-    foreach ($queries as $query) {
-      if (!mysqli_query($conn, $query)) {
-        ?>
-        <script>
-          swal({
-            title: "Error",
-            text: "Test data not sent successfully",
-            icon: "error",
-            button: "Ok",
-          }).then(function () {
-            window.location = "doctor.php";
-          });
-        </script>
-        <?php
-      }
+    
+    if ($success) {
+        // Manual Trigger Replacement: insert_pendingReport
+        $checkPending = "SELECT * FROM pendingreport WHERE patientID='{$rowPatientInfo['patientID']}' AND doctorID='{$row['doctorID']}' AND visitID='$visitID' AND reportID='$reportID' AND date='$date'";
+        $resPending = mysqli_query($conn, $checkPending);
+        if (mysqli_num_rows($resPending) == 0) {
+            $insertPending = "INSERT INTO pendingreport (patientID, doctorID, visitID, reportID, date) VALUES ('{$rowPatientInfo['patientID']}', '{$row['doctorID']}', '$visitID', '$reportID', '$date')";
+            mysqli_query($conn, $insertPending);
+        }
     }
 
     // Check if any queries were executed successfully
-    if (count($queries) > 0) {
+    if ($success && $anyProcessed) {
       $deleteQuery = "DELETE FROM appointed_patient WHERE patientID='{$rowPatientInfo['patientID']}' AND doctorID='{$row['doctorID']}' AND visitID='$visitID'";
       $resultDelete = mysqli_query($conn, $deleteQuery);
 

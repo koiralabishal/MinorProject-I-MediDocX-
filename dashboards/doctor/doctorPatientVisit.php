@@ -161,11 +161,12 @@ AND visitID = '$visitID'
     $testTypes = array("biochemistry", "haematology");
     // $sql3 = "SELECT category, testName, ReferenceRange, Methods FROM bichemistry WHERE category IN (SELECT DISTINCT category FROM test_data WHERE testTypes = '$testType' AND patientID = '$patientID' AND doctorID = '$doctorID')";
     foreach ($testTypes as $testType) {
-        $query = "SELECT $testType.TestName, $testType.subCategory, $testType.Units, $testType.Methods, $testType.ReferenceRange,report.flag, report.resultValue
-        FROM $testType 
-        JOIN report ON $testType.TestName = report.TestName
+        $categoryFilter = ucfirst($testType);
+        $query = "SELECT tests.TestName, tests.subCategory, tests.Units, tests.Methods, tests.ReferenceRange, report.flag, report.resultValue
+        FROM tests 
+        JOIN report ON tests.TestName = report.TestName
         WHERE report.patientID = '{$rowPatientInfo['patientID']}'
-        -- AND test_data.category = '$testType'
+        AND tests.category = '$categoryFilter'
         AND report.doctorID = '{$row['doctorID']}'
         AND report.visitID = '$visitID'
         AND report.date = '$date'";

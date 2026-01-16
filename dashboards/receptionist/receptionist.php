@@ -465,6 +465,17 @@ if (isset($_POST['submit'])) {
       $sql = "INSERT INTO appointed_patient (patientId, patientName, age, gender, doctorId, visitID, date) 
                     VALUES ('$patientId', '$patientName', '$age','$gender', '$doctorId', '$visitID', '$appointmentDate')";
       if (mysqli_query($conn, $sql)) {
+
+        // Manual Trigger Replacement: insert_patient_visit_details
+        $visitDetailsQuery = "INSERT INTO patientvisitdetails (patientName, age, gender, patientID, referredToDoctorID, visitID, date)
+                              VALUES ('$patientName', '$age', '$gender', '$patientId', '$doctorId', '$visitID', '$appointmentDate')";
+        mysqli_query($conn, $visitDetailsQuery);
+
+        // Manual Trigger Replacement: prescription_after_insert
+        $prescriptionQuery = "INSERT INTO prescription (patientID, doctorID, prescriptions, visitID, Date)
+                              VALUES ('$patientId', '$doctorId', '', '$visitID', '$appointmentDate')";
+        mysqli_query($conn, $prescriptionQuery);
+
         ?>
         <script>
           swal({

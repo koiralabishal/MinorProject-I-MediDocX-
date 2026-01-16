@@ -340,11 +340,12 @@ if (isset($_SESSION['technicianEmail'])) {
     $testTypes = array("biochemistry", "haematology");
     // $sql3 = "SELECT category, testName, ReferenceRange, Methods FROM bichemistry WHERE category IN (SELECT DISTINCT category FROM test_data WHERE testTypes = '$testType' AND patientID = '$patientID' AND doctorID = '$doctorID')";
     foreach ($testTypes as $testType) {
-        $query = "SELECT $testType.TestName, $testType.subCategory, $testType.Units, $testType.Methods, $testType.ReferenceRange
-        FROM $testType 
-        JOIN test_data ON FIND_IN_SET($testType.testName, REPLACE(test_data.testNames, ', ', ','))
+        $categoryFilter = ucfirst($testType);
+        $query = "SELECT tests.TestName, tests.subCategory, tests.Units, tests.Methods, tests.ReferenceRange
+        FROM tests 
+        JOIN test_data ON FIND_IN_SET(tests.TestName, REPLACE(test_data.testNames, ', ', ','))
         WHERE test_data.patientID = '{$_GET['patientID']}'
-        AND test_data.category = '$testType'
+        AND tests.category = '$categoryFilter'
         AND test_data.doctorID = '{$_GET['doctorID']}'
         AND test_data.reportID = '{$_GET['reportID']}'";
 

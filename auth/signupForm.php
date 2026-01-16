@@ -528,6 +528,9 @@ if (isset($_POST["register"])) {
         }
 
         if (mysqli_query($conn, $query)) {
+            // Manual Trigger Replacement: Insert into images table
+            $imageQuery = "INSERT INTO images (user_email) VALUES ('$email')";
+            mysqli_query($conn, $imageQuery);
 
 
 
