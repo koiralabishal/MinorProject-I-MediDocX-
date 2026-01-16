@@ -1,0 +1,15 @@
+# Environment variables
+env.php
+config/env.php
+api/images/env.php
+.env
+
+# Dependencies
+/vendor/
+
+# System files
+.DS_Store
+Thumbs.db
+
+# VS Code
+.vscode/

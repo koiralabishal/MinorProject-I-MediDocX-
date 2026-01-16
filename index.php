@@ -2,13 +2,13 @@
 session_start();
 
 
-include 'connection.php';
+include 'config/connection.php';
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
-require ("./PHPMailer/PHPMailer.php");
-require ("./PHPMailer/SMTP.php");
-require ("./PHPMailer/Exception.php");
+require("./PHPMailer/PHPMailer.php");
+require("./PHPMailer/SMTP.php");
+require("./PHPMailer/Exception.php");
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
   if (isset($_POST['verifyotp'])) {
@@ -82,14 +82,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       try {
         //Server settings
         $mail->isSMTP();
-        $mail->Host = 'smtp.gmail.com';
+        $mail->Host = getenv('SMTP_HOST') ?: 'smtp.gmail.com';
         $mail->SMTPAuth = true;
-        $mail->Username = 'koiralabishal3@gmail.com';
-        $mail->Password = 'rtvxlvouimebormx';
-        $mail->SMTPSecure = 'tls';
-        $mail->Port = 587;
+        $mail->Username = getenv('SMTP_USER') ?: 'koiralabishal3@gmail.com';
+        $mail->Password = getenv('SMTP_PASS') ?: 'rtvxlvouimebormx';
+        $mail->SMTPSecure = getenv('SMTP_SECURE') ?: 'tls';
+        $mail->Port = getenv('SMTP_PORT') ?: 587;
 
-        $mail->setFrom('koiralabishal3@gmail.com', 'MediDocX');
+        $mail->setFrom(getenv('SMTP_USER') ?: 'koiralabishal3@gmail.com', 'MediDocX');
         $mail->addAddress($email);
 
         // Content
@@ -356,7 +356,7 @@ if (isset($_GET['email']) && isset($_GET['v_code'])) {
 
 
 
-  
+
               });
 
 
@@ -405,19 +405,19 @@ if (isset($_GET['email']) && isset($_GET['v_code'])) {
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MedidocX</title>
-  <link rel="stylesheet" href="indexForm.css" />
-  <link rel="stylesheet" href="index2.css" />
+  <link rel="stylesheet" href="assets/css/indexForm.css" />
+  <link rel="stylesheet" href="assets/css/index2.css" />
 </head>
 
 <body>
-  <?php include "./loginForm.php" ?>
-  <?php include "./signupForm.php" ?>
+  <?php include "auth/loginForm.php" ?>
+  <?php include "auth/signupForm.php" ?>
   <div id="overlay"></div>
   <nav id="title">
     <div id="invisibleDiv"></div>
     <div id="titleText">
       <h1>MediDocX</h1>
-      
+
     </div>
 
     <div id="titleButtons">
@@ -429,7 +429,9 @@ if (isset($_GET['email']) && isset($_GET['v_code'])) {
   <main>
     <section>
       <article>
-        <div class="indexImage">Image</div>
+        <div class="indexImage">
+          <img src="assets/img/2.jpg" alt="MediDocX Hero Image" style="width: 100%; height: 100%; border-radius: 24px; object-fit: cover;">
+        </div>
       </article>
       <article>
         <h1>MediDocX</h1>
@@ -496,6 +498,6 @@ if (isset($_GET['email']) && isset($_GET['v_code'])) {
 
 
 </body>
-<script src="./script.php"></script>
+<script src="scripts/script.php"></script>
 
 </html>
